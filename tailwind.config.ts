@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// ECONOTRIP custom colors
+				econotrip: {
+					blue: '#0D3B66',
+					orange: '#FF8C42',
+					green: '#A1C181',
 				}
+			},
+			fontFamily: {
+				museomoderno: ['MuseoModerno', 'sans-serif'],
+				manrope: ['Manrope', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
