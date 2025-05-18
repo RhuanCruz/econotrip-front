@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
+import FlightDetailsScreen from "./pages/FlightDetailsScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/" element={<TelaBoasVindas />} />
           <Route path="/busca-voos" element={<TelaBuscaVoos />} />
           <Route path="/resultados-voos" element={<ResultsScreen />} />
+          <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

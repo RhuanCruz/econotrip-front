@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
@@ -49,10 +48,8 @@ export default function ResultsScreen() {
   const navigate = useNavigate();
 
   const handleViewDetails = (flightId: string) => {
-    // In a real app, we would navigate to the details page with the flight id
-    console.log(`Viewing details for flight ${flightId}`);
-    // This would be: navigate(`/detalhes-voo/${flightId}`);
-    alert(`Detalhes do voo ${flightId} seriam exibidos aqui.`);
+    // Navigate to the details page with the flight id
+    navigate(`/detalhes-voo`, { state: { flightId } });
   };
 
   const handleNewSearch = () => {
