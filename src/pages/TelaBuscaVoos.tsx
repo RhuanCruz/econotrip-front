@@ -1,5 +1,5 @@
-
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui-custom/Card";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 
 export default function TelaBuscaVoos() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     origem: "",
     destino: "",
@@ -43,9 +44,7 @@ export default function TelaBuscaVoos() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Dados da busca:", formData);
-    // Aqui seria feita a navegação para a página de resultados de voos
-    // navigate("/resultados-voos", { state: formData });
-    alert("Busca realizada! Redirecionando para resultados...");
+    navigate("/resultados-voos");
   };
 
   return (
