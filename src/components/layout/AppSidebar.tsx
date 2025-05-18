@@ -21,7 +21,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar defaultCollapsed={false} aria-label="Menu de navegação principal">
+    <Sidebar aria-label="Menu de navegação principal">
       <SidebarContent>
         <SidebarGroup className="px-2 pt-4">
           <div className="flex items-center justify-center mb-8 px-2">

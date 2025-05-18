@@ -17,7 +17,7 @@ export default function TelaBoasVindas() {
               Viagens aéreas simples, acessíveis e sustentáveis para você
             </p>
             <div className="flex justify-center">
-              <Button size="lg" asChild>
+              <Button size="lg">
                 <a href="/busca-voos">Começar</a>
               </Button>
             </div>

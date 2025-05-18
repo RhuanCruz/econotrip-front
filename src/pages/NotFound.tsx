@@ -13,7 +13,7 @@ export default function NotFound() {
         <p className="text-xl text-gray-600 mb-8">
           Desculpe, não conseguimos encontrar a página que você está procurando.
         </p>
-        <Button variant="primary" size="lg" asChild>
+        <Button variant="primary" size="lg">
           <a href="/">Voltar ao início</a>
         </Button>
       </div>
