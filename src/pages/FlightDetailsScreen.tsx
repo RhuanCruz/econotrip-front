@@ -4,8 +4,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
-import { Plane, Clock, Luggage, Shield, Leaf, Accessibility } from "lucide-react";
+import { Plane, Clock, Luggage, Shield, Leaf, Accessibility, ArrowLeft, HelpCircle, Check } from "lucide-react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Mock flight data that would normally be passed via location state
 const mockFlightDetails = {
@@ -46,108 +47,170 @@ export default function FlightDetailsScreen() {
 
   return (
     <LayoutBase>
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-museomoderno font-bold text-econotrip-blue mb-8">
-          Detalhes do Voo
-        </h1>
+      <div className="max-w-5xl mx-auto relative pb-24">
+        {/* Modern Header with Back Button */}
+        <div className="flex items-center mb-6">
+          <button 
+            onClick={handleBack}
+            className="mr-3 touch-target p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Voltar para resultados"
+          >
+            <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
+          </button>
+          <div className="flex items-center">
+            <Plane className="h-8 w-8 text-econotrip-orange mr-3" />
+            <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
+              Detalhes do Voo
+            </h1>
+          </div>
+        </div>
 
-        <Card className="mb-8 p-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        {/* Main Content Card */}
+        <Card className="mb-8 p-6 rounded-2xl shadow-md">
+          {/* Origin-Destination Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 p-4 bg-gray-50 rounded-xl">
             <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <h2 className="text-2xl font-medium text-econotrip-blue">
-                  {flightDetails.origin} ({flightDetails.originCode})
-                </h2>
-                <span className="text-gray-500">→</span>
-                <h2 className="text-2xl font-medium text-econotrip-blue">
-                  {flightDetails.destination} ({flightDetails.destinationCode})
-                </h2>
+              <div className="flex items-center space-x-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full mb-1 overflow-hidden flex items-center justify-center">
+                    <span className="font-bold text-xs">BR</span>
+                  </div>
+                  <span className="text-xs font-medium">{flightDetails.originCode}</span>
+                </div>
+                <div className="flex-1 border-t-2 border-dashed border-gray-300 relative h-6">
+                  <Plane className="h-5 w-5 text-econotrip-blue absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full mb-1 overflow-hidden flex items-center justify-center">
+                    <span className="font-bold text-xs">PT</span>
+                  </div>
+                  <span className="text-xs font-medium">{flightDetails.destinationCode}</span>
+                </div>
               </div>
-              <p className="text-gray-600 mt-2">Data: {flightDetails.date}</p>
+              <div className="mt-3 flex justify-between px-2">
+                <div className="text-center">
+                  <h3 className="font-medium text-econotrip-blue">{flightDetails.origin}</h3>
+                </div>
+                <div className="text-center">
+                  <h3 className="font-medium text-econotrip-blue">{flightDetails.destination}</h3>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-econotrip-blue" />
+          
+          {/* Flight Details */}
+          <div className="space-y-6 text-lg">
+            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+              <Clock className="h-6 w-6 text-econotrip-blue" />
               <div>
-                <p className="font-medium text-econotrip-blue">Duração</p>
-                <p>{flightDetails.duration}</p>
+                <p className="font-medium text-econotrip-blue">Data e Duração</p>
+                <p className="text-gray-700">{flightDetails.date} • {flightDetails.duration}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Plane className="h-5 w-5 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+              <Plane className="h-6 w-6 text-econotrip-blue" />
               <div>
-                <p className="font-medium text-econotrip-blue">Escalas</p>
-                <p>{flightDetails.stops}</p>
+                <p className="font-medium text-econotrip-blue">Tipo de Voo</p>
+                <p className="text-gray-700">{flightDetails.stops}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Luggage className="h-5 w-5 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+              <Luggage className="h-6 w-6 text-econotrip-blue" />
               <div>
                 <p className="font-medium text-econotrip-blue">Bagagem incluída</p>
-                <p>{flightDetails.baggage}</p>
+                <p className="text-gray-700">{flightDetails.baggage}</p>
               </div>
             </div>
 
             {flightDetails.isLowEmission && (
-              <div className="flex items-center gap-3">
-                <Leaf className="h-5 w-5 text-econotrip-green" />
+              <div className="flex items-center gap-4 p-3 bg-econotrip-green/10 rounded-xl">
+                <Leaf className="h-6 w-6 text-econotrip-green" />
                 <div>
                   <p className="font-medium text-econotrip-green">Emissão de carbono</p>
-                  <p>Baixa emissão de carbono</p>
+                  <p className="text-gray-700">Baixa emissão de carbono</p>
                 </div>
               </div>
             )}
 
             {flightDetails.isAccessible && (
-              <div className="flex items-center gap-3">
-                <Accessibility className="h-5 w-5 text-econotrip-blue" />
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+                <Accessibility className="h-6 w-6 text-econotrip-blue" />
                 <div>
                   <p className="font-medium text-econotrip-blue">Acessibilidade</p>
-                  <p>Assentos preferenciais e assistência no embarque</p>
+                  <p className="text-gray-700">Assentos preferenciais e assistência no embarque</p>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+              <Shield className="h-6 w-6 text-econotrip-blue" />
               <div>
                 <p className="font-medium text-econotrip-blue">Política de cancelamento</p>
-                <p>{flightDetails.cancellationPolicy}</p>
+                <p className="text-gray-700">{flightDetails.cancellationPolicy}</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 border-t border-gray-200 pt-6">
+          {/* Price Section */}
+          <div className="mt-10 border-t border-gray-200 pt-8">
             <div className="text-center mb-6">
-              <p className="text-gray-600 text-sm mb-1">Preço por pessoa</p>
-              <p className="text-3xl md:text-4xl font-bold text-econotrip-orange">
+              <p className="text-gray-600 text-lg mb-2">Preço por pessoa</p>
+              <p className="text-4xl md:text-5xl font-bold text-econotrip-orange">
                 R$ {flightDetails.price.toLocaleString("pt-BR", {
                   minimumFractionDigits: 2,
                 })}
               </p>
             </div>
 
-            <div className="flex justify-center">
+            {/* "Voltar para resultados" button */}
+            <div className="flex justify-center mt-8">
               <Button
-                variant="primary"
-                size="lg"
-                onClick={handleReserveFlight}
-                className="w-full md:w-auto"
+                variant="secondary"
+                onClick={handleBack}
+                icon={ArrowLeft}
+                iconPosition="left"
+                className="text-lg"
               >
-                Reservar este voo
+                Voltar para resultados
               </Button>
             </div>
           </div>
         </Card>
 
-        <div className="flex justify-center">
-          <Button variant="secondary" onClick={handleBack}>
-            Voltar para resultados
-          </Button>
+        {/* Floating Help Button */}
+        <div className="fixed bottom-24 right-6">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors"
+                  aria-label="Ajuda rápida"
+                >
+                  <HelpCircle className="h-7 w-7" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-medium">Ajuda rápida</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* Fixed Bottom CTA Button */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-md">
+          <div className="max-w-5xl mx-auto">
+            <Button
+              variant="primary"
+              size="lg"
+              icon={Check}
+              onClick={handleReserveFlight}
+              className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] text-white text-xl rounded-xl h-16"
+            >
+              Reservar este voo
+            </Button>
+          </div>
         </div>
       </div>
     </LayoutBase>
