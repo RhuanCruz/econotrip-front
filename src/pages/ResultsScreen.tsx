@@ -1,9 +1,10 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
-import { LeafyGreen, Accessibility } from "lucide-react";
+import { Leaf, Accessibility } from "lucide-react";
 
 const mockFlights = [
   {
@@ -94,7 +95,7 @@ export default function ResultsScreen() {
                 <div className="flex flex-wrap items-center gap-4 mb-6">
                   {flight.isLowEmission && (
                     <div className="flex items-center text-econotrip-green">
-                      <LeafyGreen className="h-5 w-5 mr-1" />
+                      <Leaf className="h-5 w-5 mr-1" />
                       <span>Baixa emissão de carbono</span>
                     </div>
                   )}

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
-import { Plane, Clock, Bag, Shield, Leaf, Wheelchair } from "lucide-react";
+import { Plane, Clock, Luggage, Shield, Leaf, Accessibility } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock flight data that would normally be passed via location state
@@ -85,7 +85,7 @@ export default function FlightDetailsScreen() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Bag className="h-5 w-5 text-econotrip-blue" />
+              <Luggage className="h-5 w-5 text-econotrip-blue" />
               <div>
                 <p className="font-medium text-econotrip-blue">Bagagem incluída</p>
                 <p>{flightDetails.baggage}</p>
@@ -104,7 +104,7 @@ export default function FlightDetailsScreen() {
 
             {flightDetails.isAccessible && (
               <div className="flex items-center gap-3">
-                <Wheelchair className="h-5 w-5 text-econotrip-blue" />
+                <Accessibility className="h-5 w-5 text-econotrip-blue" />
                 <div>
                   <p className="font-medium text-econotrip-blue">Acessibilidade</p>
                   <p>Assentos preferenciais e assistência no embarque</p>
