@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
@@ -35,10 +34,8 @@ export default function FlightDetailsScreen() {
   const flightDetails = mockFlightDetails;
 
   const handleReserveFlight = () => {
-    // In a real app, this would navigate to the checkout screen
-    // navigate("/checkout", { state: { flightId: flightDetails.id } });
-    toast.success("Reserva iniciada! Checkout em implementação.");
-    console.log("Reserving flight:", flightDetails.id);
+    // Navigate to the checkout screen
+    navigate("/checkout");
   };
 
   const handleBack = () => {
