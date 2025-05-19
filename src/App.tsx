@@ -10,6 +10,7 @@ import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
 import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
 import CheckoutScreen from "./pages/CheckoutScreen";
+import ConfirmationScreen from "./pages/ConfirmationScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/resultados-voos" element={<ResultsScreen />} />
           <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
           <Route path="/checkout" element={<CheckoutScreen />} />
+          <Route path="/confirmacao" element={<ConfirmationScreen />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

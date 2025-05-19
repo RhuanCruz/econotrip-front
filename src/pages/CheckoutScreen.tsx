@@ -45,7 +45,7 @@ export default function CheckoutScreen() {
   const navigate = useNavigate();
 
   const handleFinishPurchase = () => {
-    // In a real app, this would navigate to the confirmation screen
+    // Navigate to the confirmation screen
     navigate("/confirmacao");
   };
 
