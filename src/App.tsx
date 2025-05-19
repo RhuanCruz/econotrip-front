@@ -8,7 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
-import FlightDetailsScreen from "./pages/FlightDetailsScreen";
+import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
 import CheckoutScreen from "./pages/CheckoutScreen";
 import NotFound from "./pages/NotFound";
 
