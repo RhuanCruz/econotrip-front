@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
             icon={ArrowRight}
             iconPosition="right"
             className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14"
-            onClick={() => navigate("/busca-voos")}
+            onClick={() => navigate("/login")}
           >
             Começar
           </Button>

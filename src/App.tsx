@@ -16,6 +16,8 @@ import LoyaltyScreen from "./pages/LoyaltyScreen";
 import SupportScreen from "./pages/SupportScreen";
 import NotFound from "./pages/NotFound";
 import WelcomeScreen from "./pages/WelcomeScreen";
+import LoginScreen from "./pages/LoginScreen";
+import RegisterScreen from "./pages/RegisterScreen";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/perfil" element={<ProfileScreen />} />
           <Route path="/fidelidade" element={<LoyaltyScreen />} />
           <Route path="/suporte" element={<SupportScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/registro" element={<RegisterScreen />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
