@@ -17,7 +17,7 @@ export function AppSidebar() {
     { label: "Meus Voos", href: "/meus-voos" },
     { label: "Destinos Sustentáveis", href: "/destinos-sustentaveis" },
     { label: "Meu Perfil", href: "/perfil" },
-    { label: "Suporte", href: "/suporte" },
+    { label: "Central de Ajuda", href: "/suporte" },
   ];
 
   return (
