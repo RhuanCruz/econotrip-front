@@ -15,6 +15,7 @@ import ProfileScreen from "./pages/ProfileScreen";
 import LoyaltyScreen from "./pages/LoyaltyScreen";
 import SupportScreen from "./pages/SupportScreen";
 import NotFound from "./pages/NotFound";
+import WelcomeScreen from "./pages/WelcomeScreen";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +26,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<TelaBoasVindas />} />
+          <Route path="/" element={<WelcomeScreen />} />
+          <Route path="/bem-vindo" element={<TelaBoasVindas />} />
           <Route path="/busca-voos" element={<TelaBuscaVoos />} />
           <Route path="/resultados-voos" element={<ResultsScreen />} />
           <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />

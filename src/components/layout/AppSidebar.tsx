@@ -13,6 +13,7 @@ import {
 
 export function AppSidebar() {
   const menuItems = [
+    { label: "Início", href: "/" },
     { label: "Buscar Voos", href: "/busca-voos" },
     { label: "Meus Voos", href: "/meus-voos" },
     { label: "Destinos Sustentáveis", href: "/destinos-sustentaveis" },
