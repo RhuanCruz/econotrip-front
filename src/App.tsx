@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
+import RecoverPasswordScreen from "./pages/RecoverPasswordScreen";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/suporte" element={<SupportScreen />} />
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/registro" element={<RegisterScreen />} />
+          <Route path="/recuperar-senha" element={<RecoverPasswordScreen />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
