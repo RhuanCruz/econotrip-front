@@ -12,6 +12,7 @@ import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
 import CheckoutScreen from "./pages/CheckoutScreen";
 import ConfirmationScreen from "./pages/ConfirmationScreen";
 import ProfileScreen from "./pages/ProfileScreen";
+import LoyaltyScreen from "./pages/LoyaltyScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/checkout" element={<CheckoutScreen />} />
           <Route path="/confirmacao" element={<ConfirmationScreen />} />
           <Route path="/perfil" element={<ProfileScreen />} />
+          <Route path="/fidelidade" element={<LoyaltyScreen />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
