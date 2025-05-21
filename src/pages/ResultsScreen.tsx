@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
-import { Leaf, Accessibility, Clock, DollarSign, BarChart2 } from "lucide-react";
+import { Leaf, Accessibility, Clock, DollarSign, BarChart2, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { 
   BarChart, 
@@ -13,7 +13,6 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip as RechartsTooltip, 
-  Legend, 
   ResponsiveContainer,
   Cell
 } from "recharts";
@@ -145,42 +144,42 @@ export default function ResultsScreen() {
 
   return (
     <LayoutBase>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-xl mx-auto pb-24">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-museomoderno font-bold text-econotrip-blue">
+          <div className="flex flex-col items-start mb-6">
+            <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-4">
               Voos encontrados
             </h1>
             
-            <div className="mt-4 md:mt-0 flex gap-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      onClick={handleToggleComparison}
-                      icon={BarChart2}
-                    >
-                      {showComparison ? "Ocultar comparação" : "Comparar voos"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Compare preços, tempo de voo e emissões</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    onClick={handleToggleComparison}
+                    icon={BarChart2}
+                    className="w-full mb-2 h-12 text-lg"
+                    aria-label={showComparison ? "Ocultar comparação de voos" : "Comparar voos"}
+                  >
+                    {showComparison ? "Ocultar comparação" : "Comparar voos"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compare preços, tempo de voo e emissões</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </motion.div>
         
         {/* Flight Comparison Charts */}
         {showComparison && (
           <motion.div 
-            className="mb-8"
+            className="mb-6"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -188,27 +187,34 @@ export default function ResultsScreen() {
           >
             <Card className="p-4 mb-6 border-econotrip-blue">
               <h2 className="text-xl font-bold text-econotrip-blue mb-4 flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+                <DollarSign className="h-5 w-5" aria-hidden="true" />
                 Comparação de preços
               </h2>
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={priceData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                    layout="vertical"
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 14 }} />
-                    <YAxis 
+                    <XAxis 
+                      type="number" 
                       tick={{ fontSize: 14 }} 
-                      tickFormatter={(value) => `R$${value}`} 
+                      tickFormatter={(value) => `R$${value}`}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 14 }}
+                      width={80}
                     />
                     <RechartsTooltip 
                       formatter={(value) => [`R$ ${value}`, "Preço"]} 
                       labelStyle={{ fontSize: 14 }}
                       contentStyle={{ fontSize: 16 }}
                     />
-                    <Bar dataKey="value" name="Preço (R$)" radius={[8, 8, 0, 0]}>
+                    <Bar dataKey="value" name="Preço (R$)" radius={[0, 8, 8, 0]}>
                       {priceData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
@@ -220,27 +226,34 @@ export default function ResultsScreen() {
             
             <Card className="p-4 mb-6 border-econotrip-orange">
               <h2 className="text-xl font-bold text-econotrip-blue mb-4 flex items-center gap-2">
-                <Clock className="h-5 w-5" />
+                <Clock className="h-5 w-5" aria-hidden="true" />
                 Duração do voo
               </h2>
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={durationData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                    layout="vertical"
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 14 }} />
-                    <YAxis 
+                    <XAxis 
+                      type="number" 
                       tick={{ fontSize: 14 }}
-                      tickFormatter={(value) => `${Math.floor(value/60)}h${value%60}m`}
+                      tickFormatter={(value) => `${Math.floor(value/60)}h`}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 14 }}
+                      width={80}
                     />
                     <RechartsTooltip 
                       formatter={(value) => [formatDuration(value as number), "Duração"]}
                       labelStyle={{ fontSize: 14 }}
                       contentStyle={{ fontSize: 16 }}
                     />
-                    <Bar dataKey="value" name="Duração" radius={[8, 8, 0, 0]}>
+                    <Bar dataKey="value" name="Duração" radius={[0, 8, 8, 0]}>
                       {durationData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
@@ -252,27 +265,34 @@ export default function ResultsScreen() {
             
             <Card className="p-4 mb-6 border-econotrip-green">
               <h2 className="text-xl font-bold text-econotrip-blue mb-4 flex items-center gap-2">
-                <Leaf className="h-5 w-5" />
+                <Leaf className="h-5 w-5" aria-hidden="true" />
                 Emissão de carbono
               </h2>
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={emissionsData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 30 }}
+                    layout="vertical"
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 14 }} />
-                    <YAxis 
+                    <XAxis 
+                      type="number" 
                       tick={{ fontSize: 14 }}
                       tickFormatter={(value) => `${value}kg`}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 14 }}
+                      width={80}
                     />
                     <RechartsTooltip 
                       formatter={(value) => [`${value} kg CO₂`, "Emissão"]}
                       labelStyle={{ fontSize: 14 }}
                       contentStyle={{ fontSize: 16 }}
                     />
-                    <Bar dataKey="value" name="Emissão CO₂ (kg)" radius={[8, 8, 0, 0]}>
+                    <Bar dataKey="value" name="Emissão CO₂ (kg)" radius={[0, 8, 8, 0]}>
                       {emissionsData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
@@ -288,7 +308,7 @@ export default function ResultsScreen() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="space-y-6"
+          className="space-y-4"
         >
           {mockFlights.map((flight, index) => (
             <motion.div
@@ -298,37 +318,31 @@ export default function ResultsScreen() {
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               <Card className="transition-all hover:shadow-md">
-                <div className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h3 className="text-2xl font-medium text-econotrip-blue">
-                          {flight.origin} ({flight.originCode})
+                <div className="p-5">
+                  <div className="flex flex-col mb-4">
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-xl font-medium text-econotrip-blue">
+                          {flight.originCode} → {flight.destinationCode}
                         </h3>
-                        <span className="text-gray-500">→</span>
-                        <h3 className="text-2xl font-medium text-econotrip-blue">
-                          {flight.destination} ({flight.destinationCode})
-                        </h3>
+                        <span className="text-lg font-bold text-econotrip-orange">
+                          R$ {flight.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
                       </div>
-                      <p className="text-gray-600 mt-2">Data: {flight.date}</p>
-                      <p className="text-gray-600">Duração: {formatDuration(flight.duration)}</p>
-                    </div>
-                    <div className="mt-4 md:mt-0 text-right">
-                      <p className="text-gray-600 text-sm mb-1">Preço por pessoa</p>
-                      <p className="text-2xl md:text-3xl font-bold text-econotrip-orange">
-                        R$ {flight.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
+                      <div className="text-gray-600 text-base mb-1">{flight.origin} para {flight.destination}</div>
+                      <div className="text-gray-600 text-base">Data: {flight.date}</div>
+                      <div className="text-gray-600 text-base">Duração: {formatDuration(flight.duration)}</div>
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
                     {flight.isLowEmission && (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <div className="flex items-center text-econotrip-green">
-                              <Leaf className="h-5 w-5 mr-1" />
-                              <span>Baixa emissão de carbono</span>
+                            <div className="flex items-center text-econotrip-green bg-econotrip-green/10 px-3 py-1 rounded-full">
+                              <Leaf className="h-5 w-5 mr-1" aria-hidden="true" />
+                              <span className="text-sm font-medium">Baixa emissão</span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -342,9 +356,9 @@ export default function ResultsScreen() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <div className="flex items-center text-econotrip-blue">
-                              <Accessibility className="h-5 w-5 mr-1" />
-                              <span>Acessível para passageiros com mobilidade reduzida</span>
+                            <div className="flex items-center text-econotrip-blue bg-econotrip-blue/10 px-3 py-1 rounded-full">
+                              <Accessibility className="h-5 w-5 mr-1" aria-hidden="true" />
+                              <span className="text-sm font-medium">Acessível</span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -358,8 +372,8 @@ export default function ResultsScreen() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <div className="flex items-center text-econotrip-orange">
-                              <span className="font-semibold">✓ Melhor custo-benefício</span>
+                            <div className="flex items-center text-econotrip-orange bg-econotrip-orange/10 px-3 py-1 rounded-full">
+                              <span className="text-sm font-medium">✓ Melhor custo-benefício</span>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -370,11 +384,13 @@ export default function ResultsScreen() {
                     )}
                   </div>
                   
-                  <div className="flex justify-end">
+                  <div className="flex justify-center">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button 
-                        variant="secondary" 
+                        variant="primary"
                         onClick={() => handleViewDetails(flight.id)}
+                        className="w-full h-12 text-lg"
+                        aria-label={`Ver detalhes do voo de ${flight.origin} para ${flight.destination}`}
                       >
                         Ver detalhes
                       </Button>
@@ -386,13 +402,16 @@ export default function ResultsScreen() {
           ))}
         </motion.div>
         
-        <div className="mt-8 flex justify-center">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <div className="fixed bottom-24 left-0 right-0 px-6 pb-4 z-10">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full">
             <Button 
               variant="primary"
               size="lg"
               onClick={handleNewSearch}
-              className="mb-16"
+              className="w-full h-16 text-xl rounded-xl shadow-md"
+              icon={ChevronLeft}
+              iconPosition="left"
+              aria-label="Realizar nova busca de voos"
             >
               Nova busca
             </Button>

@@ -8,6 +8,7 @@ import {
   HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export function BottomNavigation() {
   const navigate = useNavigate();
@@ -56,12 +57,17 @@ export function BottomNavigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-      <div className="max-w-screen-xl mx-auto px-4">
+    <motion.nav 
+      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 pb-safe"
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", damping: 20 }}
+    >
+      <div className="max-w-xl mx-auto px-4">
         <ul className="flex justify-around items-center">
           {navigationItems.map((item) => (
             <li key={item.name} className="flex-1">
-              <button
+              <motion.button
                 onClick={() => navigate(item.route)}
                 className={cn(
                   "w-full py-4 flex flex-col items-center justify-center touch-target transition-colors",
@@ -70,6 +76,7 @@ export function BottomNavigation() {
                     : "text-gray-400 hover:text-gray-600"
                 )}
                 aria-label={`Navegar para ${item.name}`}
+                whileTap={{ scale: 0.9 }}
               >
                 <item.icon
                   className={cn(
@@ -79,16 +86,16 @@ export function BottomNavigation() {
                   aria-hidden="true"
                 />
                 <span className={cn(
-                  "text-sm font-medium",
+                  "text-base font-medium",
                   item.isActive ? "font-semibold" : ""
                 )}>
                   {item.name}
                 </span>
-              </button>
+              </motion.button>
             </li>
           ))}
         </ul>
       </div>
-    </nav>
+    </motion.nav>
   );
 }

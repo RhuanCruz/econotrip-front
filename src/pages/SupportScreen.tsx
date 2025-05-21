@@ -83,7 +83,7 @@ export default function SupportScreen() {
   return (
     <LayoutBase>
       <motion.div 
-        className="max-w-4xl mx-auto py-6 pb-24 px-4"
+        className="max-w-xl mx-auto pb-24"
         variants={containerAnimation}
         initial="hidden"
         animate="show"
@@ -93,15 +93,15 @@ export default function SupportScreen() {
           className="flex items-center gap-3 mb-8"
           variants={itemAnimation}
         >
-          <Headphones className="h-8 w-8 text-econotrip-blue" aria-hidden="true" />
-          <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
+          <Headphones className="h-8 w-8 text-econotrip-blue" aria-hidden="true" aria-label="Ícone de fone de ouvido" />
+          <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue">
             Central de Ajuda
           </h1>
         </motion.div>
 
         {/* FAQ Section */}
         <motion.div className="mb-8" variants={itemAnimation}>
-          <h2 className="text-xl md:text-2xl font-museomoderno font-bold text-econotrip-blue mb-4">
+          <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
             Perguntas Frequentes
           </h2>
           <Accordion type="single" collapsible className="w-full">
@@ -170,10 +170,10 @@ export default function SupportScreen() {
 
         {/* Direct Support Section */}
         <motion.div className="mb-8" variants={itemAnimation}>
-          <h2 className="text-xl md:text-2xl font-museomoderno font-bold text-econotrip-blue mb-4">
+          <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
             Atendimento Direto
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <motion.div 
               whileHover={{ scale: 1.03 }} 
               whileTap={{ scale: 0.98 }}
@@ -181,7 +181,7 @@ export default function SupportScreen() {
             >
               <Card className="p-6 rounded-2xl shadow-md bg-[#5FB4E8]/20 border-[#5FB4E8]">
                 <div className="flex flex-col items-center text-center">
-                  <Phone className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" />
+                  <Phone className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" aria-label="Ícone de telefone" />
                   <h3 className="text-xl font-bold text-econotrip-blue mb-2">Fale com um atendente</h3>
                   <p className="mb-4 text-lg">Atendimento por telefone das 8h às 20h</p>
                   <motion.div 
@@ -193,7 +193,8 @@ export default function SupportScreen() {
                       size="lg"
                       icon={Phone}
                       onClick={handleCallSupport}
-                      className="w-full md:w-auto touch-target"
+                      className="w-full touch-target h-14"
+                      aria-label="Ligar para suporte técnico"
                     >
                       Ligar para 0800 123 456
                     </Button>
@@ -209,7 +210,7 @@ export default function SupportScreen() {
             >
               <Card className="p-6 rounded-2xl shadow-md bg-[#5FB4E8]/20 border-[#5FB4E8]">
                 <div className="flex flex-col items-center text-center">
-                  <MessageCircle className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" />
+                  <MessageCircle className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" aria-label="Ícone de mensagem" />
                   <h3 className="text-xl font-bold text-econotrip-blue mb-2">Chat com suporte</h3>
                   <p className="mb-4 text-lg">Converse com nossos atendentes online</p>
                   <motion.div 
@@ -221,7 +222,8 @@ export default function SupportScreen() {
                       size="lg"
                       icon={MessageCircle}
                       onClick={handleChatSupport}
-                      className="w-full md:w-auto touch-target"
+                      className="w-full touch-target h-14"
+                      aria-label="Iniciar chat com suporte"
                     >
                       Iniciar conversa
                     </Button>
@@ -234,7 +236,7 @@ export default function SupportScreen() {
 
         {/* Accessible Help Section */}
         <motion.div className="mb-12" variants={itemAnimation}>
-          <h2 className="text-xl md:text-2xl font-museomoderno font-bold text-econotrip-blue mb-4">
+          <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
             Ajuda Acessível
           </h2>
           <motion.div 
@@ -244,7 +246,7 @@ export default function SupportScreen() {
           >
             <Card className="p-6 rounded-2xl shadow-md border-[#A8CF45] bg-[#A8CF45]/10">
               <div className="flex flex-col items-center text-center">
-                <Volume2 className="h-12 w-12 text-[#A8CF45] mb-4" aria-hidden="true" />
+                <Volume2 className="h-12 w-12 text-[#A8CF45] mb-4" aria-hidden="true" aria-label="Ícone de volume" />
                 <h3 className="text-xl font-bold text-econotrip-blue mb-2">Modo Leitura em Voz Alta</h3>
                 <p className="mb-4 text-lg">Ative esta opção para que o conteúdo seja lido para você</p>
                 <TooltipProvider>
@@ -259,8 +261,9 @@ export default function SupportScreen() {
                           size="lg"
                           icon={Volume2}
                           onClick={toggleVoiceMode}
-                          className={`w-full md:w-auto touch-target ${voiceMode ? "bg-green-600 text-white" : "bg-[#A8CF45] hover:bg-[#A8CF45]/90"}`}
+                          className={`w-full touch-target h-14 ${voiceMode ? "bg-green-600 text-white" : "bg-[#A8CF45] hover:bg-[#A8CF45]/90"}`}
                           aria-pressed={voiceMode}
+                          aria-label={voiceMode ? "Desativar modo de leitura" : "Ativar modo de leitura"}
                         >
                           {voiceMode ? "Desativar Modo Leitura" : "Ativar Modo Leitura"}
                         </Button>
@@ -277,10 +280,11 @@ export default function SupportScreen() {
         </motion.div>
 
         {/* Back to Home Button - Fixed at Bottom */}
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10 mb-16">
+        <div className="fixed bottom-24 left-0 right-0 flex justify-center z-10 px-6">
           <motion.div 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            className="w-full"
           >
             <Button
               variant="primary"
@@ -288,32 +292,12 @@ export default function SupportScreen() {
               icon={ChevronLeft}
               iconPosition="left"
               onClick={handleBackToHome}
-              className="bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] text-white text-xl rounded-full h-16 shadow-lg px-10 touch-target"
+              className="bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] text-white text-xl rounded-xl h-16 shadow-lg w-full touch-target"
+              aria-label="Voltar para a página inicial"
             >
               Voltar para tela inicial
             </Button>
           </motion.div>
-        </div>
-
-        {/* Floating Help Button */}
-        <div className="fixed bottom-20 right-6 z-10">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <motion.button
-                  className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors touch-target"
-                  aria-label="Precisa de ajuda?"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <HelpCircle className="h-7 w-7" />
-                </motion.button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="font-medium">Precisa de ajuda?</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </motion.div>
     </LayoutBase>
