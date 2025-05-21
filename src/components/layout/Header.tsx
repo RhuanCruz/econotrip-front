@@ -19,8 +19,8 @@ export function Header({ userName }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm h-16 px-4 flex items-center justify-between w-full">
-      <div className="max-w-screen-sm mx-auto w-full flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 shadow-sm h-16 px-4 md:px-6 flex items-center justify-between w-full overflow-hidden">
+      <div className="max-w-screen-sm mx-auto w-full flex items-center justify-between gap-x-4">
         <div className="flex items-center">
           {showBackButton ? (
             <button 
@@ -45,7 +45,7 @@ export function Header({ userName }: HeaderProps) {
             Olá, {userName}
           </div>
         ) : (
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-end">
             <Link 
               to="/login" 
               className="text-econotrip-blue hover:text-econotrip-blue/80 font-medium text-base md:text-lg touch-target py-2 px-3 md:px-4"

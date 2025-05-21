@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui-custom/Input";
@@ -6,6 +7,7 @@ import { Checkbox } from "@/components/ui-custom/Checkbox";
 import { Card } from "@/components/ui-custom/Card";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { motion } from "framer-motion";
+import { AssistButton } from "@/components/ui-custom/AssistButton";
 
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
@@ -238,6 +240,9 @@ export default function TelaBuscaVoos() {
           Buscar Voos
         </Button>
       </motion.div>
+      
+      {/* The AssistButton component will handle visibility itself */}
+      <AssistButton tooltipText="Ajuda com busca de voos" />
     </div>
   );
 }
