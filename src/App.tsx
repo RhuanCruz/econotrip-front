@@ -9,7 +9,7 @@ import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
 import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
-import CheckoutScreen from "./pages/CheckoutScreen";
+import CheckoutScreen from "./pages/Checkout/CheckoutScreen";
 import ConfirmationScreen from "./pages/ConfirmationScreen";
 import ProfileScreen from "./pages/ProfileScreen";
 import EditProfileScreen from "./pages/EditProfileScreen";
