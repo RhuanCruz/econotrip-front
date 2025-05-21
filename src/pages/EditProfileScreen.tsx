@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui-custom/Input";
@@ -189,25 +190,25 @@ export default function EditProfileScreen() {
           </div>
         </form>
       )}
-    </div>
-
-    {/* Floating Help Button */}
-    <div className="fixed bottom-6 right-6">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors touch-target"
-              aria-label="Ajuda com seus dados"
-            >
-              <HelpCircle className="h-7 w-7" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="font-medium">Ajuda com seus dados</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      
+      {/* Floating Help Button */}
+      <div className="fixed bottom-6 right-6">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors touch-target"
+                aria-label="Ajuda com seus dados"
+              >
+                <HelpCircle className="h-7 w-7" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-medium">Ajuda com seus dados</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }
