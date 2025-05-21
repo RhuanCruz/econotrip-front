@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -13,13 +14,13 @@ export function Header({ userName }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm py-4 px-6 flex items-center justify-between">
       <div className="flex items-center">
-        {isMobile && <SidebarTrigger className="mr-4 touch-target" />}
-        <div className="flex items-center">
+        {isMobile && <SidebarTrigger className="mr-4 touch-target" aria-label="Abrir menu" />}
+        <Link to="/" className="flex items-center" aria-label="Ir para página inicial">
           <div className="font-museomoderno font-bold text-2xl text-econotrip-blue mr-2">
             ECONOTRIP
           </div>
           <span className="text-econotrip-orange font-medium">PrimeVoyage</span>
-        </div>
+        </Link>
       </div>
       {userName ? (
         <div className="text-lg font-medium text-econotrip-blue">
@@ -27,18 +28,20 @@ export function Header({ userName }: HeaderProps) {
         </div>
       ) : (
         <div className="flex items-center gap-4">
-          <a 
-            href="/login" 
-            className="text-econotrip-blue hover:text-econotrip-blue/80 font-medium text-lg"
+          <Link 
+            to="/login" 
+            className="text-econotrip-blue hover:text-econotrip-blue/80 font-medium text-lg touch-target py-2 px-4"
+            aria-label="Entrar na sua conta"
           >
             Entrar
-          </a>
-          <a 
-            href="/cadastro"
-            className="bg-econotrip-orange hover:bg-econotrip-orange/90 text-white font-medium py-2 px-6 rounded-md text-lg"
+          </Link>
+          <Link 
+            to="/registro"
+            className="bg-econotrip-orange hover:bg-econotrip-orange/90 text-white font-medium py-3 px-6 rounded-full text-lg touch-target"
+            aria-label="Criar nova conta"
           >
             Cadastrar
-          </a>
+          </Link>
         </div>
       )}
     </header>
