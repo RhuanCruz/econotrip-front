@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
@@ -29,24 +30,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<WelcomeScreen />} />
-          <Route path="/bem-vindo" element={<TelaBoasVindas />} />
-          <Route path="/busca-voos" element={<TelaBuscaVoos />} />
-          <Route path="/resultados-voos" element={<ResultsScreen />} />
-          <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
-          <Route path="/checkout" element={<CheckoutScreen />} />
-          <Route path="/confirmacao" element={<ConfirmationScreen />} />
-          <Route path="/perfil" element={<ProfileScreen />} />
-          <Route path="/editar-perfil" element={<EditProfileScreen />} />
-          <Route path="/fidelidade" element={<LoyaltyScreen />} />
-          <Route path="/suporte" element={<SupportScreen />} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/registro" element={<RegisterScreen />} />
-          <Route path="/recuperar-senha" element={<RecoverPasswordScreen />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<WelcomeScreen />} />
+            <Route path="/bem-vindo" element={<TelaBoasVindas />} />
+            <Route path="/busca-voos" element={<TelaBuscaVoos />} />
+            <Route path="/resultados-voos" element={<ResultsScreen />} />
+            <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
+            <Route path="/checkout" element={<CheckoutScreen />} />
+            <Route path="/confirmacao" element={<ConfirmationScreen />} />
+            <Route path="/perfil" element={<ProfileScreen />} />
+            <Route path="/editar-perfil" element={<EditProfileScreen />} />
+            <Route path="/fidelidade" element={<LoyaltyScreen />} />
+            <Route path="/suporte" element={<SupportScreen />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/registro" element={<RegisterScreen />} />
+            <Route path="/recuperar-senha" element={<RecoverPasswordScreen />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AnimatePresence>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

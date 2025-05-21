@@ -5,6 +5,7 @@ import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { ScreenContainer } from "./ScreenContainer";
+import { BottomNavigation } from "./BottomNavigation";
 
 interface LayoutBaseProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export function LayoutBase({ children, userName, className }: LayoutBaseProps) {
             </ScreenContainer>
           </div>
           <Footer />
+          <BottomNavigation />
         </main>
       </div>
     </SidebarProvider>
