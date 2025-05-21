@@ -1,20 +1,15 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderProps {
   userName?: string;
 }
 
 export function Header({ userName }: HeaderProps) {
-  const isMobile = useIsMobile();
-
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm py-4 px-6 flex items-center justify-between">
       <div className="flex items-center">
-        {isMobile && <SidebarTrigger className="mr-4 touch-target" aria-label="Abrir menu" />}
         <Link to="/" className="flex items-center" aria-label="Ir para página inicial">
           <div className="font-museomoderno font-bold text-2xl text-econotrip-blue mr-2">
             ECONOTRIP
