@@ -1,7 +1,5 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
 import { Checkbox } from "@/components/ui-custom/Checkbox";
@@ -63,12 +61,11 @@ export default function TelaBuscaVoos() {
   };
 
   return (
-    <LayoutBase>
+    <div className="max-w-xl mx-auto">
       <motion.div
         variants={containerAnimation}
         initial="hidden"
         animate="visible"
-        className="max-w-xl mx-auto"
       >
         <motion.h1 
           variants={itemAnimation}
@@ -241,6 +238,6 @@ export default function TelaBuscaVoos() {
           Buscar Voos
         </Button>
       </motion.div>
-    </LayoutBase>
+    </div>
   );
 }

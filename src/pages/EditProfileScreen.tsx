@@ -1,7 +1,5 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
@@ -61,157 +59,155 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <LayoutBase userName="Maria">
-      <div className="max-w-2xl mx-auto py-6 pb-24">
-        <div className="flex items-center gap-2 mb-6">
-          <button 
-            onClick={handleCancel}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-target"
-            aria-label="Voltar para perfil"
-          >
-            <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
-          </button>
-          <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
-            Editar Perfil
-          </h1>
-        </div>
-
-        {showSuccess ? (
-          <AlertBox
-            type="success"
-            title="Perfil atualizado com sucesso!"
-            icon={CheckCircle}
-            className="mb-6"
-          >
-            <p>
-              Suas informações pessoais foram atualizadas. 
-              Redirecionando para a página de perfil...
-            </p>
-          </AlertBox>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              type="text"
-              name="fullName"
-              label="Nome Completo"
-              icon={User}
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder="Digite seu nome completo"
-              required
-              aria-label="Nome completo"
-            />
-
-            <Input
-              type="email"
-              name="email"
-              label="E-mail"
-              icon={Mail}
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Digite seu e-mail"
-              required
-              aria-label="E-mail"
-            />
-
-            <Input
-              type="date"
-              name="birthDate"
-              label="Data de Nascimento"
-              icon={Calendar}
-              value={formData.birthDate}
-              onChange={handleChange}
-              required
-              className="text-base"
-              aria-label="Data de nascimento"
-            />
-
-            <Input
-              type="text"
-              name="cpf"
-              label="CPF"
-              value={formData.cpf}
-              onChange={handleChange}
-              placeholder="000.000.000-00"
-              required
-              aria-label="CPF"
-              className="font-mono"
-            />
-
-            <div className="border-t border-gray-200 pt-6 mt-6">
-              <h2 className="text-xl font-museomoderno font-medium text-econotrip-blue mb-4">
-                Alterar Senha <span className="text-gray-500 text-base">(opcional)</span>
-              </h2>
-              
-              <div className="space-y-6">
-                <Input
-                  type="password"
-                  name="newPassword"
-                  label="Nova Senha"
-                  icon={Lock}
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  placeholder="Digite sua nova senha"
-                  aria-label="Nova senha"
-                />
-
-                <Input
-                  type="password"
-                  name="confirmPassword"
-                  label="Confirmar Nova Senha"
-                  icon={KeyRound}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirme sua nova senha"
-                  aria-label="Confirmar nova senha"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4 pt-6">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                loading={isSubmitting}
-                icon={CheckCircle}
-                className="w-full md:w-2/3 bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14"
-              >
-                Salvar Alterações
-              </Button>
-              
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                onClick={handleCancel}
-                className="w-full md:w-1/3 rounded-full h-14"
-              >
-                Cancelar
-              </Button>
-            </div>
-          </form>
-        )}
+    <div className="max-w-2xl mx-auto py-6 pb-24">
+      <div className="flex items-center gap-2 mb-6">
+        <button 
+          onClick={handleCancel}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-target"
+          aria-label="Voltar para perfil"
+        >
+          <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
+        </button>
+        <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
+          Editar Perfil
+        </h1>
       </div>
 
-      {/* Floating Help Button */}
-      <div className="fixed bottom-6 right-6">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors touch-target"
-                aria-label="Ajuda com seus dados"
-              >
-                <HelpCircle className="h-7 w-7" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-medium">Ajuda com seus dados</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </LayoutBase>
+      {showSuccess ? (
+        <AlertBox
+          type="success"
+          title="Perfil atualizado com sucesso!"
+          icon={CheckCircle}
+          className="mb-6"
+        >
+          <p>
+            Suas informações pessoais foram atualizadas. 
+            Redirecionando para a página de perfil...
+          </p>
+        </AlertBox>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
+            type="text"
+            name="fullName"
+            label="Nome Completo"
+            icon={User}
+            value={formData.fullName}
+            onChange={handleChange}
+            placeholder="Digite seu nome completo"
+            required
+            aria-label="Nome completo"
+          />
+
+          <Input
+            type="email"
+            name="email"
+            label="E-mail"
+            icon={Mail}
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Digite seu e-mail"
+            required
+            aria-label="E-mail"
+          />
+
+          <Input
+            type="date"
+            name="birthDate"
+            label="Data de Nascimento"
+            icon={Calendar}
+            value={formData.birthDate}
+            onChange={handleChange}
+            required
+            className="text-base"
+            aria-label="Data de nascimento"
+          />
+
+          <Input
+            type="text"
+            name="cpf"
+            label="CPF"
+            value={formData.cpf}
+            onChange={handleChange}
+            placeholder="000.000.000-00"
+            required
+            aria-label="CPF"
+            className="font-mono"
+          />
+
+          <div className="border-t border-gray-200 pt-6 mt-6">
+            <h2 className="text-xl font-museomoderno font-medium text-econotrip-blue mb-4">
+              Alterar Senha <span className="text-gray-500 text-base">(opcional)</span>
+            </h2>
+            
+            <div className="space-y-6">
+              <Input
+                type="password"
+                name="newPassword"
+                label="Nova Senha"
+                icon={Lock}
+                value={formData.newPassword}
+                onChange={handleChange}
+                placeholder="Digite sua nova senha"
+                aria-label="Nova senha"
+              />
+
+              <Input
+                type="password"
+                name="confirmPassword"
+                label="Confirmar Nova Senha"
+                icon={KeyRound}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirme sua nova senha"
+                aria-label="Confirmar nova senha"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4 pt-6">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isSubmitting}
+              icon={CheckCircle}
+              className="w-full md:w-2/3 bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14"
+            >
+              Salvar Alterações
+            </Button>
+            
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              onClick={handleCancel}
+              className="w-full md:w-1/3 rounded-full h-14"
+            >
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      )}
+    </div>
+
+    {/* Floating Help Button */}
+    <div className="fixed bottom-6 right-6">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors touch-target"
+              aria-label="Ajuda com seus dados"
+            >
+              <HelpCircle className="h-7 w-7" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-medium">Ajuda com seus dados</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 }

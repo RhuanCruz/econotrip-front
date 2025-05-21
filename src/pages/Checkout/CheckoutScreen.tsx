@@ -1,7 +1,6 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutBase } from "@/components/layout/LayoutBase";
 import { CheckoutHeader } from "./components/CheckoutHeader";
 import { FlightSummary } from "./components/FlightSummary";
 import { PassengerInfo } from "./components/PassengerInfo";
@@ -22,26 +21,24 @@ export default function CheckoutScreen() {
   };
 
   return (
-    <LayoutBase>
-      <div className="max-w-5xl mx-auto relative pb-24">
-        {/* Header with Back Button */}
-        <CheckoutHeader onBackClick={handleBack} />
+    <div className="max-w-5xl mx-auto relative pb-24">
+      {/* Header with Back Button */}
+      <CheckoutHeader onBackClick={handleBack} />
 
-        {/* Flight Summary Card */}
-        <FlightSummary flightData={mockFlightData} />
+      {/* Flight Summary Card */}
+      <FlightSummary flightData={mockFlightData} />
 
-        {/* Passenger Information Card */}
-        <PassengerInfo passengerData={mockPassengerData} />
+      {/* Passenger Information Card */}
+      <PassengerInfo passengerData={mockPassengerData} />
 
-        {/* Important Notices */}
-        <ImportantNotices />
+      {/* Important Notices */}
+      <ImportantNotices />
 
-        {/* Actions (Back button, Help button, Submit button) */}
-        <CheckoutActions 
-          onBackClick={handleBack} 
-          onFinishPurchase={handleFinishPurchase} 
-        />
-      </div>
-    </LayoutBase>
+      {/* Actions (Back button, Help button, Submit button) */}
+      <CheckoutActions 
+        onBackClick={handleBack} 
+        onFinishPurchase={handleFinishPurchase} 
+      />
+    </div>
   );
 }

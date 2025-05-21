@@ -1,7 +1,5 @@
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Plane, Clock, Luggage, Shield, Leaf, Accessibility } from "lucide-react";
 
@@ -47,75 +45,73 @@ export default function FlightDetailsScreen() {
   };
 
   return (
-    <LayoutBase>
-      <div className="max-w-5xl mx-auto relative pb-24">
-        {/* Header with Back Button */}
-        <ScreenHeader onBack={handleBack} />
+    <div className="max-w-5xl mx-auto relative pb-24">
+      {/* Header with Back Button */}
+      <ScreenHeader onBack={handleBack} />
 
-        {/* Main Content Card */}
-        <Card className="mb-8 p-6 rounded-2xl shadow-md">
-          {/* Origin-Destination Section */}
-          <FlightPath 
-            origin={flightDetails.origin}
-            originCode={flightDetails.originCode}
-            destination={flightDetails.destination}
-            destinationCode={flightDetails.destinationCode}
+      {/* Main Content Card */}
+      <Card className="mb-8 p-6 rounded-2xl shadow-md">
+        {/* Origin-Destination Section */}
+        <FlightPath 
+          origin={flightDetails.origin}
+          originCode={flightDetails.originCode}
+          destination={flightDetails.destination}
+          destinationCode={flightDetails.destinationCode}
+        />
+        
+        {/* Flight Details */}
+        <div className="space-y-6 text-lg">
+          <DetailItem
+            icon={Clock}
+            title="Data e Duração"
+            value={`${flightDetails.date} • ${flightDetails.duration}`}
           />
           
-          {/* Flight Details */}
-          <div className="space-y-6 text-lg">
-            <DetailItem
-              icon={Clock}
-              title="Data e Duração"
-              value={`${flightDetails.date} • ${flightDetails.duration}`}
-            />
-            
-            <DetailItem
-              icon={Plane}
-              title="Tipo de Voo"
-              value={flightDetails.stops}
-            />
-            
-            <DetailItem
-              icon={Luggage}
-              title="Bagagem incluída"
-              value={flightDetails.baggage}
-            />
-            
-            {flightDetails.isLowEmission && (
-              <DetailItem
-                icon={Leaf}
-                title="Emissão de carbono"
-                value="Baixa emissão de carbono"
-                variant="success"
-              />
-            )}
-            
-            {flightDetails.isAccessible && (
-              <DetailItem
-                icon={Accessibility}
-                title="Acessibilidade"
-                value="Assentos preferenciais e assistência no embarque"
-              />
-            )}
-            
-            <DetailItem
-              icon={Shield}
-              title="Política de cancelamento"
-              value={flightDetails.cancellationPolicy}
-            />
-          </div>
-
-          {/* Price Section */}
-          <PriceSection 
-            price={flightDetails.price} 
-            onBack={handleBack} 
+          <DetailItem
+            icon={Plane}
+            title="Tipo de Voo"
+            value={flightDetails.stops}
           />
-        </Card>
+          
+          <DetailItem
+            icon={Luggage}
+            title="Bagagem incluída"
+            value={flightDetails.baggage}
+          />
+          
+          {flightDetails.isLowEmission && (
+            <DetailItem
+              icon={Leaf}
+              title="Emissão de carbono"
+              value="Baixa emissão de carbono"
+              variant="success"
+            />
+          )}
+          
+          {flightDetails.isAccessible && (
+            <DetailItem
+              icon={Accessibility}
+              title="Acessibilidade"
+              value="Assentos preferenciais e assistência no embarque"
+            />
+          )}
+          
+          <DetailItem
+            icon={Shield}
+            title="Política de cancelamento"
+            value={flightDetails.cancellationPolicy}
+          />
+        </div>
 
-        {/* Action Buttons */}
-        <ActionButtons onReserve={handleReserveFlight} />
-      </div>
-    </LayoutBase>
+        {/* Price Section */}
+        <PriceSection 
+          price={flightDetails.price} 
+          onBack={handleBack} 
+        />
+      </Card>
+
+      {/* Action Buttons */}
+      <ActionButtons onReserve={handleReserveFlight} />
+    </div>
   );
 }
