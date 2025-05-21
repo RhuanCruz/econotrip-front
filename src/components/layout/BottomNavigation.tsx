@@ -14,27 +14,12 @@ export function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Routes that should hide the bottom navigation
-  const hiddenRoutes = [
-    '/login', 
-    '/registro', 
-    '/recuperar-senha', 
-    '/checkout', 
-    '/confirmacao',
-    '/'
-  ];
-  
-  // If current route is in hiddenRoutes, hide bottom navigation
-  if (hiddenRoutes.includes(location.pathname)) {
-    return null;
-  }
-
   const navigationItems = [
     { 
       name: 'Buscar', 
       icon: Plane, 
       route: '/busca-voos', 
-      isActive: location.pathname === '/busca-voos' || location.pathname === '/resultados-voos' 
+      isActive: location.pathname === '/busca-voos' || location.pathname === '/resultados-voos' || location.pathname === '/detalhes-voo'
     },
     { 
       name: 'Perfil', 

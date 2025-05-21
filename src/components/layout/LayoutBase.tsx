@@ -1,7 +1,7 @@
 
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { Header } from "./Header";
-import { Footer } from "./Footer";
 import { ScreenContainer } from "./ScreenContainer";
 import { BottomNavigation } from "./BottomNavigation";
 
@@ -12,6 +12,10 @@ interface LayoutBaseProps {
 }
 
 export function LayoutBase({ children, userName, className }: LayoutBaseProps) {
+  const location = useLocation();
+  const hiddenRoutes = ["/", "/login", "/registro", "/recuperar-senha", "/checkout", "/confirmacao"];
+  const hideNav = hiddenRoutes.includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-gray-50">
       <Header userName={userName} />
@@ -20,8 +24,7 @@ export function LayoutBase({ children, userName, className }: LayoutBaseProps) {
           {children}
         </ScreenContainer>
       </main>
-      <Footer />
-      <BottomNavigation />
+      {!hideNav && <BottomNavigation />}
     </div>
   );
 }
