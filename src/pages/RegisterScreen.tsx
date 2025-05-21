@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Calendar, CreditCard, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { Input } from "@/components/ui-custom/Input";
 import { toast } from "@/hooks/use-toast";
+import { AssistButton } from "@/components/ui-custom/AssistButton";
 
 export default function RegisterScreen() {
   const navigate = useNavigate();
@@ -189,28 +189,7 @@ export default function RegisterScreen() {
       </div>
 
       {/* Help button */}
-      <button
-        className="fixed bottom-6 right-6 bg-econotrip-blue text-white rounded-full p-4 shadow-lg hover:bg-econotrip-blue/90 transition-colors touch-target"
-        aria-label="Obter ajuda com o cadastro"
-        title="Ajuda com o cadastro"
-        onClick={() => alert("Assistente de ajuda com cadastro será aberto aqui.")}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
-        </svg>
-      </button>
+      <AssistButton tooltipText="Ajuda com o cadastro" />
     </div>
   );
 }
