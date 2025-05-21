@@ -18,7 +18,7 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    // In a real app, this would navigate to the edit profile screen
+    // Navigate to the edit profile screen
     navigate("/editar-perfil");
   };
 

@@ -12,6 +12,7 @@ import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
 import CheckoutScreen from "./pages/CheckoutScreen";
 import ConfirmationScreen from "./pages/ConfirmationScreen";
 import ProfileScreen from "./pages/ProfileScreen";
+import EditProfileScreen from "./pages/EditProfileScreen";
 import LoyaltyScreen from "./pages/LoyaltyScreen";
 import SupportScreen from "./pages/SupportScreen";
 import NotFound from "./pages/NotFound";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/checkout" element={<CheckoutScreen />} />
           <Route path="/confirmacao" element={<ConfirmationScreen />} />
           <Route path="/perfil" element={<ProfileScreen />} />
+          <Route path="/editar-perfil" element={<EditProfileScreen />} />
           <Route path="/fidelidade" element={<LoyaltyScreen />} />
           <Route path="/suporte" element={<SupportScreen />} />
           <Route path="/login" element={<LoginScreen />} />
