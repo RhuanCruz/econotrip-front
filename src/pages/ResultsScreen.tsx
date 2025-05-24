@@ -16,6 +16,8 @@ import {
 } from "recharts";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
+import { ResumoFinanceiro } from "@/components/financial/ResumoFinanceiro";
+import { SustainableBadge } from "@/components/sustainable/SustainableBadge";
 
 const mockFlights = [
   {
@@ -65,8 +67,12 @@ const mockFlights = [
 export default function ResultsScreen() {
   const navigate = useNavigate();
   const [showComparison, setShowComparison] = useState(false);
+  const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
 
   const handleViewDetails = (flightId: string) => {
+    // Mostrar resumo financeiro ao selecionar um voo
+    setSelectedFlight(flightId);
+    
     // Navigate to the details page with the flight id
     navigate(`/detalhes-voo`, { state: { flightId } });
     
@@ -123,6 +129,15 @@ export default function ResultsScreen() {
   };
   
   const { priceData, durationData, emissionsData } = prepareComparisonData();
+
+  // Dados fictícios para resumo financeiro
+  const custoViagem = {
+    passagem: 2350,
+    hospedagem: 800,
+    transporte: 300,
+    alimentacao: 600,
+    seguro: 150,
+  };
 
   // Container animations
   const containerVariants = {
@@ -301,6 +316,17 @@ export default function ResultsScreen() {
         </motion.div>
       )}
 
+      {/* Resumo financeiro para voo selecionado */}
+      {selectedFlight && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <ResumoFinanceiro custos={custoViagem} dias={7} />
+        </motion.div>
+      )}
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -334,19 +360,7 @@ export default function ResultsScreen() {
                 
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   {flight.isLowEmission && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <div className="flex items-center text-econotrip-green bg-econotrip-green/10 px-3 py-1 rounded-full">
-                            <Leaf className="h-5 w-5 mr-1" aria-hidden="true" />
-                            <span className="text-sm font-medium">Baixa emissão</span>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Este voo emite menos CO₂ que a média</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <SustainableBadge type="carbon" />
                   )}
                   
                   {flight.isAccessible && (

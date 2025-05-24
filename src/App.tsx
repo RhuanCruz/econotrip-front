@@ -1,5 +1,4 @@
 
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +22,7 @@ import EditProfileScreen from "./pages/EditProfileScreen";
 import LoyaltyScreen from "./pages/LoyaltyScreen";
 import SupportScreen from "./pages/SupportScreen";
 import SustainableTravel from "./pages/SustainableTravel";
+import RoteirosPersonalizadosScreen from "./pages/RoteirosPersonalizadosScreen";
 import NotFound from "./pages/NotFound";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
@@ -73,6 +73,7 @@ const App = () => {
                 <Route path="/fidelidade" element={<LoyaltyScreen />} />
                 <Route path="/suporte" element={<SupportScreen />} />
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
+                <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
               </Route>
 
               {/* Rota para página não encontrada */}

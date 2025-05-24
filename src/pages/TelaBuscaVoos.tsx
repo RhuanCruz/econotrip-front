@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui-custom/Input";
@@ -8,11 +9,14 @@ import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { motion, AnimatePresence } from "framer-motion";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
 import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
+import { DicasEconomia } from "@/components/financial/DicasEconomia";
+import { SugestoesPersonalizadas } from "@/components/suggestions/SugestoesPersonalizadas";
 import { useLastSearch } from "@/hooks/useLastSearch";
 
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
   const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
+  const [preferenciasUsuario, setPreferenciasUsuario] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     origem: "",
@@ -21,11 +25,20 @@ export default function TelaBuscaVoos() {
     dataVolta: "",
     passageiros: "1",
     classe: "economica",
+    orcamento: "",
     somenteDireto: false,
     voosSustentaveis: false,
     tarifasFlexiveis: false,
     acessibilidade: false,
   });
+
+  useEffect(() => {
+    const perfilSalvo = localStorage.getItem("econotrip_perfil_viajante");
+    if (perfilSalvo) {
+      const perfil = JSON.parse(perfilSalvo);
+      setPreferenciasUsuario(perfil.preferencias || []);
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -61,6 +74,10 @@ export default function TelaBuscaVoos() {
       setFormData(lastSearch);
       hideRestorePrompt();
     }
+  };
+
+  const handleSelectSugestao = (sugestao: any) => {
+    navigate("/roteiros-personalizados");
   };
 
   const containerAnimation = {
@@ -100,6 +117,16 @@ export default function TelaBuscaVoos() {
             />
           )}
         </AnimatePresence>
+
+        {/* Sugestões personalizadas */}
+        {preferenciasUsuario.length > 0 && (
+          <motion.div variants={itemAnimation} className="mb-6">
+            <SugestoesPersonalizadas 
+              preferencias={preferenciasUsuario}
+              onSelectSugestao={handleSelectSugestao}
+            />
+          </motion.div>
+        )}
 
         <motion.div variants={itemAnimation}>
           <Card className="mb-8">
@@ -196,6 +223,19 @@ export default function TelaBuscaVoos() {
                     <option value="primeira">Primeira Classe</option>
                   </select>
                 </div>
+
+                {/* Novo campo de orçamento */}
+                <Input
+                  type="number"
+                  label="Meu orçamento é até (opcional)"
+                  name="orcamento"
+                  id="orcamento"
+                  placeholder="R$ 0,00"
+                  value={formData.orcamento}
+                  onChange={handleChange}
+                  className="h-14 rounded-xl px-4"
+                  aria-label="Orçamento máximo para a viagem"
+                />
               </div>
 
               <div className="grid grid-cols-1 gap-2">
@@ -233,6 +273,11 @@ export default function TelaBuscaVoos() {
               </div>
             </form>
           </Card>
+        </motion.div>
+
+        {/* Dicas de economia */}
+        <motion.div variants={itemAnimation} className="mb-6">
+          <DicasEconomia />
         </motion.div>
 
         <motion.div

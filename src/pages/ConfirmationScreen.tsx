@@ -5,6 +5,7 @@ import { Button } from "@/components/ui-custom/Button";
 import { CheckCircle, Mail, CreditCard, UserCircle, HelpCircle, Home, Plane, Calendar, Luggage } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PrintReservation } from "@/components/reservation/PrintReservation";
+import { ResumoCompartilhavel } from "@/components/sharing/ResumoCompartilhavel";
 
 export default function ConfirmationScreen() {
   const navigate = useNavigate();
@@ -17,6 +18,15 @@ export default function ConfirmationScreen() {
     locator: "ABC123",
     departure: "Aeroporto de Guarulhos (GRU)",
     arrival: "Aeroporto de Lisboa (LIS)"
+  };
+
+  const dadosCompartilhamento = {
+    passageiro: "Maria Oliveira",
+    voo: "GRU → LIS",
+    data: "10/03/2024 às 22h45",
+    localizador: "ABC123",
+    destino: "Lisboa",
+    hotel: "Hotel Dom Pedro Palace"
   };
 
   const handleViewProfile = () => {
@@ -90,6 +100,11 @@ export default function ConfirmationScreen() {
           </div>
         </div>
       </Card>
+
+      {/* Sharing Section */}
+      <div className="mb-8">
+        <ResumoCompartilhavel dadosViagem={dadosCompartilhamento} />
+      </div>
 
       {/* Print Reservation Section */}
       <Card className="mb-8 p-6 rounded-2xl shadow-md">
