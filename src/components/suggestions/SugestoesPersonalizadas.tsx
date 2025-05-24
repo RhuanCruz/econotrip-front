@@ -83,30 +83,34 @@ export function SugestoesPersonalizadas({ preferencias, onSelectSugestao }: Suge
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => onSelectSugestao(sugestao)}>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-econotrip-blue/10 flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-6 w-6 text-econotrip-blue" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-econotrip-blue mb-1">
-                      {sugestao.titulo}
-                    </h3>
-                    <p className="text-gray-600 mb-2">
-                      {sugestao.descricao}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-500">{sugestao.destino}</p>
-                        <p className="text-econotrip-orange font-medium">{sugestao.preco}</p>
+              <div 
+                className="cursor-pointer"
+                onClick={() => onSelectSugestao(sugestao)}
+              >
+                <Card className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-econotrip-blue/10 flex items-center justify-center flex-shrink-0">
+                      <Icon className="h-6 w-6 text-econotrip-blue" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-econotrip-blue mb-1">
+                        {sugestao.titulo}
+                      </h3>
+                      <p className="text-gray-600 mb-2">
+                        {sugestao.descricao}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-500">{sugestao.destino}</p>
+                          <p className="text-econotrip-orange font-medium">{sugestao.preco}</p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-econotrip-blue" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-econotrip-blue" />
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             </motion.div>
           );
         })}

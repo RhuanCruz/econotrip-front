@@ -8,6 +8,7 @@ interface SearchData {
   dataVolta: string;
   passageiros: string;
   classe: string;
+  orcamento: string;
   somenteDireto: boolean;
   voosSustentaveis: boolean;
   tarifasFlexiveis: boolean;
