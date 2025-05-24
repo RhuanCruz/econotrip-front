@@ -4,12 +4,22 @@ import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { CheckCircle, Mail, CreditCard, UserCircle, HelpCircle, Home, Plane, Calendar, Luggage } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { PrintReservation } from "@/components/reservation/PrintReservation";
 
 export default function ConfirmationScreen() {
   const navigate = useNavigate();
 
+  const reservationData = {
+    passenger: "Maria Oliveira",
+    flight: "GRU → LIS",
+    date: "10/03/2024 às 22h45",
+    seat: "12A",
+    locator: "ABC123",
+    departure: "Aeroporto de Guarulhos (GRU)",
+    arrival: "Aeroporto de Lisboa (LIS)"
+  };
+
   const handleViewProfile = () => {
-    // In a real app, this would navigate to the profile screen
     navigate("/perfil");
   };
 
@@ -43,7 +53,7 @@ export default function ConfirmationScreen() {
             <UserCircle className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
             <div>
               <p className="font-medium text-econotrip-blue">Passageiro</p>
-              <p className="text-gray-700">Maria Oliveira</p>
+              <p className="text-gray-700">{reservationData.passenger}</p>
             </div>
           </div>
           
@@ -51,7 +61,7 @@ export default function ConfirmationScreen() {
             <Plane className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
             <div>
               <p className="font-medium text-econotrip-blue">Voo</p>
-              <p className="text-gray-700">GRU → LIS</p>
+              <p className="text-gray-700">{reservationData.flight}</p>
             </div>
           </div>
           
@@ -59,7 +69,7 @@ export default function ConfirmationScreen() {
             <Calendar className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
             <div>
               <p className="font-medium text-econotrip-blue">Data e Horário</p>
-              <p className="text-gray-700">10/03/2024 às 22h45</p>
+              <p className="text-gray-700">{reservationData.date}</p>
             </div>
           </div>
           
@@ -67,7 +77,7 @@ export default function ConfirmationScreen() {
             <CreditCard className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
             <div>
               <p className="font-medium text-econotrip-blue">Assento</p>
-              <p className="text-gray-700">12A</p>
+              <p className="text-gray-700">{reservationData.seat}</p>
             </div>
           </div>
           
@@ -79,6 +89,17 @@ export default function ConfirmationScreen() {
             </div>
           </div>
         </div>
+      </Card>
+
+      {/* Print Reservation Section */}
+      <Card className="mb-8 p-6 rounded-2xl shadow-md">
+        <h2 className="text-xl md:text-2xl font-museomoderno font-bold text-econotrip-blue mb-4">
+          Salvar Reserva
+        </h2>
+        <p className="text-gray-700 mb-6">
+          Imprima ou compartilhe sua reserva para ter sempre à mão os detalhes da viagem.
+        </p>
+        <PrintReservation reservationData={reservationData} />
       </Card>
 
       {/* Next Steps Card */}

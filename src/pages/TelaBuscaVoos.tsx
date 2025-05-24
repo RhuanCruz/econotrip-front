@@ -1,16 +1,19 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
 import { Checkbox } from "@/components/ui-custom/Checkbox";
 import { Card } from "@/components/ui-custom/Card";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
+import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
+import { useLastSearch } from "@/hooks/useLastSearch";
 
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
+  const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
+  
   const [formData, setFormData] = useState({
     origem: "",
     destino: "",
@@ -46,7 +49,18 @@ export default function TelaBuscaVoos() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Dados da busca:", formData);
+    
+    // Save search data
+    saveSearch(formData);
+    
     navigate("/resultados-voos");
+  };
+
+  const handleRestoreSearch = () => {
+    if (lastSearch) {
+      setFormData(lastSearch);
+      hideRestorePrompt();
+    }
   };
 
   const containerAnimation = {
@@ -75,6 +89,17 @@ export default function TelaBuscaVoos() {
         >
           Busque seu próximo voo
         </motion.h1>
+
+        {/* Last search prompt */}
+        <AnimatePresence>
+          {showRestorePrompt && lastSearch && (
+            <LastSearchPrompt
+              lastSearch={lastSearch}
+              onRestore={handleRestoreSearch}
+              onDismiss={hideRestorePrompt}
+            />
+          )}
+        </AnimatePresence>
 
         <motion.div variants={itemAnimation}>
           <Card className="mb-8">
@@ -241,7 +266,6 @@ export default function TelaBuscaVoos() {
         </Button>
       </motion.div>
       
-      {/* The AssistButton component will handle visibility itself */}
       <AssistButton tooltipText="Ajuda com busca de voos" />
     </div>
   );

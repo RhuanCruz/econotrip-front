@@ -1,0 +1,73 @@
+
+/* Accessibility styles */
+.accessibility-large-fonts {
+  font-size: 18px !important;
+}
+
+.accessibility-large-fonts h1 {
+  font-size: 2.5rem !important;
+}
+
+.accessibility-large-fonts h2 {
+  font-size: 2rem !important;
+}
+
+.accessibility-large-fonts h3 {
+  font-size: 1.75rem !important;
+}
+
+.accessibility-large-fonts p, 
+.accessibility-large-fonts span, 
+.accessibility-large-fonts button {
+  font-size: 1.125rem !important;
+}
+
+.accessibility-high-contrast {
+  filter: contrast(1.5);
+}
+
+.accessibility-high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.accessibility-high-contrast .bg-white {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.accessibility-high-contrast .text-gray-700,
+.accessibility-high-contrast .text-gray-600 {
+  color: #ffffff !important;
+}
+
+.accessibility-text-reader {
+  /* Visual indicators for text reader mode */
+}
+
+.accessibility-text-reader *:focus {
+  outline: 3px solid #FFD700 !important;
+  outline-offset: 2px !important;
+}
+
+/* Enhanced touch targets for senior users */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* High contrast mode enhancements */
+@media (prefers-contrast: high) {
+  .accessibility-high-contrast {
+    filter: contrast(2);
+  }
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
