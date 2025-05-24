@@ -18,17 +18,14 @@ export function HumanSupportButton() {
   if (!shouldShow) return null;
 
   const handleCall = () => {
-    // In real app, this would open the phone dialer
     window.location.href = "tel:08001234567";
   };
 
   const handleWhatsApp = () => {
-    // In real app, this would open WhatsApp
     window.open("https://wa.me/5511999999999", "_blank");
   };
 
   const handleEmail = () => {
-    // In real app, this would open email client
     window.location.href = "mailto:ajuda@econotrip.com.br";
   };
 
@@ -42,14 +39,14 @@ export function HumanSupportButton() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowOptions(true)}
-                className="h-14 w-14 rounded-full bg-econotrip-orange shadow-lg flex items-center justify-center text-white hover:bg-econotrip-orange/90 transition-colors touch-target"
+                className="h-12 w-12 rounded-full bg-econotrip-orange shadow-lg flex items-center justify-center text-white hover:bg-econotrip-orange/90 transition-colors touch-target"
                 aria-label="Precisa falar com alguém?"
               >
-                <Headphones className="h-7 w-7" />
+                <Headphones className="h-6 w-6" />
               </motion.button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p className="font-medium">Precisa falar com alguém?</p>
+              <p className="text-sm font-medium">Precisa falar com alguém?</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -74,7 +71,7 @@ export function HumanSupportButton() {
             >
               <Card className="p-6 rounded-2xl shadow-2xl bg-white">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 id="support-title" className="text-xl font-museomoderno font-bold text-econotrip-blue">
+                  <h2 id="support-title" className="text-base font-semibold text-econotrip-blue">
                     Fale Conosco
                   </h2>
                   <button
@@ -92,7 +89,7 @@ export function HumanSupportButton() {
                     size="lg"
                     icon={Phone}
                     onClick={handleCall}
-                    className="w-full h-14 bg-econotrip-blue hover:bg-econotrip-blue/90"
+                    className="w-full bg-econotrip-blue hover:bg-econotrip-blue/90"
                     aria-label="Ligar para suporte"
                   >
                     Ligar Agora
@@ -103,7 +100,7 @@ export function HumanSupportButton() {
                     size="lg"
                     icon={MessageCircle}
                     onClick={handleWhatsApp}
-                    className="w-full h-14 bg-green-600 hover:bg-green-700"
+                    className="w-full bg-green-600 hover:bg-green-700"
                     aria-label="Conversar pelo WhatsApp"
                   >
                     WhatsApp
@@ -114,7 +111,7 @@ export function HumanSupportButton() {
                     size="lg"
                     icon={Mail}
                     onClick={handleEmail}
-                    className="w-full h-14"
+                    className="w-full"
                     aria-label="Enviar email"
                   >
                     Email

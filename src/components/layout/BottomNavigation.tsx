@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Plane,
   User,
-  Star,
   HelpCircle,
   MapPin
 } from "lucide-react";
@@ -49,7 +48,7 @@ export function BottomNavigation() {
       animate={{ y: 0 }}
       transition={{ type: "spring", damping: 20 }}
     >
-      <div className="max-w-xl mx-auto px-4">
+      <div className="max-w-screen-sm mx-auto px-4">
         <ul className="flex justify-around items-center">
           {navigationItems.map((item) => (
             <li key={item.name} className="flex-1">
@@ -66,13 +65,13 @@ export function BottomNavigation() {
               >
                 <item.icon
                   className={cn(
-                    "h-7 w-7 mb-1",
+                    "h-6 w-6 mb-1",
                     item.isActive ? "text-econotrip-blue" : "text-gray-400"
                   )}
                   aria-hidden="true"
                 />
                 <span className={cn(
-                  "text-base font-medium",
+                  "text-sm font-medium",
                   item.isActive ? "font-semibold" : ""
                 )}>
                   {item.name}

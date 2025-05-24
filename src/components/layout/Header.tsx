@@ -5,57 +5,60 @@ import { ArrowLeft } from "lucide-react";
 
 interface HeaderProps {
   userName?: string;
+  variant?: "default" | "compact";
 }
 
-export function Header({ userName }: HeaderProps) {
+export function Header({ userName, variant = "default" }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   
   // Determine if we should show back button based on the route
-  const showBackButton = !["/", "/busca-voos", "/perfil"].includes(location.pathname);
+  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro"].includes(location.pathname);
   
   const handleBack = () => {
     navigate(-1);
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm h-16 px-4 md:px-6 flex items-center justify-between w-full overflow-hidden">
+    <header className="bg-white border-b border-gray-200 shadow-sm h-16 px-4 flex items-center justify-between w-full overflow-hidden">
       <div className="max-w-screen-sm mx-auto w-full flex items-center justify-between gap-x-4">
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0 flex-1">
           {showBackButton ? (
             <button 
               onClick={handleBack}
-              className="mr-2 p-2 rounded-full hover:bg-gray-100 touch-target"
+              className="mr-2 p-2 rounded-full hover:bg-gray-100 touch-target flex-shrink-0"
               aria-label="Voltar para a tela anterior"
             >
               <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
             </button>
           ) : (
-            <Link to="/" className="flex items-center" aria-label="Ir para página inicial">
-              <div className="font-museomoderno font-bold text-xl md:text-2xl text-econotrip-blue mr-2">
+            <Link to="/" className="flex items-center min-w-0" aria-label="Ir para página inicial">
+              <div className="font-museomoderno font-bold text-lg md:text-xl text-econotrip-blue mr-2 truncate">
                 ECONOTRIP
               </div>
-              <span className="text-econotrip-orange font-medium text-base md:text-lg">PrimeVoyage</span>
+              <span className="text-econotrip-orange font-medium text-sm md:text-base hidden sm:inline">
+                PrimeVoyage
+              </span>
             </Link>
           )}
         </div>
 
         {userName ? (
-          <div className="text-base md:text-lg font-medium text-econotrip-blue">
+          <div className="text-sm md:text-base font-medium text-econotrip-blue truncate max-w-32 md:max-w-none">
             Olá, {userName}
           </div>
         ) : (
-          <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-end">
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             <Link 
               to="/login" 
-              className="text-econotrip-blue hover:text-econotrip-blue/80 font-medium text-base md:text-lg touch-target py-2 px-3 md:px-4"
+              className="text-econotrip-blue hover:text-econotrip-blue/80 font-medium text-sm md:text-base touch-target py-2 px-2 md:px-3"
               aria-label="Entrar na sua conta"
             >
               Entrar
             </Link>
             <Link 
               to="/registro"
-              className="bg-econotrip-orange hover:bg-econotrip-orange/90 text-white font-medium py-2 px-4 md:py-3 md:px-6 rounded-full text-base md:text-lg touch-target"
+              className="bg-econotrip-orange hover:bg-econotrip-orange/90 text-white font-medium py-2 px-3 md:px-4 rounded-full text-sm md:text-base touch-target"
               aria-label="Criar nova conta"
             >
               Cadastrar

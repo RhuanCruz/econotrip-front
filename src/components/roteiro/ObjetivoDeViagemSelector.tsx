@@ -43,11 +43,11 @@ export function ObjetivoDeViagemSelector({ onSelect }: ObjetivoDeViagemSelectorP
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-econotrip-blue mb-4">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-econotrip-blue mb-2">
           Qual o motivo principal da sua viagem?
         </h2>
-        <p className="text-lg text-gray-600">
+        <p className="text-base text-gray-600">
           Isso nos ajuda a personalizar seu roteiro perfeitamente
         </p>
       </div>
@@ -61,28 +61,27 @@ export function ObjetivoDeViagemSelector({ onSelect }: ObjetivoDeViagemSelectorP
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+              onClick={() => onSelect(objetivo.id)}
+              className="cursor-pointer"
             >
-              <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-econotrip-blue/30">
-                <div 
-                  className="flex flex-col items-center text-center space-y-4"
-                  onClick={() => onSelect(objetivo.id)}
-                >
+              <Card className="p-6 hover:shadow-lg transition-shadow border-2 hover:border-econotrip-blue/30 h-full">
+                <div className="flex flex-col items-center text-center space-y-4">
                   <div className={`w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center`}>
                     <Icon className={`h-8 w-8 ${objetivo.color}`} />
                   </div>
                   
-                  <div>
-                    <h3 className="text-xl font-bold text-econotrip-blue mb-2">
+                  <div className="space-y-2">
+                    <h3 className="text-base font-semibold text-econotrip-blue">
                       {objetivo.titulo}
                     </h3>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-sm text-gray-600">
                       {objetivo.descricao}
                     </p>
                   </div>
                   
                   <Button
                     variant="primary"
-                    size="lg"
+                    size="default"
                     className="w-full mt-4"
                     onClick={(e) => {
                       e.stopPropagation();
