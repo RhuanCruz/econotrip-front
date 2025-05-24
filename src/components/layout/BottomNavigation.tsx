@@ -5,7 +5,8 @@ import {
   Plane,
   User,
   Star,
-  HelpCircle
+  HelpCircle,
+  MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -22,16 +23,16 @@ export function BottomNavigation() {
       isActive: location.pathname === '/busca-voos' || location.pathname === '/resultados-voos' || location.pathname === '/detalhes-voo'
     },
     { 
+      name: 'Roteiro', 
+      icon: MapPin, 
+      route: '/meu-roteiro', 
+      isActive: location.pathname === '/meu-roteiro'
+    },
+    { 
       name: 'Perfil', 
       icon: User, 
       route: '/perfil', 
       isActive: location.pathname === '/perfil' || location.pathname === '/editar-perfil' 
-    },
-    { 
-      name: 'Fidelidade', 
-      icon: Star, 
-      route: '/fidelidade', 
-      isActive: location.pathname === '/fidelidade' 
     },
     { 
       name: 'Ajuda', 

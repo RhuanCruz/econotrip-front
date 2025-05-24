@@ -23,6 +23,7 @@ import LoyaltyScreen from "./pages/LoyaltyScreen";
 import SupportScreen from "./pages/SupportScreen";
 import SustainableTravel from "./pages/SustainableTravel";
 import RoteirosPersonalizadosScreen from "./pages/RoteirosPersonalizadosScreen";
+import MeuRoteiroScreen from "./pages/MeuRoteiroScreen";
 import NotFound from "./pages/NotFound";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
@@ -74,6 +75,7 @@ const App = () => {
                 <Route path="/suporte" element={<SupportScreen />} />
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
+                <Route path="/meu-roteiro" element={<MeuRoteiroScreen />} />
               </Route>
 
               {/* Rota para página não encontrada */}
