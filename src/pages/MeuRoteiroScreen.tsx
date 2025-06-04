@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 
 export default function MeuRoteiroScreen() {
-  const [objetivoSelecionado, setObjetivoSelecionado] = useState<string | null>(null);
+  const [objetivoSelecionado, setObjetivoSelecionado] = useState<string>("descanso");
   const [etapaAtual, setEtapaAtual] = useState<"objetivo" | "planejamento">("objetivo");
 
   const handleObjetivoSelect = (objetivo: string) => {
@@ -54,8 +54,11 @@ export default function MeuRoteiroScreen() {
 
   if (etapaAtual === "objetivo") {
     return (
-      <div className="space-y-6">
+      <div className="max-w-screen-sm mx-auto px-6 py-6 space-y-6">
         <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-econotrip-blue mb-4">
+            Meu Roteiro de Viagem
+          </h1>
           <h2 className="text-xl font-semibold text-econotrip-blue mb-2">
             Bem-vindo ao seu planejador pessoal!
           </h2>
@@ -70,7 +73,16 @@ export default function MeuRoteiroScreen() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-screen-sm mx-auto px-6 py-6 space-y-8">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-semibold text-econotrip-blue mb-4">
+          Meu Roteiro de Viagem
+        </h1>
+        <p className="text-base font-medium text-muted-foreground mb-2">
+          Objetivo: {objetivoSelecionado}
+        </p>
+      </div>
+
       {/* Seção de Linha do Tempo */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -83,7 +95,7 @@ export default function MeuRoteiroScreen() {
             Cronograma da Viagem
           </h2>
         </div>
-        <LinhaDoTempoRoteiro />
+        <LinhaDoTempoRoteiro objetivo={objetivoSelecionado} />
       </motion.div>
 
       {/* Seção de Checklist */}
