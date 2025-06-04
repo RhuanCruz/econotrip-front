@@ -25,12 +25,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none touch-target",
+          "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none touch-target text-base",
           variant === "primary" && "bg-econotrip-orange text-white hover:bg-econotrip-orange/90",
           variant === "secondary" && "border-2 border-econotrip-blue text-econotrip-blue hover:bg-econotrip-blue/10 bg-white",
-          size === "default" && "h-12 px-6 py-3 text-base",
+          size === "default" && "h-12 px-6 py-3",
           size === "sm" && "h-10 px-4 py-2 text-sm",
-          size === "lg" && "h-14 px-8 py-4 text-base",
+          size === "lg" && "h-14 px-8 py-4",
           className
         )}
         ref={ref}

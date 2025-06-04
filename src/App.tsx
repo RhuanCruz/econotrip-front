@@ -75,8 +75,14 @@ const App = () => {
                 <Route path="/suporte" element={<SupportScreen />} />
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
-                <Route path="/meu-roteiro" element={<MeuRoteiroScreen />} />
               </Route>
+
+              {/* Rota especial para Meu Roteiro com título */}
+              <Route path="/meu-roteiro" element={
+                <LayoutBase title="Meu Roteiro de Viagem">
+                  <MeuRoteiroScreen />
+                </LayoutBase>
+              } />
 
               {/* Rota para página não encontrada */}
               <Route path="*" element={<NotFound />} />

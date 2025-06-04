@@ -21,7 +21,7 @@ export function Header({ userName, variant = "default" }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm h-16 px-4 flex items-center justify-between w-full overflow-hidden">
-      <div className="max-w-screen-sm mx-auto w-full flex items-center justify-between gap-x-4">
+      <div className="max-w-screen-sm mx-auto w-full flex items-center justify-between gap-x-4 flex-wrap">
         <div className="flex items-center min-w-0 flex-1">
           {showBackButton ? (
             <button 

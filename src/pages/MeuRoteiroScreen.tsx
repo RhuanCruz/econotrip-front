@@ -1,136 +1,181 @@
 
-import React, { useState, useEffect } from "react";
-import { ScreenContainer } from "@/components/layout/ScreenContainer";
+import React, { useState } from "react";
+import { Button } from "@/components/ui-custom/Button";
+import { Card } from "@/components/ui-custom/Card";
 import { ObjetivoDeViagemSelector } from "@/components/roteiro/ObjetivoDeViagemSelector";
 import { LinhaDoTempoRoteiro } from "@/components/roteiro/LinhaDoTempoRoteiro";
 import { ChecklistRoteiro } from "@/components/roteiro/ChecklistRoteiro";
 import { MapaDoDestino } from "@/components/roteiro/MapaDoDestino";
+import { 
+  Plus, 
+  Download, 
+  Share2,
+  MapPin,
+  Calendar,
+  CheckSquare,
+  FileText
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui-custom/Button";
-import { FileText, Share2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function MeuRoteiroScreen() {
-  const [objetivoViagem, setObjetivoViagem] = useState<string>("");
-  const [nomeUsuario, setNomeUsuario] = useState("Viajante");
-  
-  useEffect(() => {
-    // Recuperar dados do usuário do localStorage
-    const perfilSalvo = localStorage.getItem("econotrip_perfil_viajante");
-    if (perfilSalvo) {
-      const perfil = JSON.parse(perfilSalvo);
-      setNomeUsuario(perfil.nome || "Viajante");
-    }
-    
-    const objetivoSalvo = localStorage.getItem("econotrip_objetivo_viagem");
-    if (objetivoSalvo) {
-      setObjetivoViagem(objetivoSalvo);
-    }
-  }, []);
+  const [objetivoSelecionado, setObjetivoSelecionado] = useState<string | null>(null);
+  const [etapaAtual, setEtapaAtual] = useState<"objetivo" | "planejamento">("objetivo");
 
   const handleObjetivoSelect = (objetivo: string) => {
-    setObjetivoViagem(objetivo);
-    localStorage.setItem("econotrip_objetivo_viagem", objetivo);
+    setObjetivoSelecionado(objetivo);
+    setEtapaAtual("planejamento");
     toast({
-      title: "Objetivo definido!",
-      description: "Vamos personalizar seu roteiro com base na sua escolha.",
+      title: "Objetivo selecionado!",
+      description: "Agora vamos criar seu roteiro personalizado.",
     });
   };
 
   const handleExportarRoteiro = () => {
     toast({
       title: "Roteiro exportado!",
-      description: "Seu roteiro foi salvo em PDF e está pronto para impressão.",
+      description: "Seu roteiro foi salvo em PDF com sucesso.",
     });
   };
 
   const handleCompartilharRoteiro = () => {
     toast({
       title: "Roteiro compartilhado!",
-      description: "Seu acompanhante de confiança receberá o link por e-mail.",
+      description: "Link de compartilhamento enviado para seu acompanhante.",
     });
   };
 
-  const handleAdicionarEvento = () => {
+  const handleNovoEvento = () => {
     toast({
       title: "Novo evento",
-      description: "Funcionalidade em desenvolvimento - em breve você poderá adicionar eventos personalizados.",
+      description: "Funcionalidade em desenvolvimento.",
     });
   };
 
-  if (!objetivoViagem) {
+  if (etapaAtual === "objetivo") {
     return (
-      <ScreenContainer>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-6"
-        >
-          <div>
-            <h1 className="text-2xl font-semibold text-econotrip-blue mb-4">
-              Olá, {nomeUsuario}!
-            </h1>
-            <p className="text-base text-gray-600 mb-8">
-              Vamos planejar sua próxima viagem com calma?
-            </p>
-          </div>
-          
-          <ObjetivoDeViagemSelector onSelect={handleObjetivoSelect} />
-        </motion.div>
-      </ScreenContainer>
+      <div className="space-y-6">
+        <div className="text-center mb-8">
+          <h2 className="text-xl font-semibold text-econotrip-blue mb-2">
+            Bem-vindo ao seu planejador pessoal!
+          </h2>
+          <p className="text-base text-muted-foreground">
+            Vamos planejar sua próxima viagem com calma e cuidado
+          </p>
+        </div>
+
+        <ObjetivoDeViagemSelector onSelect={handleObjetivoSelect} />
+      </div>
     );
   }
 
   return (
-    <ScreenContainer title="Meu Roteiro ECONOTRIP">
+    <div className="space-y-8">
+      {/* Seção de Linha do Tempo */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
+        className="space-y-4"
       >
-        <div className="text-center">
-          <p className="text-base text-gray-600">
-            Estamos com você em cada etapa! ✈️
-          </p>
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="h-6 w-6 text-econotrip-blue" />
+          <h2 className="text-base font-medium text-econotrip-blue">
+            Cronograma da Viagem
+          </h2>
         </div>
-
-        <LinhaDoTempoRoteiro objetivo={objetivoViagem} />
-        
-        <ChecklistRoteiro />
-        
-        <MapaDoDestino />
-        
-        {/* Botões de ação organizados em grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-          <Button
-            variant="secondary"
-            icon={FileText}
-            onClick={handleExportarRoteiro}
-            size="lg"
-            className="w-full"
-          >
-            Exportar PDF
-          </Button>
-          <Button
-            variant="secondary"
-            icon={Share2}
-            onClick={handleCompartilharRoteiro}
-            size="lg"
-            className="w-full"
-          >
-            Compartilhar
-          </Button>
-        </div>
+        <LinhaDoTempoRoteiro />
       </motion.div>
 
-      {/* Botão flutuante para adicionar evento */}
-      <button
-        onClick={handleAdicionarEvento}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-econotrip-orange text-white rounded-full shadow-lg hover:bg-econotrip-orange/90 transition-colors flex items-center justify-center z-40 touch-target"
-        aria-label="Adicionar novo evento"
+      {/* Seção de Checklist */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="space-y-4"
       >
-        <Plus className="h-6 w-6" />
-      </button>
-    </ScreenContainer>
+        <div className="flex items-center gap-2 mb-4">
+          <CheckSquare className="h-6 w-6 text-econotrip-blue" />
+          <h2 className="text-base font-medium text-econotrip-blue">
+            Lista de Verificação
+          </h2>
+        </div>
+        <ChecklistRoteiro />
+      </motion.div>
+
+      {/* Seção do Mapa */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="space-y-4"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <MapPin className="h-6 w-6 text-econotrip-blue" />
+          <h2 className="text-base font-medium text-econotrip-blue">
+            Mapa do Destino
+          </h2>
+        </div>
+        <MapaDoDestino />
+      </motion.div>
+
+      {/* Botões de Ação */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8"
+      >
+        <Button
+          variant="secondary"
+          size="lg"
+          icon={Download}
+          onClick={handleExportarRoteiro}
+          className="w-full"
+          aria-label="Exportar roteiro em PDF"
+        >
+          Exportar PDF
+        </Button>
+
+        <Button
+          variant="secondary"
+          size="lg"
+          icon={Share2}
+          onClick={handleCompartilharRoteiro}
+          className="w-full"
+          aria-label="Compartilhar roteiro com acompanhante"
+        >
+          Compartilhar
+        </Button>
+
+        <Button
+          variant="primary"
+          size="lg"
+          icon={Plus}
+          onClick={handleNovoEvento}
+          className="w-full"
+          aria-label="Adicionar novo evento ao roteiro"
+        >
+          Novo Evento
+        </Button>
+      </motion.div>
+
+      {/* Botão para voltar ao seletor de objetivo */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="pt-6 border-t border-gray-200"
+      >
+        <Button
+          variant="secondary"
+          size="default"
+          onClick={() => setEtapaAtual("objetivo")}
+          className="w-full"
+          aria-label="Alterar objetivo da viagem"
+        >
+          Alterar objetivo da viagem
+        </Button>
+      </motion.div>
+    </div>
   );
 }
