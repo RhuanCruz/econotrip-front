@@ -63,15 +63,24 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// ECONOTRIP custom colors
+				// ECONOTRIP Brand Colors - Nova Paleta
 				econotrip: {
-					blue: '#0D3B66',
-					orange: '#FF8C42',
-					green: '#A1C181',
+					// Azul principal da marca - #153D6B
+					blue: '#153D6B',
+					'blue-light': '#6CB4F5',
+					// Laranja/Amarelo da marca - #FFC338  
+					orange: '#FFC338',
+					// Verde da marca - #ABD03B
+					green: '#ABD03B',
+					// Vermelho/Coral da marca - #FF6328
+					coral: '#FF6328',
+					// Neutros
+					white: '#FFFFFF',
+					black: '#000000',
 				}
 			},
 			fontFamily: {
-				museomoderno: ['MuseoModerno', 'sans-serif'],
+				museomoderno: ['Museo Moderno', 'sans-serif'],
 				manrope: ['Manrope', 'sans-serif'],
 			},
 			borderRadius: {

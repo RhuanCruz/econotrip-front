@@ -8,12 +8,17 @@ export default function WelcomeScreen() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-econotrip-blue-light/20 to-econotrip-green/20 px-6 py-12">
       <div className="w-full max-w-md flex flex-col items-center text-center">
-        {/* Logo */}
-        <div className="mb-8 flex items-center justify-center">
+        {/* Logo e Ícone */}
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <img 
+            src="/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png" 
+            alt="EconoTrip"
+            className="h-20 w-20 mb-4 rounded-2xl shadow-lg"
+          />
           <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
-            ECONOTRIP
+            EconoTrip
           </div>
         </div>
 
@@ -24,10 +29,10 @@ export default function WelcomeScreen() {
 
         {/* Title and subtitle */}
         <h1 className="text-3xl md:text-4xl font-bold text-econotrip-blue mb-4 font-museomoderno">
-          Bem-vindo(a) à ECONOTRIP
+          Bem-vindo(a) ao EconoTrip
         </h1>
         <p className="text-xl text-gray-600 mb-10 font-manrope">
-          Sua próxima viagem começa aqui
+          Sua próxima viagem econômica começa aqui
         </p>
 
         {/* Main button */}
@@ -37,7 +42,7 @@ export default function WelcomeScreen() {
             size="lg"
             icon={ArrowRight}
             iconPosition="right"
-            className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14"
+            className="w-full bg-gradient-to-r from-econotrip-orange to-econotrip-coral rounded-full h-14 shadow-lg hover:shadow-xl transition-all"
             onClick={() => navigate("/login")}
           >
             Começar

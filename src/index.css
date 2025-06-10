@@ -6,43 +6,46 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 215 28% 17%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 28% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 28% 17%;
 
-    --primary: 25 100% 63%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary agora usa o laranja/amarelo da marca */
+    --primary: 45 100% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 64% 23%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary usa o azul da marca */
+    --secondary: 215 64% 25%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 92 35% 63%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent usa o verde da marca */
+    --accent: 75 64% 52%;
+    --accent-foreground: 215 28% 17%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 25 100% 63%;
+    --ring: 45 100% 60%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 210 64% 23%;
-    --sidebar-primary: 25 100% 63%;
+    --sidebar-foreground: 215 64% 25%;
+    --sidebar-primary: 45 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 25 100% 63%;
+    --sidebar-ring: 45 100% 60%;
   }
 }
 
@@ -79,16 +82,16 @@
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
 
-    --primary: 25 100% 50%;
+    --primary: 45 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 64% 20%;
+    --secondary: 215 64% 20%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 90%;
     --muted-foreground: 0 0% 0%;
 
-    --accent: 92 35% 50%;
+    --accent: 75 64% 45%;
     --accent-foreground: 0 0% 0%;
 
     --border: 0 0% 0%;

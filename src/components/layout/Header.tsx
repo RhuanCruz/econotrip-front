@@ -13,7 +13,7 @@ export function Header({ userName, variant = "default" }: HeaderProps) {
   const navigate = useNavigate();
   
   // Determine if we should show back button based on the route
-  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro"].includes(location.pathname);
+  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard"].includes(location.pathname);
   
   const handleBack = () => {
     navigate(-1);
@@ -32,13 +32,17 @@ export function Header({ userName, variant = "default" }: HeaderProps) {
               <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
             </button>
           ) : (
-            <Link to="/" className="flex items-center min-w-0" aria-label="Ir para página inicial">
-              <div className="font-museomoderno font-bold text-lg md:text-xl text-econotrip-blue mr-2 truncate">
-                ECONOTRIP
+            <Link to="/dashboard" className="flex items-center min-w-0" aria-label="Ir para página inicial">
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png" 
+                  alt="EconoTrip"
+                  className="h-8 w-8 rounded-md"
+                />
+                <div className="font-museomoderno font-bold text-lg md:text-xl text-econotrip-blue truncate">
+                  EconoTrip
+                </div>
               </div>
-              <span className="text-econotrip-orange font-medium text-sm md:text-base hidden sm:inline">
-                PrimeVoyage
-              </span>
             </Link>
           )}
         </div>
