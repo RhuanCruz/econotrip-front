@@ -131,68 +131,61 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
   }, {} as Record<number, EventoRoteiro[]>);
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Clock className="h-6 w-6 text-econotrip-blue" />
-        <h2 className="text-2xl font-museomoderno font-bold text-econotrip-blue">
-          Sua programação de viagem
-        </h2>
-      </div>
-
-      <div className="space-y-8">
+    <Card className="p-4">
+      <div className="space-y-6">
         {Object.entries(eventosPorDia).map(([dia, eventosODia]) => (
           <motion.div
             key={dia}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="border-l-4 border-econotrip-blue pl-6 relative"
+            className="border-l-4 border-econotrip-blue pl-4 relative"
           >
             <div className="absolute -left-3 top-0 w-6 h-6 bg-econotrip-blue rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-bold">{dia}</span>
+              <span className="text-white text-xs font-bold">{dia}</span>
             </div>
             
-            <h3 className="text-xl font-bold text-econotrip-blue mb-4">
+            <h3 className="text-lg font-bold text-econotrip-blue mb-3">
               Dia {dia}
             </h3>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               {eventosODia.map((evento) => {
                 const Icon = getIconByTipo(evento.tipo);
                 return (
                   <div
                     key={evento.id}
-                    className={`p-4 rounded-xl border-2 transition-all ${
+                    className={`p-3 rounded-lg border transition-all ${
                       evento.concluido 
                         ? "bg-green-50 border-green-200 opacity-75" 
                         : "bg-white border-gray-200 hover:border-econotrip-blue/30"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${getColorByTipo(evento.tipo)}`}>
-                        <Icon className="h-6 w-6" />
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getColorByTipo(evento.tipo)}`}>
+                        <Icon className="h-5 w-5" />
                       </div>
                       
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h4 className={`text-lg font-medium ${evento.concluido ? "line-through text-gray-500" : "text-econotrip-blue"}`}>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`text-base font-medium break-words ${evento.concluido ? "line-through text-gray-500" : "text-econotrip-blue"}`}>
                               {evento.titulo}
                             </h4>
-                            <p className="text-base text-gray-600">
+                            <p className="text-sm text-gray-600 break-words">
                               {evento.horario} - {evento.descricao}
                             </p>
                           </div>
                         </div>
                         
-                        <div className="flex gap-2 mt-3">
+                        <div className="flex flex-wrap gap-2 mt-2">
                           <Button
                             variant={evento.lembrete ? "primary" : "secondary"}
                             size="sm"
                             icon={Bell}
                             onClick={() => toggleLembrete(evento.id)}
-                            className="text-sm"
+                            className="text-xs px-2 py-1 h-8 flex-shrink-0"
                           >
-                            {evento.lembrete ? "Lembrete ativo" : "Me lembrar"}
+                            {evento.lembrete ? "Ativo" : "Lembrar"}
                           </Button>
                           
                           <Button
@@ -200,9 +193,9 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
                             size="sm"
                             icon={Check}
                             onClick={() => marcarConcluido(evento.id)}
-                            className="text-sm"
+                            className="text-xs px-2 py-1 h-8 flex-shrink-0"
                           >
-                            {evento.concluido ? "Desmarcar" : "Marcar como feito"}
+                            {evento.concluido ? "Desmarcar" : "Feito"}
                           </Button>
                           
                           <Button
@@ -210,7 +203,7 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
                             size="sm"
                             icon={X}
                             onClick={() => cancelarEvento(evento.id)}
-                            className="text-sm text-red-600 hover:bg-red-50"
+                            className="text-xs px-2 py-1 h-8 text-red-600 hover:bg-red-50 flex-shrink-0"
                           >
                             Cancelar
                           </Button>

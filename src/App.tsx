@@ -24,6 +24,7 @@ import SupportScreen from "./pages/SupportScreen";
 import SustainableTravel from "./pages/SustainableTravel";
 import RoteirosPersonalizadosScreen from "./pages/RoteirosPersonalizadosScreen";
 import MeuRoteiroScreen from "./pages/MeuRoteiroScreen";
+import DashboardScreen from "./pages/DashboardScreen";
 import NotFound from "./pages/NotFound";
 import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
@@ -65,6 +66,7 @@ const App = () => {
               {/* Rotas que usam o LayoutBase */}
               <Route element={<LayoutBase><Outlet /></LayoutBase>}>
                 <Route path="/bem-vindo" element={<TelaBoasVindas />} />
+                <Route path="/dashboard" element={<DashboardScreen />} />
                 <Route path="/busca-voos" element={<TelaBuscaVoos />} />
                 <Route path="/resultados-voos" element={<ResultsScreen />} />
                 <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
@@ -75,14 +77,8 @@ const App = () => {
                 <Route path="/suporte" element={<SupportScreen />} />
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
+                <Route path="/meu-roteiro" element={<MeuRoteiroScreen />} />
               </Route>
-
-              {/* Rota especial para Meu Roteiro com título */}
-              <Route path="/meu-roteiro" element={
-                <LayoutBase title="Meu Roteiro de Viagem">
-                  <MeuRoteiroScreen />
-                </LayoutBase>
-              } />
 
               {/* Rota para página não encontrada */}
               <Route path="*" element={<NotFound />} />

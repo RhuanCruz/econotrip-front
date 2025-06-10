@@ -12,11 +12,13 @@ import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
 import { DicasEconomia } from "@/components/financial/DicasEconomia";
 import { SugestoesPersonalizadas } from "@/components/suggestions/SugestoesPersonalizadas";
 import { useLastSearch } from "@/hooks/useLastSearch";
+import { ArrowLeft } from "lucide-react";
 
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
   const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
   const [preferenciasUsuario, setPreferenciasUsuario] = useState<string[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   
   const [formData, setFormData] = useState({
     origem: "",
@@ -80,6 +82,10 @@ export default function TelaBuscaVoos() {
     navigate("/roteiros-personalizados");
   };
 
+  const handleVoltar = () => {
+    navigate(-1);
+  };
+
   const containerAnimation = {
     hidden: { opacity: 0 },
     visible: {
@@ -94,18 +100,27 @@ export default function TelaBuscaVoos() {
   };
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-screen-sm mx-auto px-4 py-4">
       <motion.div
         variants={containerAnimation}
         initial="hidden"
         animate="visible"
+        className="space-y-4 pb-28"
       >
-        <motion.h1 
-          variants={itemAnimation}
-          className="text-2xl font-semibold font-museomoderno text-econotrip-blue mb-6"
-        >
-          Busque seu próximo voo
-        </motion.h1>
+        {/* Header com botão voltar */}
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={ArrowLeft}
+            onClick={handleVoltar}
+            className="flex-shrink-0"
+            aria-label="Voltar"
+          />
+          <h1 className="text-xl font-semibold text-econotrip-blue">
+            Busque seu próximo voo
+          </h1>
+        </div>
 
         {/* Last search prompt */}
         <AnimatePresence>
@@ -120,7 +135,7 @@ export default function TelaBuscaVoos() {
 
         {/* Sugestões personalizadas */}
         {preferenciasUsuario.length > 0 && (
-          <motion.div variants={itemAnimation} className="mb-6">
+          <motion.div variants={itemAnimation}>
             <SugestoesPersonalizadas 
               preferencias={preferenciasUsuario}
               onSelectSugestao={handleSelectSugestao}
@@ -129,9 +144,10 @@ export default function TelaBuscaVoos() {
         )}
 
         <motion.div variants={itemAnimation}>
-          <Card className="mb-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
+          <Card className="p-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Campos essenciais */}
+              <div className="space-y-3">
                 <Input
                   label="Origem"
                   name="origem"
@@ -139,7 +155,7 @@ export default function TelaBuscaVoos() {
                   placeholder="De onde você vai partir?"
                   value={formData.origem}
                   onChange={handleChange}
-                  className="h-14 rounded-xl px-4"
+                  className="h-12 rounded-lg px-3"
                   required
                   aria-label="Cidade ou aeroporto de origem"
                 />
@@ -151,139 +167,157 @@ export default function TelaBuscaVoos() {
                   placeholder="Para onde você vai?"
                   value={formData.destino}
                   onChange={handleChange}
-                  className="h-14 rounded-xl px-4"
+                  className="h-12 rounded-lg px-3"
                   required
                   aria-label="Cidade ou aeroporto de destino"
                 />
 
-                <Input
-                  type="date"
-                  label="Data de Ida"
-                  name="dataIda"
-                  id="dataIda"
-                  value={formData.dataIda}
-                  onChange={handleChange}
-                  className="h-14 rounded-xl px-4"
-                  required
-                  aria-label="Data de ida da viagem"
-                />
-
-                <Input
-                  type="date"
-                  label="Data de Volta"
-                  name="dataVolta"
-                  id="dataVolta"
-                  value={formData.dataVolta}
-                  onChange={handleChange}
-                  className="h-14 rounded-xl px-4"
-                  aria-label="Data de volta da viagem (opcional)"
-                />
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="passageiros"
-                    className="block text-lg font-medium text-econotrip-blue"
-                  >
-                    Passageiros
-                  </label>
-                  <select
-                    id="passageiros"
-                    name="passageiros"
-                    className="h-14 w-full rounded-xl border border-input bg-background px-4 py-2 text-lg"
-                    value={formData.passageiros}
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    type="date"
+                    label="Data de Ida"
+                    name="dataIda"
+                    id="dataIda"
+                    value={formData.dataIda}
                     onChange={handleChange}
-                    aria-label="Quantidade de passageiros"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                      <option key={num} value={num}>
-                        {num} {num === 1 ? "passageiro" : "passageiros"}
-                      </option>
-                    ))}
-                  </select>
+                    className="h-12 rounded-lg px-3"
+                    required
+                    aria-label="Data de ida da viagem"
+                  />
+
+                  <Input
+                    type="date"
+                    label="Data de Volta"
+                    name="dataVolta"
+                    id="dataVolta"
+                    value={formData.dataVolta}
+                    onChange={handleChange}
+                    className="h-12 rounded-lg px-3"
+                    aria-label="Data de volta da viagem (opcional)"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <label
-                    htmlFor="classe"
-                    className="block text-lg font-medium text-econotrip-blue"
-                  >
-                    Classe
-                  </label>
-                  <select
-                    id="classe"
-                    name="classe"
-                    className="h-14 w-full rounded-xl border border-input bg-background px-4 py-2 text-lg"
-                    value={formData.classe}
-                    onChange={handleChange}
-                    aria-label="Classe da viagem"
-                  >
-                    <option value="economica">Econômica</option>
-                    <option value="premium">Econômica Premium</option>
-                    <option value="executiva">Executiva</option>
-                    <option value="primeira">Primeira Classe</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="passageiros"
+                      className="block text-base font-medium text-econotrip-blue"
+                    >
+                      Passageiros
+                    </label>
+                    <select
+                      id="passageiros"
+                      name="passageiros"
+                      className="h-12 w-full rounded-lg border border-input bg-background px-3 py-2"
+                      value={formData.passageiros}
+                      onChange={handleChange}
+                      aria-label="Quantidade de passageiros"
+                    >
+                      {[1, 2, 3, 4, 5, 6].map((num) => (
+                        <option key={num} value={num}>
+                          {num} {num === 1 ? "adulto" : "adultos"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="classe"
+                      className="block text-base font-medium text-econotrip-blue"
+                    >
+                      Classe
+                    </label>
+                    <select
+                      id="classe"
+                      name="classe"
+                      className="h-12 w-full rounded-lg border border-input bg-background px-3 py-2"
+                      value={formData.classe}
+                      onChange={handleChange}
+                      aria-label="Classe da viagem"
+                    >
+                      <option value="economica">Econômica</option>
+                      <option value="premium">Premium</option>
+                      <option value="executiva">Executiva</option>
+                    </select>
+                  </div>
                 </div>
-
-                {/* Novo campo de orçamento */}
-                <Input
-                  type="number"
-                  label="Meu orçamento é até (opcional)"
-                  name="orcamento"
-                  id="orcamento"
-                  placeholder="R$ 0,00"
-                  value={formData.orcamento}
-                  onChange={handleChange}
-                  className="h-14 rounded-xl px-4"
-                  aria-label="Orçamento máximo para a viagem"
-                />
               </div>
 
-              <div className="grid grid-cols-1 gap-2">
-                <Checkbox
-                  id="somenteDireto"
-                  name="somenteDireto"
-                  checked={formData.somenteDireto}
-                  onChange={handleChange}
-                  label="Somente voos diretos"
-                />
+              {/* Botão para mostrar opções avançadas */}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full text-center text-econotrip-blue font-medium py-2 border-t border-gray-200"
+              >
+                {showAdvanced ? "Ocultar opções avançadas" : "Mostrar mais opções"}
+              </button>
 
-                <Checkbox
-                  id="voosSustentaveis"
-                  name="voosSustentaveis"
-                  checked={formData.voosSustentaveis}
-                  onChange={handleChange}
-                  label="Priorizar voos sustentáveis"
-                />
+              {/* Campos avançados (colapsáveis) */}
+              {showAdvanced && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3 pt-3 border-t border-gray-200"
+                >
+                  <Input
+                    type="number"
+                    label="Meu orçamento é até (opcional)"
+                    name="orcamento"
+                    id="orcamento"
+                    placeholder="R$ 0,00"
+                    value={formData.orcamento}
+                    onChange={handleChange}
+                    className="h-12 rounded-lg px-3"
+                    aria-label="Orçamento máximo para a viagem"
+                  />
 
-                <Checkbox
-                  id="tarifasFlexiveis"
-                  name="tarifasFlexiveis"
-                  checked={formData.tarifasFlexiveis}
-                  onChange={handleChange}
-                  label="Tarifas flexíveis"
-                />
+                  <div className="grid grid-cols-1 gap-2">
+                    <Checkbox
+                      id="somenteDireto"
+                      name="somenteDireto"
+                      checked={formData.somenteDireto}
+                      onChange={handleChange}
+                      label="Somente voos diretos"
+                    />
 
-                <Checkbox
-                  id="acessibilidade"
-                  name="acessibilidade"
-                  checked={formData.acessibilidade}
-                  onChange={handleChange}
-                  label="Preciso de assistência especial"
-                />
-              </div>
+                    <Checkbox
+                      id="voosSustentaveis"
+                      name="voosSustentaveis"
+                      checked={formData.voosSustentaveis}
+                      onChange={handleChange}
+                      label="Priorizar voos sustentáveis"
+                    />
+
+                    <Checkbox
+                      id="tarifasFlexiveis"
+                      name="tarifasFlexiveis"
+                      checked={formData.tarifasFlexiveis}
+                      onChange={handleChange}
+                      label="Tarifas flexíveis"
+                    />
+
+                    <Checkbox
+                      id="acessibilidade"
+                      name="acessibilidade"
+                      checked={formData.acessibilidade}
+                      onChange={handleChange}
+                      label="Preciso de assistência especial"
+                    />
+                  </div>
+                </motion.div>
+              )}
             </form>
           </Card>
         </motion.div>
 
         {/* Dicas de economia */}
-        <motion.div variants={itemAnimation} className="mb-6">
+        <motion.div variants={itemAnimation}>
           <DicasEconomia />
         </motion.div>
 
-        <motion.div
-          variants={itemAnimation}
-          className="mb-24"
-        >
+        <motion.div variants={itemAnimation}>
           <AlertBox
             type="info"
             title="Dica de Viagem"
@@ -294,22 +328,20 @@ export default function TelaBuscaVoos() {
         </motion.div>
       </motion.div>
       
-      <motion.div 
-        className="fixed bottom-24 left-0 right-0 px-6 pb-4 z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Button 
-          type="submit" 
-          variant="primary" 
-          size="lg" 
-          className="w-full h-16 text-xl rounded-xl shadow-md"
-          onClick={handleSubmit}
-        >
-          Buscar Voos
-        </Button>
-      </motion.div>
+      {/* Botão fixo na parte inferior */}
+      <div className="fixed bottom-20 left-0 right-0 px-4 z-10 bg-gradient-to-t from-white via-white to-transparent pt-4">
+        <div className="max-w-screen-sm mx-auto">
+          <Button 
+            type="submit" 
+            variant="primary" 
+            size="lg" 
+            className="w-full h-14 text-lg rounded-xl shadow-lg"
+            onClick={handleSubmit}
+          >
+            Buscar Voos
+          </Button>
+        </div>
+      </div>
       
       <AssistButton tooltipText="Ajuda com busca de voos" />
     </div>

@@ -5,7 +5,8 @@ import {
   Plane,
   User,
   HelpCircle,
-  MapPin
+  MapPin,
+  Home
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -15,6 +16,12 @@ export function BottomNavigation() {
   const location = useLocation();
   
   const navigationItems = [
+    { 
+      name: 'Início', 
+      icon: Home, 
+      route: '/dashboard', 
+      isActive: location.pathname === '/dashboard'
+    },
     { 
       name: 'Buscar', 
       icon: Plane, 
@@ -33,12 +40,6 @@ export function BottomNavigation() {
       route: '/perfil', 
       isActive: location.pathname === '/perfil' || location.pathname === '/editar-perfil' 
     },
-    { 
-      name: 'Ajuda', 
-      icon: HelpCircle, 
-      route: '/suporte', 
-      isActive: location.pathname === '/suporte' 
-    },
   ];
 
   return (
@@ -48,14 +49,14 @@ export function BottomNavigation() {
       animate={{ y: 0 }}
       transition={{ type: "spring", damping: 20 }}
     >
-      <div className="max-w-screen-sm mx-auto px-4">
+      <div className="max-w-screen-sm mx-auto px-2">
         <ul className="flex justify-around items-center">
           {navigationItems.map((item) => (
             <li key={item.name} className="flex-1">
               <motion.button
                 onClick={() => navigate(item.route)}
                 className={cn(
-                  "w-full py-4 flex flex-col items-center justify-center touch-target transition-colors",
+                  "w-full py-3 flex flex-col items-center justify-center touch-target transition-colors",
                   item.isActive 
                     ? "text-econotrip-blue" 
                     : "text-gray-400 hover:text-gray-600"
@@ -65,13 +66,13 @@ export function BottomNavigation() {
               >
                 <item.icon
                   className={cn(
-                    "h-6 w-6 mb-1",
+                    "h-5 w-5 mb-1",
                     item.isActive ? "text-econotrip-blue" : "text-gray-400"
                   )}
                   aria-hidden="true"
                 />
                 <span className={cn(
-                  "text-sm font-medium",
+                  "text-xs font-medium",
                   item.isActive ? "font-semibold" : ""
                 )}>
                   {item.name}
