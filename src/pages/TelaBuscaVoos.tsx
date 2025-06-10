@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
@@ -21,7 +20,7 @@ import { DateSelector } from "@/components/search/DateSelector";
 import { useLastSearch } from "@/hooks/useLastSearch";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
-import { StandardModal } from "@/components/ui-custom/StandardModal";
+import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
 interface FormData {
   origem: string;
@@ -55,7 +54,7 @@ export default function TelaBuscaVoos() {
 
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({
-    type: "info" as const,
+    type: "info" as ModalType,
     title: "",
     description: ""
   });
@@ -136,7 +135,24 @@ export default function TelaBuscaVoos() {
 
   const handleRestoreLastSearch = () => {
     if (lastSearch) {
-      setFormData(lastSearch);
+      // Map the lastSearch data to the full FormData structure
+      const restoredData: FormData = {
+        origem: lastSearch.origem,
+        destino: lastSearch.destino,
+        dataIda: lastSearch.dataIda,
+        dataVolta: lastSearch.dataVolta,
+        passageiros: lastSearch.passageiros,
+        classe: lastSearch.classe,
+        usarMilhas: lastSearch.usarMilhas,
+        filtros: lastSearch.filtros,
+        // Set default values for missing properties
+        orcamento: "",
+        somenteDireto: false,
+        voosSustentaveis: false,
+        tarifasFlexiveis: false,
+        acessibilidade: false,
+      };
+      setFormData(restoredData);
       hideRestorePrompt();
     }
   };
