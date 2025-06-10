@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -80,6 +81,9 @@ const App = () => {
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
                 <Route path="/meu-roteiro" element={<MeuRoteiroScreen />} />
+                <Route path="/radar-ofertas" element={<RadarOfertasScreen />} />
+                <Route path="/avaliacao" element={<AvaliacaoScreen />} />
+                <Route path="/turismo-sustentavel" element={<TurismoSustentavelScreen />} />
               </Route>
 
               {/* Rota para página não encontrada */}
@@ -100,5 +104,3 @@ const App = () => {
 };
 
 export default App;
-
-</initial_code>
