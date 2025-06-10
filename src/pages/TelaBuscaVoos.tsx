@@ -12,12 +12,13 @@ import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
 import { DicasEconomia } from "@/components/financial/DicasEconomia";
 import { SugestoesPersonalizadas } from "@/components/suggestions/SugestoesPersonalizadas";
 import { useLastSearch } from "@/hooks/useLastSearch";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Users, Settings, Lightbulb } from "lucide-react";
 
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
   const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
   const [preferenciasUsuario, setPreferenciasUsuario] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
   const [showAdvanced, setShowAdvanced] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -64,10 +65,7 @@ export default function TelaBuscaVoos() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Dados da busca:", formData);
-    
-    // Save search data
     saveSearch(formData);
-    
     navigate("/resultados-voos");
   };
 
@@ -85,6 +83,16 @@ export default function TelaBuscaVoos() {
   const handleVoltar = () => {
     navigate(-1);
   };
+
+  const nextStep = () => {
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const stepProgress = (currentStep / 3) * 100;
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -105,10 +113,10 @@ export default function TelaBuscaVoos() {
         variants={containerAnimation}
         initial="hidden"
         animate="visible"
-        className="space-y-4 pb-28"
+        className="space-y-6 pb-28"
       >
-        {/* Header com botão voltar */}
-        <div className="flex items-center gap-3 mb-4">
+        {/* Header modernizado */}
+        <div className="flex items-center gap-3 mb-6">
           <Button
             variant="secondary"
             size="sm"
@@ -117,10 +125,27 @@ export default function TelaBuscaVoos() {
             className="flex-shrink-0"
             aria-label="Voltar"
           />
-          <h1 className="text-xl font-semibold text-econotrip-blue">
-            Busque seu próximo voo
-          </h1>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold text-econotrip-blue">
+              Encontre seu voo ideal
+            </h1>
+            <p className="text-sm text-gray-600">
+              Passo {currentStep} de 3 - {currentStep === 1 ? "Destino" : currentStep === 2 ? "Datas" : "Preferências"}
+            </p>
+          </div>
         </div>
+
+        {/* Barra de progresso */}
+        <motion.div
+          variants={itemAnimation}
+          className="w-full bg-gray-200 rounded-full h-2"
+        >
+          <motion.div
+            className="bg-econotrip-orange h-2 rounded-full transition-all duration-500"
+            initial={{ width: "33%" }}
+            animate={{ width: `${stepProgress}%` }}
+          />
+        </motion.div>
 
         {/* Last search prompt */}
         <AnimatePresence>
@@ -134,7 +159,7 @@ export default function TelaBuscaVoos() {
         </AnimatePresence>
 
         {/* Sugestões personalizadas */}
-        {preferenciasUsuario.length > 0 && (
+        {preferenciasUsuario.length > 0 && currentStep === 1 && (
           <motion.div variants={itemAnimation}>
             <SugestoesPersonalizadas 
               preferencias={preferenciasUsuario}
@@ -143,205 +168,260 @@ export default function TelaBuscaVoos() {
           </motion.div>
         )}
 
+        {/* Formulário por etapas */}
         <motion.div variants={itemAnimation}>
-          <Card className="p-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Campos essenciais */}
-              <div className="space-y-3">
-                <Input
-                  label="Origem"
-                  name="origem"
-                  id="origem"
-                  placeholder="De onde você vai partir?"
-                  value={formData.origem}
-                  onChange={handleChange}
-                  className="h-12 rounded-lg px-3"
-                  required
-                  aria-label="Cidade ou aeroporto de origem"
-                />
+          <Card className="p-6 rounded-2xl shadow-lg">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <AnimatePresence mode="wait">
+                {/* Etapa 1: Origem e Destino */}
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-4"
+                  >
+                    <div className="text-center mb-6">
+                      <MapPin className="h-8 w-8 text-econotrip-orange mx-auto mb-2" />
+                      <h2 className="text-lg font-medium text-econotrip-blue">
+                        Para onde vamos?
+                      </h2>
+                    </div>
 
-                <Input
-                  label="Destino"
-                  name="destino"
-                  id="destino"
-                  placeholder="Para onde você vai?"
-                  value={formData.destino}
-                  onChange={handleChange}
-                  className="h-12 rounded-lg px-3"
-                  required
-                  aria-label="Cidade ou aeroporto de destino"
-                />
+                    <div className="space-y-4">
+                      <Input
+                        label="De onde você vai partir?"
+                        name="origem"
+                        id="origem"
+                        placeholder="São Paulo, SP"
+                        value={formData.origem}
+                        onChange={handleChange}
+                        className="h-14 text-lg rounded-xl"
+                        required
+                      />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    type="date"
-                    label="Data de Ida"
-                    name="dataIda"
-                    id="dataIda"
-                    value={formData.dataIda}
-                    onChange={handleChange}
-                    className="h-12 rounded-lg px-3"
-                    required
-                    aria-label="Data de ida da viagem"
-                  />
+                      <Input
+                        label="Para onde você quer ir?"
+                        name="destino"
+                        id="destino"
+                        placeholder="Rio de Janeiro, RJ"
+                        value={formData.destino}
+                        onChange={handleChange}
+                        className="h-14 text-lg rounded-xl"
+                        required
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
-                  <Input
-                    type="date"
-                    label="Data de Volta"
-                    name="dataVolta"
-                    id="dataVolta"
-                    value={formData.dataVolta}
-                    onChange={handleChange}
-                    className="h-12 rounded-lg px-3"
-                    aria-label="Data de volta da viagem (opcional)"
-                  />
-                </div>
+                {/* Etapa 2: Datas e Passageiros */}
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-4"
+                  >
+                    <div className="text-center mb-6">
+                      <Calendar className="h-8 w-8 text-econotrip-orange mx-auto mb-2" />
+                      <h2 className="text-lg font-medium text-econotrip-blue">
+                        Quando você quer viajar?
+                      </h2>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="passageiros"
-                      className="block text-base font-medium text-econotrip-blue"
-                    >
-                      Passageiros
-                    </label>
-                    <select
-                      id="passageiros"
-                      name="passageiros"
-                      className="h-12 w-full rounded-lg border border-input bg-background px-3 py-2"
-                      value={formData.passageiros}
-                      onChange={handleChange}
-                      aria-label="Quantidade de passageiros"
-                    >
-                      {[1, 2, 3, 4, 5, 6].map((num) => (
-                        <option key={num} value={num}>
-                          {num} {num === 1 ? "adulto" : "adultos"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          type="date"
+                          label="Ida"
+                          name="dataIda"
+                          id="dataIda"
+                          value={formData.dataIda}
+                          onChange={handleChange}
+                          className="h-14 rounded-xl"
+                          required
+                        />
 
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="classe"
-                      className="block text-base font-medium text-econotrip-blue"
-                    >
-                      Classe
-                    </label>
-                    <select
-                      id="classe"
-                      name="classe"
-                      className="h-12 w-full rounded-lg border border-input bg-background px-3 py-2"
-                      value={formData.classe}
-                      onChange={handleChange}
-                      aria-label="Classe da viagem"
-                    >
-                      <option value="economica">Econômica</option>
-                      <option value="premium">Premium</option>
-                      <option value="executiva">Executiva</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+                        <Input
+                          type="date"
+                          label="Volta"
+                          name="dataVolta"
+                          id="dataVolta"
+                          value={formData.dataVolta}
+                          onChange={handleChange}
+                          className="h-14 rounded-xl"
+                        />
+                      </div>
 
-              {/* Botão para mostrar opções avançadas */}
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full text-center text-econotrip-blue font-medium py-2 border-t border-gray-200"
-              >
-                {showAdvanced ? "Ocultar opções avançadas" : "Mostrar mais opções"}
-              </button>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <label className="block text-base font-medium text-econotrip-blue">
+                            <Users className="h-4 w-4 inline mr-2" />
+                            Passageiros
+                          </label>
+                          <select
+                            name="passageiros"
+                            className="h-14 w-full rounded-xl border border-input bg-background px-4 text-lg"
+                            value={formData.passageiros}
+                            onChange={handleChange}
+                          >
+                            {[1, 2, 3, 4, 5, 6].map((num) => (
+                              <option key={num} value={num}>
+                                {num} {num === 1 ? "pessoa" : "pessoas"}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-              {/* Campos avançados (colapsáveis) */}
-              {showAdvanced && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-3 pt-3 border-t border-gray-200"
+                        <div className="space-y-2">
+                          <label className="block text-base font-medium text-econotrip-blue">
+                            Classe
+                          </label>
+                          <select
+                            name="classe"
+                            className="h-14 w-full rounded-xl border border-input bg-background px-4 text-lg"
+                            value={formData.classe}
+                            onChange={handleChange}
+                          >
+                            <option value="economica">Econômica</option>
+                            <option value="premium">Premium</option>
+                            <option value="executiva">Executiva</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Etapa 3: Preferências */}
+                {currentStep === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-4"
+                  >
+                    <div className="text-center mb-6">
+                      <Settings className="h-8 w-8 text-econotrip-orange mx-auto mb-2" />
+                      <h2 className="text-lg font-medium text-econotrip-blue">
+                        Suas preferências
+                      </h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Input
+                        type="number"
+                        label="Orçamento máximo (opcional)"
+                        name="orcamento"
+                        id="orcamento"
+                        placeholder="R$ 1.000"
+                        value={formData.orcamento}
+                        onChange={handleChange}
+                        className="h-14 text-lg rounded-xl"
+                      />
+
+                      <div className="space-y-3">
+                        <Checkbox
+                          id="somenteDireto"
+                          name="somenteDireto"
+                          checked={formData.somenteDireto}
+                          onChange={handleChange}
+                          label="Apenas voos diretos"
+                        />
+
+                        <Checkbox
+                          id="voosSustentaveis"
+                          name="voosSustentaveis"
+                          checked={formData.voosSustentaveis}
+                          onChange={handleChange}
+                          label="Preferir voos sustentáveis"
+                        />
+
+                        <Checkbox
+                          id="tarifasFlexiveis"
+                          name="tarifasFlexiveis"
+                          checked={formData.tarifasFlexiveis}
+                          onChange={handleChange}
+                          label="Tarifas flexíveis"
+                        />
+
+                        <Checkbox
+                          id="acessibilidade"
+                          name="acessibilidade"
+                          checked={formData.acessibilidade}
+                          onChange={handleChange}
+                          label="Preciso de assistência especial"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Navegação entre etapas */}
+              <div className="flex justify-between items-center pt-6">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className="px-6"
                 >
-                  <Input
-                    type="number"
-                    label="Meu orçamento é até (opcional)"
-                    name="orcamento"
-                    id="orcamento"
-                    placeholder="R$ 0,00"
-                    value={formData.orcamento}
-                    onChange={handleChange}
-                    className="h-12 rounded-lg px-3"
-                    aria-label="Orçamento máximo para a viagem"
-                  />
+                  Anterior
+                </Button>
 
-                  <div className="grid grid-cols-1 gap-2">
-                    <Checkbox
-                      id="somenteDireto"
-                      name="somenteDireto"
-                      checked={formData.somenteDireto}
-                      onChange={handleChange}
-                      label="Somente voos diretos"
-                    />
-
-                    <Checkbox
-                      id="voosSustentaveis"
-                      name="voosSustentaveis"
-                      checked={formData.voosSustentaveis}
-                      onChange={handleChange}
-                      label="Priorizar voos sustentáveis"
-                    />
-
-                    <Checkbox
-                      id="tarifasFlexiveis"
-                      name="tarifasFlexiveis"
-                      checked={formData.tarifasFlexiveis}
-                      onChange={handleChange}
-                      label="Tarifas flexíveis"
-                    />
-
-                    <Checkbox
-                      id="acessibilidade"
-                      name="acessibilidade"
-                      checked={formData.acessibilidade}
-                      onChange={handleChange}
-                      label="Preciso de assistência especial"
-                    />
-                  </div>
-                </motion.div>
-              )}
+                {currentStep < 3 ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={nextStep}
+                    disabled={
+                      (currentStep === 1 && (!formData.origem || !formData.destino)) ||
+                      (currentStep === 2 && !formData.dataIda)
+                    }
+                    className="px-6"
+                  >
+                    Próximo
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    className="px-8"
+                  >
+                    Buscar Voos
+                  </Button>
+                )}
+              </div>
             </form>
           </Card>
         </motion.div>
+
+        {/* Dicas contextuais */}
+        {currentStep === 1 && (
+          <motion.div variants={itemAnimation}>
+            <Card className="p-4 bg-gradient-to-r from-econotrip-blue/5 to-econotrip-orange/5 rounded-2xl">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="h-5 w-5 text-econotrip-orange mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-econotrip-blue text-sm">Dica</h4>
+                  <p className="text-xs text-gray-600">
+                    Use códigos de aeroporto (GRU, SDU) para resultados mais precisos
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Dicas de economia */}
         <motion.div variants={itemAnimation}>
           <DicasEconomia />
         </motion.div>
-
-        <motion.div variants={itemAnimation}>
-          <AlertBox
-            type="info"
-            title="Dica de Viagem"
-          >
-            Reservas feitas com antecedência de 60 dias ou mais geralmente têm melhores preços. 
-            Considere planejar sua viagem com antecedência para economizar!
-          </AlertBox>
-        </motion.div>
       </motion.div>
-      
-      {/* Botão fixo na parte inferior */}
-      <div className="fixed bottom-20 left-0 right-0 px-4 z-10 bg-gradient-to-t from-white via-white to-transparent pt-4">
-        <div className="max-w-screen-sm mx-auto">
-          <Button 
-            type="submit" 
-            variant="primary" 
-            size="lg" 
-            className="w-full h-14 text-lg rounded-xl shadow-lg"
-            onClick={handleSubmit}
-          >
-            Buscar Voos
-          </Button>
-        </div>
-      </div>
       
       <AssistButton tooltipText="Ajuda com busca de voos" />
     </div>
