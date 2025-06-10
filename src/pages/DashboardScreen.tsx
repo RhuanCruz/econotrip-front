@@ -126,15 +126,16 @@ export default function DashboardScreen() {
         <motion.div variants={itemAnimation}>
           <h2 className="text-base font-medium text-econotrip-blue mb-4 flex items-center gap-2">
             <Star className="h-4 w-4" />
-            O que você gostaria de fazer?
+            Ações Rápidas
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/busca-voos")}
+              className="cursor-pointer"
             >
-              <Card className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer group border-econotrip-orange/20 hover:border-econotrip-orange/40" 
-                    onClick={() => navigate("/busca-voos")}>
+              <Card className="p-4 hover:shadow-lg transition-all duration-200 group border-econotrip-orange/20 hover:border-econotrip-orange/40">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <div className="p-3 bg-econotrip-orange/10 rounded-xl group-hover:bg-econotrip-orange/20 transition-colors">
                     <Search className="h-6 w-6 text-econotrip-orange" />
@@ -150,9 +151,10 @@ export default function DashboardScreen() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => navigate("/meu-roteiro")}
+              className="cursor-pointer"
             >
-              <Card className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer group border-econotrip-blue/20 hover:border-econotrip-blue/40" 
-                    onClick={() => navigate("/meu-roteiro")}>
+              <Card className="p-4 hover:shadow-lg transition-all duration-200 group border-econotrip-blue/20 hover:border-econotrip-blue/40">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <div className="p-3 bg-econotrip-blue/10 rounded-xl group-hover:bg-econotrip-blue/20 transition-colors">
                     <Route className="h-6 w-6 text-econotrip-blue" />
