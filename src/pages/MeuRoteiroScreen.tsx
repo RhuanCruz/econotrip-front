@@ -14,7 +14,9 @@ import {
   MapPin,
   Calendar,
   CheckSquare,
-  ArrowLeft
+  ArrowLeft,
+  Settings,
+  Target
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -60,9 +62,13 @@ export default function MeuRoteiroScreen() {
 
   if (etapaAtual === "objetivo") {
     return (
-      <div className="max-w-screen-sm mx-auto px-4 py-4 space-y-4">
-        {/* Header com botão voltar */}
-        <div className="flex items-center gap-3 mb-6">
+      <div className="max-w-screen-sm mx-auto px-4 py-4 space-y-6 pb-24">
+        {/* Header moderno */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3 mb-6"
+        >
           <Button
             variant="secondary"
             size="sm"
@@ -71,29 +77,47 @@ export default function MeuRoteiroScreen() {
             className="flex-shrink-0"
             aria-label="Voltar"
           />
-          <h1 className="text-xl font-semibold text-econotrip-blue">
-            Meu Roteiro de Viagem
-          </h1>
-        </div>
+          <div className="flex items-center gap-2">
+            <Target className="h-6 w-6 text-econotrip-orange" />
+            <h1 className="text-xl font-semibold text-econotrip-blue">
+              Planejador de Viagem
+            </h1>
+          </div>
+        </motion.div>
 
-        <div className="text-center mb-6">
-          <h2 className="text-lg font-semibold text-econotrip-blue mb-2">
-            Bem-vindo ao seu planejador pessoal!
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-center mb-8"
+        >
+          <h2 className="text-lg font-semibold text-econotrip-blue mb-3">
+            Qual é o seu objetivo para esta viagem?
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Vamos planejar sua próxima viagem com calma e cuidado
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Escolha o tipo de experiência que você está buscando e criaremos um roteiro personalizado para você
           </p>
-        </div>
+        </motion.div>
 
-        <ObjetivoDeViagemSelector onSelect={handleObjetivoSelect} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <ObjetivoDeViagemSelector onSelect={handleObjetivoSelect} />
+        </motion.div>
       </div>
     );
   }
 
   return (
     <div className="max-w-screen-sm mx-auto px-4 py-4 space-y-6 pb-24">
-      {/* Header com botão voltar */}
-      <div className="flex items-center gap-3 mb-4">
+      {/* Header com informações do objetivo */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-3 mb-6"
+      >
         <Button
           variant="secondary"
           size="sm"
@@ -103,20 +127,34 @@ export default function MeuRoteiroScreen() {
           aria-label="Voltar"
         />
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-econotrip-blue">
-            Meu Roteiro de Viagem
-          </h1>
-          <p className="text-sm font-medium text-muted-foreground">
-            Objetivo: {objetivoSelecionado}
-          </p>
+          <div className="flex items-center gap-2 mb-1">
+            <MapPin className="h-5 w-5 text-econotrip-orange" />
+            <h1 className="text-xl font-semibold text-econotrip-blue">
+              Meu Roteiro
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-econotrip-orange/10 text-econotrip-orange px-2 py-1 rounded-full font-medium">
+              {objetivoSelecionado}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={Settings}
+              onClick={() => setEtapaAtual("objetivo")}
+              className="text-xs h-6"
+            >
+              Alterar
+            </Button>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Seção de Linha do Tempo */}
+      {/* Cronograma */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-3"
+        className="space-y-4"
       >
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-econotrip-blue" />
@@ -127,12 +165,12 @@ export default function MeuRoteiroScreen() {
         <LinhaDoTempoRoteiro objetivo={objetivoSelecionado} />
       </motion.div>
 
-      {/* Seção de Checklist */}
+      {/* Checklist */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="space-y-3"
+        className="space-y-4"
       >
         <div className="flex items-center gap-2">
           <CheckSquare className="h-5 w-5 text-econotrip-blue" />
@@ -143,12 +181,12 @@ export default function MeuRoteiroScreen() {
         <ChecklistRoteiro />
       </motion.div>
 
-      {/* Seção do Mapa */}
+      {/* Mapa */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-3"
+        className="space-y-4"
       >
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-econotrip-blue" />
@@ -159,64 +197,52 @@ export default function MeuRoteiroScreen() {
         <MapaDoDestino />
       </motion.div>
 
-      {/* Botões de Ação */}
+      {/* Ações rápidas melhoradas */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="grid grid-cols-1 gap-3 mt-6"
+        className="space-y-3 pt-4 border-t border-gray-200"
       >
-        <Button
-          variant="secondary"
-          size="default"
-          icon={Download}
-          onClick={handleExportarRoteiro}
-          className="w-full h-12"
-          aria-label="Exportar roteiro em PDF"
-        >
-          Exportar PDF
-        </Button>
-
+        <h3 className="text-base font-medium text-econotrip-blue mb-4">
+          Ações do Roteiro
+        </h3>
+        
         <div className="grid grid-cols-2 gap-3">
+          <Button
+            variant="secondary"
+            size="default"
+            icon={Download}
+            onClick={handleExportarRoteiro}
+            className="h-12 flex-col text-sm"
+            aria-label="Exportar roteiro em PDF"
+          >
+            <span>Exportar</span>
+            <span className="text-xs opacity-75">PDF</span>
+          </Button>
+
           <Button
             variant="secondary"
             size="default"
             icon={Share2}
             onClick={handleCompartilharRoteiro}
-            className="w-full h-12"
+            className="h-12 flex-col text-sm"
             aria-label="Compartilhar roteiro"
           >
-            Compartilhar
-          </Button>
-
-          <Button
-            variant="primary"
-            size="default"
-            icon={Plus}
-            onClick={handleNovoEvento}
-            className="w-full h-12"
-            aria-label="Adicionar novo evento"
-          >
-            Novo Evento
+            <span>Compartilhar</span>
+            <span className="text-xs opacity-75">Link</span>
           </Button>
         </div>
-      </motion.div>
 
-      {/* Botão para voltar ao seletor de objetivo */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="pt-4 border-t border-gray-200"
-      >
         <Button
-          variant="secondary"
-          size="default"
-          onClick={() => setEtapaAtual("objetivo")}
-          className="w-full h-12"
-          aria-label="Alterar objetivo da viagem"
+          variant="primary"
+          size="lg"
+          icon={Plus}
+          onClick={handleNovoEvento}
+          className="w-full h-14 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90"
+          aria-label="Adicionar novo evento"
         >
-          Alterar objetivo da viagem
+          Adicionar Novo Evento
         </Button>
       </motion.div>
     </div>

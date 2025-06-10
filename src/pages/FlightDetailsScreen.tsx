@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
@@ -7,7 +8,6 @@ import { Plane, Clock, Luggage, Shield, Leaf, Accessibility, ArrowLeft, HelpCirc
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Mock flight data that would normally be passed via location state
 const mockFlightDetails = {
   id: "flight-1",
   origin: "São Paulo",
@@ -28,13 +28,9 @@ export default function FlightDetailsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // In a real app, we would get the flight details from the location state
-  // const flightId = location.state?.flightId;
-  // For now we'll use the mock data
   const flightDetails = mockFlightDetails;
 
   const handleReserveFlight = () => {
-    // Navigate to the checkout screen
     navigate("/checkout");
   };
 
@@ -44,77 +40,74 @@ export default function FlightDetailsScreen() {
 
   return (
     <LayoutBase>
-      <div className="max-w-5xl mx-auto relative pb-24">
-        {/* Modern Header with Back Button */}
+      <div className="max-w-screen-sm mx-auto px-4 py-4 pb-32">
+        {/* Header com Back Button corrigido */}
         <div className="flex items-center mb-6">
-          <button 
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={ArrowLeft}
             onClick={handleBack}
-            className="mr-3 touch-target p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="mr-3 flex-shrink-0"
             aria-label="Voltar para resultados"
-          >
-            <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
-          </button>
-          <div className="flex items-center">
-            <Plane className="h-8 w-8 text-econotrip-orange mr-3" />
-            <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
+          />
+          <div className="flex items-center min-w-0">
+            <Plane className="h-6 w-6 text-econotrip-orange mr-3 flex-shrink-0" />
+            <h1 className="text-xl font-semibold text-econotrip-blue truncate">
               Detalhes do Voo
             </h1>
           </div>
         </div>
 
-        {/* Main Content Card */}
-        <Card className="mb-8 p-6 rounded-2xl shadow-md">
-          {/* Origin-Destination Section */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 p-4 bg-gray-50 rounded-xl">
-            <div className="flex-1">
-              <div className="flex items-center space-x-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full mb-1 overflow-hidden flex items-center justify-center">
-                    <span className="font-bold text-xs">BR</span>
-                  </div>
-                  <span className="text-xs font-medium">{flightDetails.originCode}</span>
-                </div>
-                <div className="flex-1 border-t-2 border-dashed border-gray-300 relative h-6">
-                  <Plane className="h-5 w-5 text-econotrip-blue absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full mb-1 overflow-hidden flex items-center justify-center">
-                    <span className="font-bold text-xs">PT</span>
-                  </div>
-                  <span className="text-xs font-medium">{flightDetails.destinationCode}</span>
+        {/* Cartão principal */}
+        <Card className="mb-6 p-6 rounded-2xl shadow-md">
+          {/* Rota do voo */}
+          <div className="flex flex-col mb-8 p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-blue-100 rounded-full mb-1 flex items-center justify-center">
+                  <span className="font-bold text-sm text-econotrip-blue">{flightDetails.originCode}</span>
                 </div>
               </div>
-              <div className="mt-3 flex justify-between px-2">
-                <div className="text-center">
-                  <h3 className="font-medium text-econotrip-blue">{flightDetails.origin}</h3>
+              <div className="flex-1 border-t-2 border-dashed border-gray-300 relative h-6">
+                <Plane className="h-5 w-5 text-econotrip-orange absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" />
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 bg-orange-100 rounded-full mb-1 flex items-center justify-center">
+                  <span className="font-bold text-sm text-econotrip-orange">{flightDetails.destinationCode}</span>
                 </div>
-                <div className="text-center">
-                  <h3 className="font-medium text-econotrip-blue">{flightDetails.destination}</h3>
-                </div>
+              </div>
+            </div>
+            <div className="flex justify-between px-2">
+              <div className="text-center">
+                <h3 className="font-semibold text-econotrip-blue text-lg">{flightDetails.origin}</h3>
+              </div>
+              <div className="text-center">
+                <h3 className="font-semibold text-econotrip-blue text-lg">{flightDetails.destination}</h3>
               </div>
             </div>
           </div>
           
-          {/* Flight Details */}
-          <div className="space-y-6 text-lg">
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-              <Clock className="h-6 w-6 text-econotrip-blue" />
+          {/* Detalhes do voo */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <Clock className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
               <div>
                 <p className="font-medium text-econotrip-blue">Data e Duração</p>
                 <p className="text-gray-700">{flightDetails.date} • {flightDetails.duration}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-              <Plane className="h-6 w-6 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <Plane className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
               <div>
                 <p className="font-medium text-econotrip-blue">Tipo de Voo</p>
                 <p className="text-gray-700">{flightDetails.stops}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-              <Luggage className="h-6 w-6 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <Luggage className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
               <div>
                 <p className="font-medium text-econotrip-blue">Bagagem incluída</p>
                 <p className="text-gray-700">{flightDetails.baggage}</p>
@@ -122,8 +115,8 @@ export default function FlightDetailsScreen() {
             </div>
 
             {flightDetails.isLowEmission && (
-              <div className="flex items-center gap-4 p-3 bg-econotrip-green/10 rounded-xl">
-                <Leaf className="h-6 w-6 text-econotrip-green" />
+              <div className="flex items-center gap-4 p-4 bg-econotrip-green/10 rounded-xl">
+                <Leaf className="h-6 w-6 text-econotrip-green flex-shrink-0" />
                 <div>
                   <p className="font-medium text-econotrip-green">Emissão de carbono</p>
                   <p className="text-gray-700">Baixa emissão de carbono</p>
@@ -132,8 +125,8 @@ export default function FlightDetailsScreen() {
             )}
 
             {flightDetails.isAccessible && (
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-                <Accessibility className="h-6 w-6 text-econotrip-blue" />
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                <Accessibility className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
                 <div>
                   <p className="font-medium text-econotrip-blue">Acessibilidade</p>
                   <p className="text-gray-700">Assentos preferenciais e assistência no embarque</p>
@@ -141,8 +134,8 @@ export default function FlightDetailsScreen() {
               </div>
             )}
 
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-              <Shield className="h-6 w-6 text-econotrip-blue" />
+            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <Shield className="h-6 w-6 text-econotrip-blue flex-shrink-0" />
               <div>
                 <p className="font-medium text-econotrip-blue">Política de cancelamento</p>
                 <p className="text-gray-700">{flightDetails.cancellationPolicy}</p>
@@ -150,42 +143,29 @@ export default function FlightDetailsScreen() {
             </div>
           </div>
 
-          {/* Price Section */}
-          <div className="mt-10 border-t border-gray-200 pt-8">
+          {/* Seção de preço */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
             <div className="text-center mb-6">
               <p className="text-gray-600 text-lg mb-2">Preço por pessoa</p>
-              <p className="text-4xl md:text-5xl font-bold text-econotrip-orange">
+              <p className="text-3xl font-bold text-econotrip-orange">
                 R$ {flightDetails.price.toLocaleString("pt-BR", {
                   minimumFractionDigits: 2,
                 })}
               </p>
             </div>
-
-            {/* "Voltar para resultados" button */}
-            <div className="flex justify-center mt-8">
-              <Button
-                variant="secondary"
-                onClick={handleBack}
-                icon={ArrowLeft}
-                iconPosition="left"
-                className="text-lg"
-              >
-                Voltar para resultados
-              </Button>
-            </div>
           </div>
         </Card>
 
-        {/* Floating Help Button */}
-        <div className="fixed bottom-24 right-6">
+        {/* Botão de ajuda flutuante corrigido */}
+        <div className="fixed bottom-32 right-6 z-40">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className="h-14 w-14 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors"
+                  className="h-12 w-12 rounded-full bg-econotrip-blue shadow-lg flex items-center justify-center text-white hover:bg-econotrip-blue/90 transition-colors"
                   aria-label="Ajuda rápida"
                 >
-                  <HelpCircle className="h-7 w-7" />
+                  <HelpCircle className="h-6 w-6" />
                 </button>
               </TooltipTrigger>
               <TooltipContent>
@@ -195,15 +175,15 @@ export default function FlightDetailsScreen() {
           </TooltipProvider>
         </div>
 
-        {/* Fixed Bottom CTA Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-md">
-          <div className="max-w-5xl mx-auto">
+        {/* Botão fixo no bottom corrigido */}
+        <div className="fixed bottom-20 left-0 right-0 p-4 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-md z-30">
+          <div className="max-w-screen-sm mx-auto">
             <Button
               variant="primary"
               size="lg"
               icon={Check}
               onClick={handleReserveFlight}
-              className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] text-white text-xl rounded-xl h-16"
+              className="w-full bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white text-lg rounded-xl h-14"
             >
               Reservar este voo
             </Button>

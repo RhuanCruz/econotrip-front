@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
-import { Glasses, Type, Contrast, Volume2, X, ChevronUp } from "lucide-react";
+import { Glasses, Type, Contrast, Volume2, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AccessibilitySettings {
@@ -72,20 +72,20 @@ export function AccessibilityBar() {
 
   return (
     <>
-      {/* Fixed button */}
-      <div className="fixed bottom-4 left-4 z-40">
+      {/* Fixed button - posicionado acima da navegação */}
+      <div className="fixed bottom-28 left-4 z-40">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsExpanded(true)}
-          className="h-14 w-14 rounded-full bg-econotrip-green shadow-lg flex items-center justify-center text-white hover:bg-econotrip-green/90 transition-colors touch-target"
+          className="h-12 w-12 rounded-full bg-econotrip-green shadow-lg flex items-center justify-center text-white hover:bg-econotrip-green/90 transition-colors"
           aria-label="Abrir opções de acessibilidade"
         >
-          <Glasses className="h-7 w-7" />
+          <Glasses className="h-6 w-6" />
         </motion.button>
       </div>
 
-      {/* Expanded accessibility panel */}
+      {/* Painel expandido */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -96,34 +96,42 @@ export function AccessibilityBar() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="accessibility-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsExpanded(false);
+              }
+            }}
           >
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               className="w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
             >
               <Card className="p-6 rounded-t-2xl shadow-2xl bg-white">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
-                    <Glasses className="h-6 w-6 text-econotrip-green" aria-hidden="true" />
-                    <h2 id="accessibility-title" className="text-xl font-museomoderno font-bold text-econotrip-blue">
+                    <div className="p-2 bg-econotrip-green/10 rounded-lg">
+                      <Glasses className="h-6 w-6 text-econotrip-green" aria-hidden="true" />
+                    </div>
+                    <h2 id="accessibility-title" className="text-xl font-semibold text-econotrip-blue">
                       Acessibilidade
                     </h2>
                   </div>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="p-2 rounded-full hover:bg-gray-100 touch-target"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Fechar opções de acessibilidade"
                   >
-                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                    <ChevronDown className="h-5 w-5 text-gray-500" />
                   </button>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Type className="h-6 w-6 text-econotrip-blue" aria-hidden="true" />
+                      <Type className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
                       <div>
                         <h3 className="font-medium text-econotrip-blue">Fonte Grande</h3>
                         <p className="text-sm text-gray-600">Aumenta o tamanho do texto</p>
@@ -131,23 +139,23 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("largeFonts")}
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`w-12 h-6 rounded-full transition-all ${
                         settings.largeFonts ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.largeFonts}
                       aria-label="Alternar fonte grande"
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
                           settings.largeFonts ? "translate-x-6" : "translate-x-0.5"
                         }`}
                       />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Contrast className="h-6 w-6 text-econotrip-blue" aria-hidden="true" />
+                      <Contrast className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
                       <div>
                         <h3 className="font-medium text-econotrip-blue">Alto Contraste</h3>
                         <p className="text-sm text-gray-600">Melhora a legibilidade</p>
@@ -155,23 +163,23 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("highContrast")}
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`w-12 h-6 rounded-full transition-all ${
                         settings.highContrast ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.highContrast}
                       aria-label="Alternar alto contraste"
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
                           settings.highContrast ? "translate-x-6" : "translate-x-0.5"
                         }`}
                       />
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Volume2 className="h-6 w-6 text-econotrip-blue" aria-hidden="true" />
+                      <Volume2 className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
                       <div>
                         <h3 className="font-medium text-econotrip-blue">Leitor de Texto</h3>
                         <p className="text-sm text-gray-600">Lê o conteúdo em voz alta</p>
@@ -179,14 +187,14 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("textReader")}
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`w-12 h-6 rounded-full transition-all ${
                         settings.textReader ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.textReader}
                       aria-label="Alternar leitor de texto"
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
                           settings.textReader ? "translate-x-6" : "translate-x-0.5"
                         }`}
                       />

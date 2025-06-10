@@ -14,7 +14,8 @@ import {
   Gift,
   Users,
   ArrowRight,
-  Zap
+  Search,
+  Route
 } from "lucide-react";
 
 export default function DashboardScreen() {
@@ -76,7 +77,7 @@ export default function DashboardScreen() {
         animate="visible"
         className="space-y-6"
       >
-        {/* Header simplificado sem redundância */}
+        {/* Header simplificado */}
         <motion.div variants={itemAnimation} className="text-center py-2">
           <h1 className="text-xl font-medium text-econotrip-blue mb-1">
             Bem-vindo de volta, Maria!
@@ -86,7 +87,7 @@ export default function DashboardScreen() {
           </p>
         </motion.div>
 
-        {/* Próximas viagens - mais compacto */}
+        {/* Próximas viagens */}
         {proximasViagens.length > 0 && (
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
@@ -121,47 +122,52 @@ export default function DashboardScreen() {
           </motion.div>
         )}
 
-        {/* Ações rápidas redesenhadas */}
+        {/* Ações rápidas melhoradas */}
         <motion.div variants={itemAnimation}>
-          <h2 className="text-base font-medium text-econotrip-blue mb-3 flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Ações Rápidas
+          <h2 className="text-base font-medium text-econotrip-blue mb-4 flex items-center gap-2">
+            <Star className="h-4 w-4" />
+            O que você gostaria de fazer?
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Button
-                variant="primary"
-                size="lg"
-                icon={Plane}
-                onClick={() => navigate("/busca-voos")}
-                className="h-20 flex-col bg-gradient-to-br from-econotrip-orange to-econotrip-orange/80 shadow-lg border-0"
-              >
-                <span className="text-base font-medium">Buscar Voos</span>
-                <span className="text-xs opacity-90">Encontre as melhores ofertas</span>
-              </Button>
+              <Card className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer group border-econotrip-orange/20 hover:border-econotrip-orange/40" 
+                    onClick={() => navigate("/busca-voos")}>
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="p-3 bg-econotrip-orange/10 rounded-xl group-hover:bg-econotrip-orange/20 transition-colors">
+                    <Search className="h-6 w-6 text-econotrip-orange" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-econotrip-blue text-sm">Buscar Voos</h3>
+                    <p className="text-xs text-gray-600">Encontre ofertas</p>
+                  </div>
+                </div>
+              </Card>
             </motion.div>
+            
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Button
-                variant="secondary"
-                size="lg"
-                icon={MapPin}
-                onClick={() => navigate("/meu-roteiro")}
-                className="h-20 flex-col bg-gradient-to-br from-econotrip-blue to-econotrip-blue/80 text-white shadow-lg border-0"
-              >
-                <span className="text-base font-medium">Meu Roteiro</span>
-                <span className="text-xs opacity-90">Organize sua viagem</span>
-              </Button>
+              <Card className="p-4 hover:shadow-lg transition-all duration-200 cursor-pointer group border-econotrip-blue/20 hover:border-econotrip-blue/40" 
+                    onClick={() => navigate("/meu-roteiro")}>
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="p-3 bg-econotrip-blue/10 rounded-xl group-hover:bg-econotrip-blue/20 transition-colors">
+                    <Route className="h-6 w-6 text-econotrip-blue" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-econotrip-blue text-sm">Meu Roteiro</h3>
+                    <p className="text-xs text-gray-600">Organize viagem</p>
+                  </div>
+                </div>
+              </Card>
             </motion.div>
           </div>
         </motion.div>
 
-        {/* Ofertas redesenhadas - mais modernas */}
+        {/* Ofertas especiais */}
         <motion.div variants={itemAnimation}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-medium text-econotrip-blue flex items-center gap-2">
@@ -218,7 +224,7 @@ export default function DashboardScreen() {
           </div>
         </motion.div>
 
-        {/* Programa de fidelidade mais compacto */}
+        {/* Programa de fidelidade */}
         <motion.div variants={itemAnimation}>
           <h2 className="text-base font-medium text-econotrip-blue mb-3 flex items-center gap-2">
             <Gift className="h-4 w-4" />
@@ -248,7 +254,7 @@ export default function DashboardScreen() {
           </Card>
         </motion.div>
 
-        {/* Dicas mais compactas */}
+        {/* Dicas */}
         <motion.div variants={itemAnimation}>
           <h2 className="text-base font-medium text-econotrip-blue mb-3 flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
