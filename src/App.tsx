@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -33,6 +32,7 @@ import RecoverPasswordScreen from "./pages/RecoverPasswordScreen";
 import RadarOfertasScreen from "./pages/RadarOfertasScreen";
 import AvaliacaoScreen from "./pages/AvaliacaoScreen";
 import TurismoSustentavelScreen from "./pages/TurismoSustentavelScreen";
+import MinhaEvolucaoScreen from "./pages/MinhaEvolucaoScreen";
 
 const queryClient = new QueryClient();
 
@@ -106,3 +106,5 @@ const App = () => {
 };
 
 export default App;
+
+</initial_code>
