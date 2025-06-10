@@ -43,7 +43,7 @@ export function PassengerSelector({
 
   return (
     <div className="relative w-full">
-      <label className="block text-lg font-medium text-econotrip-blue mb-3">
+      <label className="block text-lg font-medium text-econotrip-blue mb-3 text-wrap">
         <Users className="h-5 w-5 inline mr-2" />
         Passageiros
       </label>
@@ -59,7 +59,7 @@ export function PassengerSelector({
       >
         <span className="flex items-center gap-3">
           <Users className="h-5 w-5 text-econotrip-blue" />
-          {getPassengerText()}
+          <span className="text-wrap">{getPassengerText()}</span>
         </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
@@ -82,19 +82,19 @@ export function PassengerSelector({
                 {/* Adultos */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-econotrip-blue text-lg">
+                    <div className="font-medium text-econotrip-blue text-lg text-wrap">
                       Adultos
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 text-wrap">
                       Acima de 12 anos
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-x-2">
                     <button
                       type="button"
                       onClick={() => updateCount('adults', false)}
                       disabled={value.adults <= 1}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Diminuir adultos"
                     >
                       <Minus className="h-4 w-4" />
@@ -106,7 +106,7 @@ export function PassengerSelector({
                       type="button"
                       onClick={() => updateCount('adults', true)}
                       disabled={value.adults >= 9}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Aumentar adultos"
                     >
                       <Plus className="h-4 w-4" />
@@ -117,19 +117,19 @@ export function PassengerSelector({
                 {/* Crianças */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-econotrip-blue text-lg">
+                    <div className="font-medium text-econotrip-blue text-lg text-wrap">
                       Crianças
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 text-wrap">
                       De 2 a 11 anos
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-x-2">
                     <button
                       type="button"
                       onClick={() => updateCount('children', false)}
                       disabled={value.children <= 0}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Diminuir crianças"
                     >
                       <Minus className="h-4 w-4" />
@@ -141,7 +141,7 @@ export function PassengerSelector({
                       type="button"
                       onClick={() => updateCount('children', true)}
                       disabled={value.children >= 9}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Aumentar crianças"
                     >
                       <Plus className="h-4 w-4" />
@@ -152,19 +152,19 @@ export function PassengerSelector({
                 {/* Bebês */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-econotrip-blue text-lg">
+                    <div className="font-medium text-econotrip-blue text-lg text-wrap">
                       Bebês
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 text-wrap">
                       Até 2 anos (no colo)
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-x-2">
                     <button
                       type="button"
                       onClick={() => updateCount('infants', false)}
                       disabled={value.infants <= 0}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Diminuir bebês"
                     >
                       <Minus className="h-4 w-4" />
@@ -176,7 +176,7 @@ export function PassengerSelector({
                       type="button"
                       onClick={() => updateCount('infants', true)}
                       disabled={value.infants >= 2}
-                      className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors text-lg"
                       aria-label="Aumentar bebês"
                     >
                       <Plus className="h-4 w-4" />
@@ -191,7 +191,7 @@ export function PassengerSelector({
                     onClick={() => setIsOpen(false)}
                     className="w-full"
                   >
-                    Confirmar - {getPassengerText()}
+                    <span className="text-wrap">Confirmar - {getPassengerText()}</span>
                   </Button>
                 </div>
               </div>

@@ -12,14 +12,15 @@ interface AssistButtonProps {
 export function AssistButton({ tooltipText = "Ajuda", onClick }: AssistButtonProps) {
   const location = useLocation();
   
-  // Define routes where the assist button should appear
+  // Define routes where the assist button should appear - only critical interactions
   const activeRoutes = [
     "/login", 
     "/registro", 
     "/recuperar-senha", 
-    "/busca-voos", 
-    "/editar-perfil",
-    "/checkout"
+    "/resultados-voos",
+    "/detalhes-voo",
+    "/checkout",
+    "/editar-perfil"
   ];
   
   // Show button only on specified routes

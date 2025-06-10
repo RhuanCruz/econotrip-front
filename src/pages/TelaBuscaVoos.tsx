@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
@@ -135,7 +136,6 @@ export default function TelaBuscaVoos() {
 
   const handleRestoreLastSearch = () => {
     if (lastSearch) {
-      // Map the lastSearch data to the full FormData structure
       const restoredData: FormData = {
         origem: lastSearch.origem,
         destino: lastSearch.destino,
@@ -145,7 +145,6 @@ export default function TelaBuscaVoos() {
         classe: lastSearch.classe,
         usarMilhas: lastSearch.usarMilhas,
         filtros: lastSearch.filtros,
-        // Set default values for missing properties
         orcamento: "",
         somenteDireto: false,
         voosSustentaveis: false,
@@ -168,7 +167,7 @@ export default function TelaBuscaVoos() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-24">
+    <div className="max-w-screen-sm mx-auto px-4 pb-24">
       <AnimatePresence>
         {showRestorePrompt && lastSearch && (
           <LastSearchPrompt
@@ -185,10 +184,10 @@ export default function TelaBuscaVoos() {
         className="space-y-6"
       >
         <div className="text-center py-4">
-          <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue mb-2">
+          <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue mb-2 text-wrap text-balance">
             Encontre sua próxima viagem
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 text-wrap break-words">
             Informe seus dados abaixo para descobrir as melhores opções de passagens
           </p>
         </div>
@@ -200,7 +199,7 @@ export default function TelaBuscaVoos() {
             {/* Origem */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <label className="text-lg font-medium text-econotrip-blue">
+                <label className="text-lg font-medium text-econotrip-blue text-wrap">
                   <MapPin className="h-5 w-5 inline mr-2" />
                   De onde você vai partir?
                 </label>
@@ -219,7 +218,7 @@ export default function TelaBuscaVoos() {
             {/* Destino */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <label className="text-lg font-medium text-econotrip-blue">
+                <label className="text-lg font-medium text-econotrip-blue text-wrap">
                   <Plane className="h-5 w-5 inline mr-2" />
                   Para onde você quer ir?
                 </label>
@@ -264,7 +263,7 @@ export default function TelaBuscaVoos() {
           {/* Passageiros */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <label className="text-lg font-medium text-econotrip-blue">
+              <label className="text-lg font-medium text-econotrip-blue text-wrap">
                 <Users className="h-5 w-5 inline mr-2" />
                 Quantas pessoas vão viajar?
               </label>
@@ -274,23 +273,23 @@ export default function TelaBuscaVoos() {
             <Card className="p-4 bg-gray-50">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-medium">Adultos</span>
-                  <div className="flex items-center gap-3">
+                  <span className="text-base font-medium text-wrap">Adultos</span>
+                  <div className="flex items-center gap-x-2">
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("adults", false)}
                       disabled={formData.passageiros.adults <= 1}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
-                      -
+                      −
                     </Button>
-                    <span className="w-8 text-center font-medium">{formData.passageiros.adults}</span>
+                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.adults}</span>
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("adults", true)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
                       +
                     </Button>
@@ -298,23 +297,23 @@ export default function TelaBuscaVoos() {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-medium">Crianças (2-11 anos)</span>
-                  <div className="flex items-center gap-3">
+                  <span className="text-base font-medium text-wrap">Crianças (2-11 anos)</span>
+                  <div className="flex items-center gap-x-2">
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("children", false)}
                       disabled={formData.passageiros.children <= 0}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
-                      -
+                      −
                     </Button>
-                    <span className="w-8 text-center font-medium">{formData.passageiros.children}</span>
+                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.children}</span>
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("children", true)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
                       +
                     </Button>
@@ -322,23 +321,23 @@ export default function TelaBuscaVoos() {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-medium">Bebês (até 2 anos)</span>
-                  <div className="flex items-center gap-3">
+                  <span className="text-base font-medium text-wrap">Bebês (até 2 anos)</span>
+                  <div className="flex items-center gap-x-2">
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("infants", false)}
                       disabled={formData.passageiros.infants <= 0}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
-                      -
+                      −
                     </Button>
-                    <span className="w-8 text-center font-medium">{formData.passageiros.infants}</span>
+                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.infants}</span>
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => handlePassengerChange("infants", true)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
                     >
                       +
                     </Button>
@@ -352,7 +351,7 @@ export default function TelaBuscaVoos() {
           <div className="mt-6">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <label className="text-lg font-medium text-econotrip-blue">
+                <label className="text-lg font-medium text-econotrip-blue text-wrap">
                   <Gift className="h-5 w-5 inline mr-2" />
                   Deseja usar suas milhas?
                 </label>
@@ -365,7 +364,7 @@ export default function TelaBuscaVoos() {
                   onChange={(e) => handleInputChange("usarMilhas", e.target.checked)}
                   className="w-5 h-5 text-econotrip-orange"
                 />
-                <span className="text-base">Sim, quero usar minhas milhas</span>
+                <span className="text-base text-wrap">Sim, quero usar minhas milhas</span>
               </label>
             </div>
           </div>
@@ -399,7 +398,7 @@ export default function TelaBuscaVoos() {
                         })}
                         className="w-5 h-5 text-econotrip-orange"
                       />
-                      <span className="text-base">Mostrar apenas menores preços</span>
+                      <span className="text-base text-wrap">Mostrar apenas menores preços</span>
                       <ContextualTooltip content="Exibe primeiro as opções mais econômicas para sua viagem." />
                     </label>
 
@@ -413,7 +412,7 @@ export default function TelaBuscaVoos() {
                         })}
                         className="w-5 h-5 text-econotrip-orange"
                       />
-                      <span className="text-base">Voos com acessibilidade</span>
+                      <span className="text-base text-wrap">Voos com acessibilidade</span>
                       <ContextualTooltip content="Prioriza voos e companhias que oferecem facilidades para pessoas com mobilidade reduzida ou necessidades especiais." />
                     </label>
 
@@ -427,7 +426,7 @@ export default function TelaBuscaVoos() {
                         })}
                         className="w-5 h-5 text-econotrip-orange"
                       />
-                      <span className="text-base">Voos sustentáveis</span>
+                      <span className="text-base text-wrap">Voos sustentáveis</span>
                       <ContextualTooltip content="Mostra voos com menor impacto ambiental, usando aeronaves mais eficientes." />
                     </label>
 
@@ -441,7 +440,7 @@ export default function TelaBuscaVoos() {
                         })}
                         className="w-5 h-5 text-econotrip-orange"
                       />
-                      <span className="text-base">Apenas voos diretos</span>
+                      <span className="text-base text-wrap">Apenas voos diretos</span>
                       <ContextualTooltip content="Exibe somente voos sem conexões, mais rápidos e confortáveis." />
                     </label>
                   </div>
@@ -462,7 +461,7 @@ export default function TelaBuscaVoos() {
             >
               Buscar passagens
             </Button>
-            <p className="text-sm text-gray-600 mt-3">
+            <p className="text-sm text-gray-600 mt-3 text-wrap break-words">
               Vamos encontrar as melhores opções para sua viagem!
             </p>
           </div>
