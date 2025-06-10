@@ -12,7 +12,7 @@ interface LayoutBaseProps {
   title?: string;
 }
 
-export function LayoutBase({ children, userName, className, title }: LayoutBaseProps) {
+export function LayoutBase({ children, userName = "Maria", className, title }: LayoutBaseProps) {
   const location = useLocation();
   const hiddenRoutes = ["/", "/login", "/registro", "/recuperar-senha", "/checkout", "/confirmacao"];
   const hideNav = hiddenRoutes.includes(location.pathname);
