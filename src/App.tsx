@@ -1,11 +1,11 @@
 
+import React, { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 import { LayoutBase } from "./components/layout/LayoutBase";
 import { TourIntro } from "./components/onboarding/TourIntro";
 import { HumanSupportButton } from "./components/support/HumanSupportButton";
