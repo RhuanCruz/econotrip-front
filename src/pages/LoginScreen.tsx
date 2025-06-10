@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, LogIn } from "lucide-react";
@@ -5,6 +6,8 @@ import { Button } from "@/components/ui-custom/Button";
 import { Input } from "@/components/ui-custom/Input";
 import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
+import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
+import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
@@ -22,15 +25,15 @@ export default function LoginScreen() {
       
       if (email && password) {
         toast({
-          title: "Login realizado com sucesso!",
-          description: "Você será redirecionado para a página inicial.",
+          title: "Bem-vinda de volta!",
+          description: "Acesso realizado com sucesso. Preparando suas opções de viagem...",
         });
         navigate("/busca-voos");
       } else {
         toast({
           variant: "destructive",
-          title: "Erro no login",
-          description: "Por favor, preencha todos os campos.",
+          title: "Ops! Algo não está certo",
+          description: "Por favor, preencha seu e-mail e senha para continuar.",
         });
       }
     }, 1000);
@@ -46,32 +49,52 @@ export default function LoginScreen() {
           </div>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-8 text-center font-museomoderno">
-          Entrar na sua conta
+        <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-4 text-center font-museomoderno">
+          Que bom ver você novamente!
         </h1>
+        
+        <p className="text-lg text-center text-gray-600 mb-8 font-manrope">
+          Entre com seus dados para acessar suas viagens e descobrir novas ofertas
+        </p>
+
+        <MotivationalHint message="Suas próximas aventuras estão esperando por você!" className="mb-6" />
 
         <form onSubmit={handleLogin} className="space-y-6">
-          <Input
-            type="email"
-            label="E-mail"
-            placeholder="Digite seu e-mail"
-            icon={Mail}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            aria-label="Digite seu e-mail para login"
-          />
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-lg font-medium text-econotrip-blue">
+                Seu e-mail
+              </label>
+              <ContextualTooltip content="Digite o e-mail que você usou para criar sua conta no EconoTrip." />
+            </div>
+            <Input
+              type="email"
+              placeholder="exemplo@email.com"
+              icon={Mail}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              aria-label="Digite seu e-mail para entrar"
+            />
+          </div>
 
-          <Input
-            type="password"
-            label="Senha"
-            placeholder="Digite sua senha"
-            icon={Lock}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            aria-label="Digite sua senha para login"
-          />
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-lg font-medium text-econotrip-blue">
+                Sua senha
+              </label>
+              <ContextualTooltip content="Digite a senha que você criou para proteger sua conta." />
+            </div>
+            <Input
+              type="password"
+              placeholder="Digite sua senha"
+              icon={Lock}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-label="Digite sua senha para entrar"
+            />
+          </div>
 
           <div className="flex justify-end">
             <button
@@ -80,7 +103,7 @@ export default function LoginScreen() {
               className="text-econotrip-blue hover:text-econotrip-orange transition-colors text-lg touch-target"
               aria-label="Recuperar senha esquecida"
             >
-              Esqueceu a senha?
+              Esqueceu sua senha?
             </button>
           </div>
 
@@ -92,24 +115,25 @@ export default function LoginScreen() {
             loading={loading}
             className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-6"
           >
-            Entrar
+            Entrar na minha conta
           </Button>
         </form>
 
         <div className="mt-8 text-center">
+          <p className="text-gray-600 mb-4">Ainda não tem conta?</p>
           <button
             type="button"
             onClick={() => navigate("/registro")}
             className="text-econotrip-blue hover:text-econotrip-orange transition-colors text-lg underline underline-offset-2 touch-target"
-            aria-label="Ir para a página de criação de conta"
+            aria-label="Criar uma nova conta"
           >
-            Ainda não tem conta? Criar agora
+            Criar conta gratuita
           </button>
         </div>
       </div>
 
       {/* Replace inline help button with AssistButton */}
-      <AssistButton tooltipText="Ajuda com o login" />
+      <AssistButton tooltipText="Precisa de ajuda para entrar?" />
     </div>
   );
 }

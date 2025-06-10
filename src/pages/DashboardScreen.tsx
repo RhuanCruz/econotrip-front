@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
@@ -27,6 +26,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
+import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 
 export default function DashboardScreen() {
   const navigate = useNavigate();
@@ -113,23 +114,26 @@ export default function DashboardScreen() {
         animate="visible"
         className="space-y-6"
       >
-        {/* Header simplificado */}
+        {/* Header melhorado */}
         <motion.div variants={itemAnimation} className="text-center py-2">
           <h1 className="text-xl font-medium text-econotrip-blue mb-1">
-            Bem-vindo de volta, Maria!
+            Olá, Maria! Que bom ter você de volta!
           </h1>
           <p className="text-sm text-gray-600">
-            Explore novas oportunidades de viagem
+            Descubra novas aventuras e aproveite ofertas especiais
           </p>
         </motion.div>
+
+        <MotivationalHint message="Hoje é um ótimo dia para planejar sua próxima viagem dos sonhos!" />
 
         {/* Resumo do Programa de Fidelidade */}
         <motion.div variants={itemAnimation}>
           <div className="flex items-center gap-2 mb-3">
             <Gift className="h-4 w-4 text-econotrip-green" />
             <h2 className="text-base font-medium text-econotrip-blue">
-              Programa Milhas Sênior
+              Seu Programa Milhas Sênior
             </h2>
+            <ContextualTooltip content="Com cada viagem você ganha pontos que podem ser trocados por descontos em passagens futuras. Quanto mais você viaja, mais benefícios recebe!" />
           </div>
           <Card className="p-4 bg-gradient-to-r from-econotrip-green/10 to-econotrip-green/5 border-l-4 border-l-econotrip-green rounded-2xl">
             <div className="flex items-center justify-between mb-4">
@@ -140,7 +144,7 @@ export default function DashboardScreen() {
                   <span className="text-sm text-gray-600">pontos</span>
                 </div>
                 <p className="text-xs text-gray-600">
-                  Faltam {metaProximoNivel - pontosAtuais} pontos para o próximo nível
+                  Você está quase lá! Faltam apenas {metaProximoNivel - pontosAtuais} pontos para o próximo nível
                 </p>
               </div>
               <div className="w-16 h-16">
@@ -177,10 +181,10 @@ export default function DashboardScreen() {
                 onClick={() => navigate("/fidelidade")}
                 className="text-xs"
               >
-                Ver detalhes
+                Ver todos os benefícios
               </Button>
               <div className="text-xs text-gray-600">
-                Nível: Prata
+                Nível atual: Prata
               </div>
             </div>
           </Card>
@@ -191,8 +195,9 @@ export default function DashboardScreen() {
           <div className="flex items-center gap-2 mb-3">
             <BarChart3 className="h-4 w-4 text-econotrip-blue" />
             <h2 className="text-base font-medium text-econotrip-blue">
-              Sua Evolução
+              Como você está evoluindo
             </h2>
+            <ContextualTooltip content="Este gráfico mostra como seus pontos aumentaram nos últimos meses. Continue viajando para acelerar sua evolução!" />
           </div>
           <Card className="p-4 rounded-2xl">
             <div className="h-32 w-full">
@@ -215,7 +220,7 @@ export default function DashboardScreen() {
               </ChartContainer>
             </div>
             <p className="text-xs text-gray-600 mt-2 text-center">
-              +30 pontos este mês
+              Parabéns! Você ganhou +30 pontos este mês
             </p>
           </Card>
         </motion.div>
@@ -226,7 +231,7 @@ export default function DashboardScreen() {
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="h-4 w-4 text-econotrip-blue" />
               <h2 className="text-base font-medium text-econotrip-blue">
-                Sua Próxima Viagem
+                Sua próxima aventura
               </h2>
             </div>
             <Card className="p-4 bg-gradient-to-r from-econotrip-blue/5 to-econotrip-orange/5 border-l-4 border-l-econotrip-orange rounded-2xl">
@@ -234,7 +239,7 @@ export default function DashboardScreen() {
                 <div key={index} className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-econotrip-blue text-sm">{viagem.destino}</h3>
-                    <p className="text-xs text-gray-600">{viagem.data}</p>
+                    <p className="text-xs text-gray-600">Partida em {viagem.data}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs bg-econotrip-green/20 text-econotrip-green px-2 py-1 rounded-full font-medium">
@@ -246,7 +251,7 @@ export default function DashboardScreen() {
                       onClick={() => navigate("/meu-roteiro")}
                       className="text-xs"
                     >
-                      Ver roteiro
+                      Ver detalhes
                     </Button>
                   </div>
                 </div>
@@ -259,7 +264,7 @@ export default function DashboardScreen() {
         <motion.div variants={itemAnimation}>
           <h2 className="text-base font-medium text-econotrip-blue mb-4 flex items-center gap-2">
             <Star className="h-4 w-4" />
-            Ações Rápidas
+            O que você gostaria de fazer hoje?
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <motion.div
@@ -274,8 +279,8 @@ export default function DashboardScreen() {
                     <Search className="h-6 w-6 text-econotrip-orange" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-econotrip-blue text-sm">Buscar Voos</h3>
-                    <p className="text-xs text-gray-600">Encontre ofertas</p>
+                    <h3 className="font-medium text-econotrip-blue text-sm">Buscar passagens</h3>
+                    <p className="text-xs text-gray-600">Encontre ofertas incríveis</p>
                   </div>
                 </div>
               </Card>
@@ -293,8 +298,8 @@ export default function DashboardScreen() {
                     <Route className="h-6 w-6 text-econotrip-blue" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-econotrip-blue text-sm">Meu Roteiro</h3>
-                    <p className="text-xs text-gray-600">Organize viagem</p>
+                    <h3 className="font-medium text-econotrip-blue text-sm">Planejar roteiro</h3>
+                    <p className="text-xs text-gray-600">Organize sua viagem</p>
                   </div>
                 </div>
               </Card>
@@ -307,7 +312,7 @@ export default function DashboardScreen() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-medium text-econotrip-blue flex items-center gap-2">
               <Star className="h-4 w-4" />
-              Ofertas Especiais
+              Ofertas selecionadas para você
             </h2>
             <Button
               variant="secondary"
@@ -337,7 +342,7 @@ export default function DashboardScreen() {
                           {pacote.desconto}
                         </span>
                       </div>
-                      <p className="text-sm text-white/80 mb-2">{pacote.tipo}</p>
+                      <p className="text-sm text-white/80 mb-2">Viagem {pacote.tipo}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-white">
                           {pacote.preco}
@@ -348,7 +353,7 @@ export default function DashboardScreen() {
                           onClick={() => navigate("/busca-voos")}
                           className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-xs"
                         >
-                          Ver oferta
+                          Ver detalhes
                         </Button>
                       </div>
                     </div>
@@ -361,16 +366,19 @@ export default function DashboardScreen() {
 
         {/* Resumo de Economia */}
         <motion.div variants={itemAnimation}>
-          <h2 className="text-base font-medium text-econotrip-blue mb-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Sua Economia
-          </h2>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-base font-medium text-econotrip-blue flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Suas conquistas
+            </h2>
+            <ContextualTooltip content="Veja quanto você já economizou com o EconoTrip e quantas viagens realizou." />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-3 bg-gradient-to-br from-econotrip-green/10 to-econotrip-green/5 rounded-2xl">
               <div className="text-center">
                 <Award className="h-6 w-6 text-econotrip-green mx-auto mb-2" />
                 <p className="text-lg font-bold text-econotrip-green">R$ 240</p>
-                <p className="text-xs text-gray-600">Economizado este ano</p>
+                <p className="text-xs text-gray-600">Economia este ano</p>
               </div>
             </Card>
             <Card className="p-3 bg-gradient-to-br from-econotrip-blue/10 to-econotrip-blue/5 rounded-2xl">
@@ -387,16 +395,16 @@ export default function DashboardScreen() {
         <motion.div variants={itemAnimation}>
           <h2 className="text-base font-medium text-econotrip-blue mb-3 flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            Dicas de Viagem
+            Dicas especiais para você
           </h2>
           <div className="grid grid-cols-1 gap-3">
             <Card className="p-3 hover:shadow-md transition-shadow rounded-2xl">
               <div className="flex items-start gap-3">
                 <Clock className="h-4 w-4 text-econotrip-blue mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="font-medium text-econotrip-blue text-sm">Melhor época para viajar</h4>
+                  <h4 className="font-medium text-econotrip-blue text-sm">Melhor época para economizar</h4>
                   <p className="text-xs text-gray-600">
-                    Janeiro a Março oferece os melhores preços
+                    Viagens entre janeiro e março oferecem os melhores preços
                   </p>
                 </div>
               </div>
@@ -405,9 +413,9 @@ export default function DashboardScreen() {
               <div className="flex items-start gap-3">
                 <Users className="h-4 w-4 text-econotrip-blue mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="font-medium text-econotrip-blue text-sm">Viagens em grupo</h4>
+                  <h4 className="font-medium text-econotrip-blue text-sm">Viaje com amigos</h4>
                   <p className="text-xs text-gray-600">
-                    Economize até 25% viajando com amigos
+                    Grupos de 4 ou mais pessoas ganham descontos especiais
                   </p>
                 </div>
               </div>

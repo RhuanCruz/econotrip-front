@@ -29,9 +29,9 @@ export function DateSelector({
   nextWeek.setDate(nextWeek.getDate() + 7);
 
   const quickOptions = [
-    { label: "Hoje", value: today.toISOString().split("T")[0] },
-    { label: "Amanhã", value: tomorrow.toISOString().split("T")[0] },
-    { label: "Próxima semana", value: nextWeek.toISOString().split("T")[0] },
+    { label: "Hoje", value: today.toISOString().split("T")[0], description: "Partida hoje" },
+    { label: "Amanhã", value: tomorrow.toISOString().split("T")[0], description: "Partida amanhã" },
+    { label: "Próxima semana", value: nextWeek.toISOString().split("T")[0], description: "Mais tempo para se preparar" },
   ];
 
   const formatDate = (dateString: string) => {
@@ -67,7 +67,7 @@ export function DateSelector({
       >
         <span className="flex items-center gap-3">
           <Clock className="h-5 w-5 text-econotrip-blue" />
-          {value ? formatDate(value) : "Selecione a data"}
+          {value ? formatDate(value) : "Escolha uma data"}
         </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
@@ -88,7 +88,7 @@ export function DateSelector({
             <Card className="p-4 shadow-xl">
               <div className="space-y-3">
                 <h4 className="font-medium text-econotrip-blue mb-3">
-                  Opções rápidas
+                  Escolha uma opção prática
                 </h4>
                 {quickOptions.map((option) => (
                   <button
@@ -100,13 +100,17 @@ export function DateSelector({
                     <div className="font-medium text-econotrip-blue">
                       {option.label}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 mb-1">
                       {formatDate(option.value)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {option.description}
                     </div>
                   </button>
                 ))}
                 
                 <div className="pt-3 border-t border-gray-200">
+                  <p className="text-sm text-gray-600 mb-2">Ou escolha uma data específica:</p>
                   <input
                     type="date"
                     value={value}
