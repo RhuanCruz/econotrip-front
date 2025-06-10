@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,6 +29,9 @@ import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
 import RecoverPasswordScreen from "./pages/RecoverPasswordScreen";
+import RadarOfertasScreen from "./pages/RadarOfertasScreen";
+import AvaliacaoScreen from "./pages/AvaliacaoScreen";
+import TurismoSustentavelScreen from "./pages/TurismoSustentavelScreen";
 
 const queryClient = new QueryClient();
 
@@ -98,3 +100,5 @@ const App = () => {
 };
 
 export default App;
+
+</initial_code>
