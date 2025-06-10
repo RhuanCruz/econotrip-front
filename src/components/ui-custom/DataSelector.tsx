@@ -104,23 +104,26 @@ export function DataSelector({
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                className={`cursor-pointer transition-all duration-200 ${
+                  disabled ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={() => !disabled && handleOptionSelect(option)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Selecionar ${option.label}, ${option.description}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    !disabled && handleOptionSelect(option);
+                  }
+                }}
               >
                 <Card
-                  className={`cursor-pointer transition-all duration-200 ${
+                  className={`transition-all duration-200 ${
                     isSelected
                       ? "ring-2 ring-econotrip-orange bg-econotrip-orange/5 border-econotrip-orange"
                       : "hover:bg-blue-50 focus:ring-2 focus:ring-econotrip-blue/50"
-                  } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  onClick={() => !disabled && handleOptionSelect(option)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Selecionar ${option.label}, ${option.description}`}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      !disabled && handleOptionSelect(option);
-                    }
-                  }}
+                  }`}
                 >
                   <div className="p-4 min-h-[100px] flex flex-col justify-between gap-y-2">
                     <div className="flex items-start justify-between">
