@@ -73,10 +73,12 @@ const App = () => {
                 <Route path="/busca-voos" element={<TelaBuscaVoos />} />
                 <Route path="/resultados-voos" element={<ResultsScreen />} />
                 <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
+                <Route path="/detalhes-voo/:id" element={<FlightDetailsScreen />} />
                 <Route path="/checkout" element={<CheckoutScreen />} />
                 <Route path="/perfil" element={<ProfileScreen />} />
                 <Route path="/editar-perfil" element={<EditProfileScreen />} />
                 <Route path="/fidelidade" element={<LoyaltyScreen />} />
+                <Route path="/minha-evolucao" element={<MinhaEvolucaoScreen />} />
                 <Route path="/suporte" element={<SupportScreen />} />
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />

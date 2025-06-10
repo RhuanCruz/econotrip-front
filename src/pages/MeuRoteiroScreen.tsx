@@ -9,12 +9,14 @@ import { MapaDoDestino } from "@/components/roteiro/MapaDoDestino";
 import { ProgressIndicator } from "@/components/roteiro/ProgressIndicator";
 import { CollapsibleSection } from "@/components/roteiro/CollapsibleSection";
 import { QuickActions } from "@/components/roteiro/QuickActions";
+import { TripCustomizer } from "@/components/roteiro/TripCustomizer";
 import { 
   ArrowLeft,
   Target,
   Calendar,
   CheckSquare,
-  MapPin
+  MapPin,
+  Settings
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +25,12 @@ export default function MeuRoteiroScreen() {
   const navigate = useNavigate();
   const [objetivoSelecionado, setObjetivoSelecionado] = useState<string>("descanso");
   const [etapaAtual, setEtapaAtual] = useState<"objetivo" | "planejamento">("objetivo");
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [tripData, setTripData] = useState({
+    destination: "Rio de Janeiro",
+    startDate: "2025-01-15",
+    endDate: "2025-01-20"
+  });
 
   const handleObjetivoSelect = (objetivo: string) => {
     setObjetivoSelecionado(objetivo);
@@ -59,6 +67,14 @@ export default function MeuRoteiroScreen() {
     toast({
       title: "Novo evento",
       description: "Funcionalidade em desenvolvimento.",
+    });
+  };
+
+  const handleCustomizeTripSave = (data: { destination: string; startDate: string; endDate: string }) => {
+    setTripData(data);
+    toast({
+      title: "Viagem personalizada!",
+      description: `Destino alterado para ${data.destination}`,
     });
   };
 
@@ -145,6 +161,23 @@ export default function MeuRoteiroScreen() {
         </div>
       </motion.div>
 
+      {/* Botão Personalizar Destino e Datas */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={Settings}
+          onClick={() => setShowCustomizer(true)}
+          className="w-full mb-4"
+        >
+          Personalizar Destino e Datas
+        </Button>
+      </motion.div>
+
       {/* Seções colapsíveis */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -189,6 +222,13 @@ export default function MeuRoteiroScreen() {
           onEditObjective={() => setEtapaAtual("objetivo")}
         />
       </motion.div>
+
+      {/* Modal de personalização */}
+      <TripCustomizer
+        isOpen={showCustomizer}
+        onClose={() => setShowCustomizer(false)}
+        onSave={handleCustomizeTripSave}
+      />
     </div>
   );
 }

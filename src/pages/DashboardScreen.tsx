@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
@@ -28,44 +29,12 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
+import { ActionButtons } from "@/components/dashboard/ActionButtons";
+import { LastTrip } from "@/components/dashboard/LastTrip";
+import { ExploreCategories } from "@/components/dashboard/ExploreCategories";
 
 export default function DashboardScreen() {
   const navigate = useNavigate();
-
-  const pacotesDestaque = [
-    {
-      id: 1,
-      destino: "Rio de Janeiro",
-      preco: "R$ 480",
-      desconto: "15% OFF",
-      tipo: "Lazer",
-      cor: "from-blue-500 to-cyan-400"
-    },
-    {
-      id: 2,
-      destino: "Salvador",
-      preco: "R$ 320",
-      desconto: "20% OFF",
-      tipo: "Cultural",
-      cor: "from-purple-500 to-pink-400"
-    },
-    {
-      id: 3,
-      destino: "Fortaleza",
-      preco: "R$ 290",
-      desconto: "12% OFF",
-      tipo: "Descanso",
-      cor: "from-green-500 to-emerald-400"
-    }
-  ];
-
-  const proximasViagens = [
-    {
-      destino: "Rio de Janeiro",
-      data: "15 Jan 2025",
-      status: "Confirmada"
-    }
-  ];
 
   // Dados do programa de fidelidade
   const pontosAtuais = 180;
@@ -126,6 +95,21 @@ export default function DashboardScreen() {
 
         <MotivationalHint message="Hoje é um ótimo dia para planejar sua próxima viagem dos sonhos!" />
 
+        {/* Seção principal de ações */}
+        <motion.div variants={itemAnimation}>
+          <ActionButtons />
+        </motion.div>
+
+        {/* Última viagem */}
+        <motion.div variants={itemAnimation}>
+          <LastTrip />
+        </motion.div>
+
+        {/* Categorias para explorar */}
+        <motion.div variants={itemAnimation}>
+          <ExploreCategories />
+        </motion.div>
+
         {/* Resumo do Programa de Fidelidade */}
         <motion.div variants={itemAnimation}>
           <div className="flex items-center gap-2 mb-3">
@@ -178,190 +162,16 @@ export default function DashboardScreen() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => navigate("/fidelidade")}
+                onClick={() => navigate("/minha-evolucao")}
                 className="text-xs"
               >
-                Ver todos os benefícios
+                Ver evolução completa
               </Button>
               <div className="text-xs text-gray-600">
                 Nível atual: Prata
               </div>
             </div>
           </Card>
-        </motion.div>
-
-        {/* Gráfico de Evolução de Pontos */}
-        <motion.div variants={itemAnimation}>
-          <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="h-4 w-4 text-econotrip-blue" />
-            <h2 className="text-base font-medium text-econotrip-blue">
-              Como você está evoluindo
-            </h2>
-            <ContextualTooltip content="Este gráfico mostra como seus pontos aumentaram nos últimos meses. Continue viajando para acelerar sua evolução!" />
-          </div>
-          <Card className="p-4 rounded-2xl">
-            <div className="h-32 w-full">
-              <ChartContainer config={chartConfig}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={historicoPontos}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="pontos" 
-                      stroke="#A1C181" 
-                      strokeWidth={3}
-                      dot={{ fill: "#A1C181", strokeWidth: 2, r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
-            <p className="text-xs text-gray-600 mt-2 text-center">
-              Parabéns! Você ganhou +30 pontos este mês
-            </p>
-          </Card>
-        </motion.div>
-
-        {/* Próximas viagens */}
-        {proximasViagens.length > 0 && (
-          <motion.div variants={itemAnimation}>
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar className="h-4 w-4 text-econotrip-blue" />
-              <h2 className="text-base font-medium text-econotrip-blue">
-                Sua próxima aventura
-              </h2>
-            </div>
-            <Card className="p-4 bg-gradient-to-r from-econotrip-blue/5 to-econotrip-orange/5 border-l-4 border-l-econotrip-orange rounded-2xl">
-              {proximasViagens.map((viagem, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-econotrip-blue text-sm">{viagem.destino}</h3>
-                    <p className="text-xs text-gray-600">Partida em {viagem.data}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-econotrip-green/20 text-econotrip-green px-2 py-1 rounded-full font-medium">
-                      {viagem.status}
-                    </span>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => navigate("/meu-roteiro")}
-                      className="text-xs"
-                    >
-                      Ver detalhes
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Ações rápidas melhoradas */}
-        <motion.div variants={itemAnimation}>
-          <h2 className="text-base font-medium text-econotrip-blue mb-4 flex items-center gap-2">
-            <Star className="h-4 w-4" />
-            O que você gostaria de fazer hoje?
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/busca-voos")}
-              className="cursor-pointer"
-            >
-              <Card className="p-4 hover:shadow-lg transition-all duration-200 group border-econotrip-orange/20 hover:border-econotrip-orange/40 rounded-2xl">
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <div className="p-3 bg-econotrip-orange/10 rounded-xl group-hover:bg-econotrip-orange/20 transition-colors">
-                    <Search className="h-6 w-6 text-econotrip-orange" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-econotrip-blue text-sm">Buscar passagens</h3>
-                    <p className="text-xs text-gray-600">Encontre ofertas incríveis</p>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/meu-roteiro")}
-              className="cursor-pointer"
-            >
-              <Card className="p-4 hover:shadow-lg transition-all duration-200 group border-econotrip-blue/20 hover:border-econotrip-blue/40 rounded-2xl">
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <div className="p-3 bg-econotrip-blue/10 rounded-xl group-hover:bg-econotrip-blue/20 transition-colors">
-                    <Route className="h-6 w-6 text-econotrip-blue" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-econotrip-blue text-sm">Planejar roteiro</h3>
-                    <p className="text-xs text-gray-600">Organize sua viagem</p>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Ofertas especiais */}
-        <motion.div variants={itemAnimation}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-medium text-econotrip-blue flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Ofertas selecionadas para você
-            </h2>
-            <Button
-              variant="secondary"
-              size="sm"
-              iconPosition="right"
-              icon={ArrowRight}
-              onClick={() => navigate("/busca-voos")}
-              className="text-xs"
-            >
-              Ver todas
-            </Button>
-          </div>
-          
-          <div className="space-y-3">
-            {pacotesDestaque.map((pacote) => (
-              <motion.div
-                key={pacote.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Card className={`p-4 bg-gradient-to-r ${pacote.cor} text-white shadow-lg border-0 rounded-2xl`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-white">{pacote.destino}</h3>
-                        <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                          {pacote.desconto}
-                        </span>
-                      </div>
-                      <p className="text-sm text-white/80 mb-2">Viagem {pacote.tipo}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-white">
-                          {pacote.preco}
-                        </span>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => navigate("/busca-voos")}
-                          className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-xs"
-                        >
-                          Ver detalhes
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
 
         {/* Resumo de Economia */}
