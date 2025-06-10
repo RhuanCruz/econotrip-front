@@ -6,13 +6,19 @@ interface SearchData {
   destino: string;
   dataIda: string;
   dataVolta: string;
-  passageiros: string;
+  passageiros: {
+    adults: number;
+    children: number;
+    infants: number;
+  };
   classe: string;
-  orcamento: string;
-  somenteDireto: boolean;
-  voosSustentaveis: boolean;
-  tarifasFlexiveis: boolean;
-  acessibilidade: boolean;
+  usarMilhas: boolean;
+  filtros: {
+    melhorPreco: boolean;
+    acessibilidade: boolean;
+    sustentavel: boolean;
+    voosDiretos: boolean;
+  };
 }
 
 export function useLastSearch() {
