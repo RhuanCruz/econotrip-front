@@ -2,21 +2,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
-import { Card } from "@/components/ui-custom/Card";
 import { ObjetivoDeViagemSelector } from "@/components/roteiro/ObjetivoDeViagemSelector";
 import { LinhaDoTempoRoteiro } from "@/components/roteiro/LinhaDoTempoRoteiro";
 import { ChecklistRoteiro } from "@/components/roteiro/ChecklistRoteiro";
 import { MapaDoDestino } from "@/components/roteiro/MapaDoDestino";
+import { ProgressIndicator } from "@/components/roteiro/ProgressIndicator";
+import { CollapsibleSection } from "@/components/roteiro/CollapsibleSection";
+import { QuickActions } from "@/components/roteiro/QuickActions";
 import { 
-  Plus, 
-  Download, 
-  Share2,
-  MapPin,
+  ArrowLeft,
+  Target,
   Calendar,
   CheckSquare,
-  ArrowLeft,
-  Settings,
-  Target
+  MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -36,7 +34,11 @@ export default function MeuRoteiroScreen() {
   };
 
   const handleVoltar = () => {
-    navigate(-1);
+    if (etapaAtual === "planejamento") {
+      setEtapaAtual("objetivo");
+    } else {
+      navigate(-1);
+    }
   };
 
   const handleExportarRoteiro = () => {
@@ -63,7 +65,9 @@ export default function MeuRoteiroScreen() {
   if (etapaAtual === "objetivo") {
     return (
       <div className="max-w-screen-sm mx-auto px-4 py-4 space-y-6 pb-24">
-        {/* Header moderno */}
+        <ProgressIndicator currentStep="objetivo" />
+
+        {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -112,7 +116,9 @@ export default function MeuRoteiroScreen() {
 
   return (
     <div className="max-w-screen-sm mx-auto px-4 py-4 space-y-6 pb-24">
-      {/* Header com informações do objetivo */}
+      <ProgressIndicator currentStep="planejamento" />
+
+      {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -124,7 +130,7 @@ export default function MeuRoteiroScreen() {
           icon={ArrowLeft}
           onClick={handleVoltar}
           className="flex-shrink-0"
-          aria-label="Voltar"
+          aria-label="Voltar ao objetivo"
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
@@ -133,117 +139,55 @@ export default function MeuRoteiroScreen() {
               Meu Roteiro
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-econotrip-orange/10 text-econotrip-orange px-2 py-1 rounded-full font-medium">
-              {objetivoSelecionado}
-            </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={Settings}
-              onClick={() => setEtapaAtual("objetivo")}
-              className="text-xs h-6"
-            >
-              Alterar
-            </Button>
-          </div>
+          <span className="text-xs bg-econotrip-orange/10 text-econotrip-orange px-2 py-1 rounded-full font-medium">
+            {objetivoSelecionado}
+          </span>
         </div>
       </motion.div>
 
-      {/* Cronograma */}
+      {/* Seções colapsíveis */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-4"
       >
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-econotrip-blue" />
-          <h2 className="text-base font-medium text-econotrip-blue">
-            Cronograma da Viagem
-          </h2>
-        </div>
-        <LinhaDoTempoRoteiro objetivo={objetivoSelecionado} />
+        <CollapsibleSection
+          title="Cronograma da Viagem"
+          icon={Calendar}
+          defaultExpanded={true}
+        >
+          <LinhaDoTempoRoteiro objetivo={objetivoSelecionado} />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Lista de Verificação"
+          icon={CheckSquare}
+          defaultExpanded={false}
+        >
+          <ChecklistRoteiro />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Mapa do Destino"
+          icon={MapPin}
+          defaultExpanded={false}
+        >
+          <MapaDoDestino />
+        </CollapsibleSection>
       </motion.div>
 
-      {/* Checklist */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="space-y-4"
-      >
-        <div className="flex items-center gap-2">
-          <CheckSquare className="h-5 w-5 text-econotrip-blue" />
-          <h2 className="text-base font-medium text-econotrip-blue">
-            Lista de Verificação
-          </h2>
-        </div>
-        <ChecklistRoteiro />
-      </motion.div>
-
-      {/* Mapa */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="space-y-4"
-      >
-        <div className="flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-econotrip-blue" />
-          <h2 className="text-base font-medium text-econotrip-blue">
-            Mapa do Destino
-          </h2>
-        </div>
-        <MapaDoDestino />
-      </motion.div>
-
-      {/* Ações rápidas melhoradas */}
+      {/* Ações rápidas */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="space-y-3 pt-4 border-t border-gray-200"
       >
-        <h3 className="text-base font-medium text-econotrip-blue mb-4">
-          Ações do Roteiro
-        </h3>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="secondary"
-            size="default"
-            icon={Download}
-            onClick={handleExportarRoteiro}
-            className="h-12 flex-col text-sm"
-            aria-label="Exportar roteiro em PDF"
-          >
-            <span>Exportar</span>
-            <span className="text-xs opacity-75">PDF</span>
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="default"
-            icon={Share2}
-            onClick={handleCompartilharRoteiro}
-            className="h-12 flex-col text-sm"
-            aria-label="Compartilhar roteiro"
-          >
-            <span>Compartilhar</span>
-            <span className="text-xs opacity-75">Link</span>
-          </Button>
-        </div>
-
-        <Button
-          variant="primary"
-          size="lg"
-          icon={Plus}
-          onClick={handleNovoEvento}
-          className="w-full h-14 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90"
-          aria-label="Adicionar novo evento"
-        >
-          Adicionar Novo Evento
-        </Button>
+        <QuickActions
+          onNewEvent={handleNovoEvento}
+          onExport={handleExportarRoteiro}
+          onShare={handleCompartilharRoteiro}
+          onEditObjective={() => setEtapaAtual("objetivo")}
+        />
       </motion.div>
     </div>
   );
