@@ -18,7 +18,7 @@ export function LayoutBase({ children, userName = "Maria", className, title }: L
   const hideNav = hiddenRoutes.includes(location.pathname);
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gray-50">
+    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
       <Header userName={userName} />
       <main className="flex-1 overflow-auto">
         <ScreenContainer className={className} title={title}>

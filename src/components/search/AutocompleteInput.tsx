@@ -113,17 +113,17 @@ export function AutocompleteInput({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           disabled={disabled}
-          className="h-16 text-lg rounded-xl pl-14 pr-12"
+          className="h-12 text-base rounded-xl pl-12 pr-10"
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           role="combobox"
         />
         <MapPin 
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-econotrip-blue" 
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-econotrip-blue" 
           aria-hidden="true" 
         />
         <Search 
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" 
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" 
           aria-hidden="true" 
         />
       </div>
@@ -135,7 +135,7 @@ export function AutocompleteInput({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
+            className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto"
             role="listbox"
           >
             {filteredOptions.map((option, index) => (
@@ -143,22 +143,22 @@ export function AutocompleteInput({
                 key={`${option.code}-${index}`}
                 type="button"
                 onClick={() => handleOptionSelect(option)}
-                className="w-full px-4 py-4 text-left hover:bg-econotrip-orange/10 focus:bg-econotrip-orange/10 focus:outline-none border-b border-gray-100 last:border-b-0 transition-colors"
+                className="w-full px-3 py-3 text-left hover:bg-econotrip-orange/10 focus:bg-econotrip-orange/10 focus:outline-none border-b border-gray-100 last:border-b-0 transition-colors"
                 role="option"
                 aria-selected={false}
                 whileHover={{ x: 4 }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-econotrip-blue/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="font-bold text-sm text-econotrip-blue">
+                  <div className="w-8 h-8 bg-econotrip-blue/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="font-bold text-xs text-econotrip-blue">
                       {option.code}
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <div className="font-medium text-econotrip-blue text-lg">
+                    <div className="font-medium text-econotrip-blue text-sm">
                       {option.city}
                     </div>
-                    <div className="text-sm text-gray-600">{option.country}</div>
+                    <div className="text-xs text-gray-600">{option.country}</div>
                   </div>
                 </div>
               </motion.button>
