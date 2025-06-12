@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,8 @@ import {
   Star,
   Accessibility,
   Leaf,
-  Award
+  Award,
+  MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SustainableBadge } from "@/components/sustainable/SustainableBadge";
@@ -133,174 +133,208 @@ export default function ResultsScreen() {
     return `${paradas} paradas`;
   };
 
+  const containerAnimation = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+  
+  const itemAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <LayoutBase>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
       <div className="max-w-screen-sm mx-auto px-4 py-4 pb-28">
-        {/* Header */}
+        {/* Header moderno */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-econotrip-blue">
-                Voos Encontrados
-              </h1>
-              <p className="text-gray-600">
-                {voos.length} opções para sua viagem
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-econotrip-orange">
-                GRU → LIS
+          <div className="text-center mb-6">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+            >
+              <Plane className="w-8 h-8 text-white" />
+            </motion.div>
+            
+            <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
+              Voos Encontrados
+            </h1>
+            <p className="text-gray-600 mb-4">
+              {voos.length} opções incríveis para sua viagem
+            </p>
+            
+            {/* Info da busca */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+              <div className="flex items-center justify-center gap-4">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-econotrip-blue" />
+                  <span className="font-semibold text-econotrip-blue">GRU → LIS</span>
+                </div>
+                <div className="text-gray-600">15 Mar 2024</div>
               </div>
-              <div className="text-sm text-gray-600">15 Mar 2024</div>
             </div>
           </div>
 
-          {/* Ordenação */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {[
-              { id: "preco", label: "Menor preço", icon: DollarSign },
-              { id: "duracao", label: "Menor tempo", icon: Clock },
-              { id: "pontuacao", label: "Melhor avaliado", icon: Star },
-            ].map((opcao) => (
-              <button
-                key={opcao.id}
-                onClick={() => setOrdenacao(opcao.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${
-                  ordenacao === opcao.id
-                    ? "border-econotrip-orange bg-econotrip-orange text-white"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-orange"
-                }`}
-              >
-                <opcao.icon className="h-4 w-4" />
-                {opcao.label}
-              </button>
-            ))}
+          {/* Filtros de ordenação modernos */}
+          <div className="mb-6">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {[
+                { id: "preco", label: "Menor preço", icon: DollarSign },
+                { id: "duracao", label: "Menor tempo", icon: Clock },
+                { id: "pontuacao", label: "Melhor avaliado", icon: Star },
+              ].map((opcao) => (
+                <motion.button
+                  key={opcao.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setOrdenacao(opcao.id as any)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-2xl transition-all whitespace-nowrap shadow-md ${
+                    ordenacao === opcao.id
+                      ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white shadow-lg"
+                      : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-white/90"
+                  }`}
+                >
+                  <opcao.icon className="h-4 w-4" />
+                  {opcao.label}
+                </motion.button>
+              ))}
+            </div>
           </div>
         </motion.div>
 
-        {/* Lista de voos */}
-        <div className="space-y-4 mb-6">
+        {/* Lista de voos moderna */}
+        <motion.div
+          variants={containerAnimation}
+          initial="hidden"
+          animate="visible"
+          className="space-y-4 mb-6"
+        >
           {voosOrdenados.map((voo, index) => (
             <motion.div
               key={voo.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              variants={itemAnimation}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer">
+              <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
                 <div className="p-6">
                   {/* Header do voo */}
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-6">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center gap-2">
-                          <Plane className="h-5 w-5 text-econotrip-blue" />
-                          <span className="font-semibold text-lg text-econotrip-blue">
+                        <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
+                          <Plane className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-xl text-econotrip-blue">
                             {voo.companhia}
                           </span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="text-sm font-medium text-gray-600">{voo.pontuacao}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium">{voo.pontuacao}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="text-sm text-gray-600">
-                        {formatarParadas(voo.paradas)} • {voo.duracao}
                       </div>
                     </div>
                     
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-econotrip-orange">
+                      <div className="text-3xl font-bold text-econotrip-orange">
                         R$ {voo.preco.toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-600">por pessoa</div>
                     </div>
                   </div>
 
-                  {/* Horários */}
-                  <div className="flex items-center justify-between mb-4 p-4 bg-gray-50 rounded-xl">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-econotrip-blue">
-                        {voo.horaPartida}
+                  {/* Horários modernos */}
+                  <div className="mb-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-2xl">
+                    <div className="flex items-center justify-between">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-econotrip-blue mb-1">
+                          {voo.horaPartida}
+                        </div>
+                        <div className="text-lg font-semibold text-gray-800">{voo.origemCodigo}</div>
+                        <div className="text-sm text-gray-600">{voo.origem}</div>
                       </div>
-                      <div className="text-sm text-gray-600">{voo.origemCodigo}</div>
-                      <div className="text-xs text-gray-500">{voo.origem}</div>
-                    </div>
-                    
-                    <div className="flex-1 px-4">
-                      <div className="flex items-center justify-center">
-                        <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
-                        <Plane className="h-5 w-5 text-econotrip-orange mx-2" />
-                        <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
+                      
+                      <div className="flex-1 px-6">
+                        <div className="flex flex-col items-center">
+                          <div className="flex items-center justify-center w-full mb-2">
+                            <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>
+                            <div className="w-12 h-12 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-full flex items-center justify-center mx-2 shadow-lg">
+                              <Plane className="h-6 w-6 text-white" />
+                            </div>
+                            <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-econotrip-blue">{voo.duracao}</div>
+                            <div className="text-xs text-gray-500">{formatarParadas(voo.paradas)}</div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-center text-xs text-gray-500 mt-1">
-                        {voo.duracao}
+                      
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-econotrip-blue mb-1">
+                          {voo.horaChegada}
+                        </div>
+                        <div className="text-lg font-semibold text-gray-800">{voo.destinoCodigo}</div>
+                        <div className="text-sm text-gray-600">{voo.destino}</div>
                       </div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-econotrip-blue">
-                        {voo.horaChegada}
-                      </div>
-                      <div className="text-sm text-gray-600">{voo.destinoCodigo}</div>
-                      <div className="text-xs text-gray-500">{voo.destino}</div>
                     </div>
                   </div>
 
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  {/* Badges modernos */}
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {voo.isEco && <SustainableBadge type="carbon" />}
                     
                     {voo.isAcessivel && (
-                      <Badge variant="outline" className="border-econotrip-blue text-econotrip-blue">
+                      <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 px-3 py-1 rounded-full">
                         <Accessibility className="h-3 w-3 mr-1" />
                         Acessível
                       </Badge>
                     )}
                     
                     {voo.isMelhorPreco && (
-                      <Badge className="bg-econotrip-green text-white">
+                      <Badge className="bg-econotrip-green/10 text-econotrip-green border-econotrip-green/20 px-3 py-1 rounded-full">
                         <Award className="h-3 w-3 mr-1" />
                         Melhor preço
                       </Badge>
                     )}
                   </div>
 
-                  {/* Botão ver detalhes */}
+                  {/* Botão moderno */}
                   <Button
-                    variant="primary"
                     onClick={() => handleVerDetalhes(voo)}
-                    className="w-full h-12 text-lg"
-                    icon={ArrowRight}
-                    iconPosition="right"
+                    className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
                   >
-                    Ver detalhes e reservar
+                    <span>Ver detalhes e reservar</span>
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </Card>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Botão nova busca fixo */}
+        {/* Botão nova busca fixo moderno */}
         <div className="fixed bottom-24 left-0 right-0 px-4 z-30">
           <div className="max-w-screen-sm mx-auto">
             <Button
-              variant="secondary"
               onClick={handleNovaBusca}
-              className="w-full h-14 text-lg shadow-lg border-2 border-econotrip-blue"
-              icon={Search}
+              className="w-full h-14 bg-white/95 backdrop-blur-sm text-econotrip-blue text-lg font-semibold rounded-2xl shadow-xl border-2 border-econotrip-blue/20 hover:bg-white hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
             >
+              <Search className="mr-2 h-5 w-5" />
               Nova Busca
             </Button>
           </div>
         </div>
       </div>
-    </LayoutBase>
+    </div>
   );
 }
