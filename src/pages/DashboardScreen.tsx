@@ -136,7 +136,7 @@ export default function DashboardScreen() {
                   <h3 className="font-semibold text-econotrip-blue mb-2">Meu Roteiro</h3>
                   <p className="text-sm text-gray-600">Planeje sua viagem</p>
                 </div>
-              </div>
+              </Card>
             </div>
           </motion.div>
 
