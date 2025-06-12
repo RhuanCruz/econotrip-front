@@ -1,25 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui-custom/Button";
-import { Card } from "@/components/ui-custom/Card";
-import { Input } from "@/components/ui-custom/Input";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plane, 
-  Calendar, 
-  Users, 
-  MapPin, 
-  Search,
-  Settings,
-  ArrowRight,
-  Gift
-} from "lucide-react";
 
 import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
-import { DateSelector } from "@/components/search/DateSelector";
+import { FlightSearchForm } from "@/components/search/FlightSearchForm";
 import { useLastSearch } from "@/hooks/useLastSearch";
-import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
@@ -84,8 +70,6 @@ export default function TelaBuscaVoos() {
     tarifasFlexiveis: false,
     acessibilidade: false,
   });
-
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   useEffect(() => {
     const destinoSugerido = location.state?.destinoSugerido;
@@ -156,16 +140,6 @@ export default function TelaBuscaVoos() {
     }
   };
 
-  const getTotalPassengers = () => {
-    return formData.passageiros.adults + formData.passageiros.children + formData.passageiros.infants;
-  };
-
-  const getPassengerText = () => {
-    const total = getTotalPassengers();
-    if (total === 1) return "1 passageiro";
-    return `${total} passageiros`;
-  };
-
   return (
     <div className="max-w-screen-sm mx-auto px-4 pb-24">
       <AnimatePresence>
@@ -181,291 +155,25 @@ export default function TelaBuscaVoos() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
+        className="space-y-8"
       >
-        <div className="text-center py-4">
-          <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue mb-2 text-wrap text-balance">
+        <div className="text-center py-6">
+          <h1 className="text-3xl font-museomoderno font-bold text-econotrip-blue mb-3 text-balance">
             Encontre sua próxima viagem
           </h1>
-          <p className="text-lg text-gray-600 text-wrap break-words">
+          <p className="text-lg text-gray-600 text-balance">
             Informe seus dados abaixo para descobrir as melhores opções de passagens
           </p>
         </div>
 
         <MotivationalHint message="Você está a poucos cliques de realizar sua próxima aventura!" />
 
-        <Card className="p-6 rounded-2xl shadow-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Origem */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <label className="text-lg font-medium text-econotrip-blue text-wrap">
-                  <MapPin className="h-5 w-5 inline mr-2" />
-                  De onde você vai partir?
-                </label>
-                <ContextualTooltip content="Digite o nome da cidade ou aeroporto de onde você deseja partir. Exemplo: São Paulo, Rio de Janeiro, Brasília." />
-              </div>
-              <Input
-                type="text"
-                value={formData.origem}
-                onChange={(e) => handleInputChange("origem", e.target.value)}
-                placeholder="São Paulo, Rio de Janeiro..."
-                className="h-16 text-lg"
-                required
-              />
-            </div>
-
-            {/* Destino */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <label className="text-lg font-medium text-econotrip-blue text-wrap">
-                  <Plane className="h-5 w-5 inline mr-2" />
-                  Para onde você quer ir?
-                </label>
-                <ContextualTooltip content="Digite o nome da cidade ou país do seu destino dos sonhos. Exemplo: Lisboa, Paris, Nova York." />
-              </div>
-              <Input
-                type="text"
-                value={formData.destino}
-                onChange={(e) => handleInputChange("destino", e.target.value)}
-                placeholder="Lisboa, Paris, Nova York..."
-                className="h-16 text-lg"
-                required
-              />
-            </div>
-
-            {/* Data de Ida */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <DateSelector
-                  label="Quando você quer viajar?"
-                  value={formData.dataIda}
-                  onChange={(value) => handleInputChange("dataIda", value)}
-                />
-                <ContextualTooltip content="Escolha a data que você gostaria de partir. Você pode selecionar datas futuras ou usar as opções rápidas." />
-              </div>
-            </div>
-
-            {/* Data de Volta */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <DateSelector
-                  label="Quando você quer voltar? (opcional)"
-                  value={formData.dataVolta}
-                  onChange={(value) => handleInputChange("dataVolta", value)}
-                  minDate={formData.dataIda}
-                />
-                <ContextualTooltip content="Se você já sabe quando quer voltar, selecione a data. Caso contrário, pode deixar em branco para ver apenas passagens de ida." />
-              </div>
-            </div>
-          </div>
-
-          {/* Passageiros */}
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <label className="text-lg font-medium text-econotrip-blue text-wrap">
-                <Users className="h-5 w-5 inline mr-2" />
-                Quantas pessoas vão viajar?
-              </label>
-              <ContextualTooltip content="Defina quantos adultos, crianças e bebês farão a viagem. Isso nos ajuda a encontrar as melhores tarifas para seu grupo." />
-            </div>
-            
-            <Card className="p-4 bg-gray-50">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-wrap">Adultos</span>
-                  <div className="flex items-center gap-x-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("adults", false)}
-                      disabled={formData.passageiros.adults <= 1}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      −
-                    </Button>
-                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.adults}</span>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("adults", true)}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-wrap">Crianças (2-11 anos)</span>
-                  <div className="flex items-center gap-x-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("children", false)}
-                      disabled={formData.passageiros.children <= 0}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      −
-                    </Button>
-                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.children}</span>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("children", true)}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-medium text-wrap">Bebês (até 2 anos)</span>
-                  <div className="flex items-center gap-x-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("infants", false)}
-                      disabled={formData.passageiros.infants <= 0}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      −
-                    </Button>
-                    <span className="w-8 text-center font-medium text-lg">{formData.passageiros.infants}</span>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handlePassengerChange("infants", true)}
-                      className="w-8 h-8 rounded-full text-lg flex items-center justify-center"
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Milhas */}
-          <div className="mt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="text-lg font-medium text-econotrip-blue text-wrap">
-                  <Gift className="h-5 w-5 inline mr-2" />
-                  Deseja usar suas milhas?
-                </label>
-                <ContextualTooltip content="Se você possui milhas no programa EconoTrip ou de companhias aéreas, pode utilizá-las para reduzir o valor da passagem." />
-              </div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.usarMilhas}
-                  onChange={(e) => handleInputChange("usarMilhas", e.target.checked)}
-                  className="w-5 h-5 text-econotrip-orange"
-                />
-                <span className="text-base text-wrap">Sim, quero usar minhas milhas</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Filtros Avançados */}
-          <div className="mt-6">
-            <Button
-              variant="secondary"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              icon={Settings}
-              className="mb-4"
-            >
-              {showAdvancedFilters ? "Ocultar" : "Mostrar"} opções avançadas
-            </Button>
-
-            {showAdvancedFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-              >
-                <Card className="p-4 bg-gray-50 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.filtros.melhorPreco}
-                        onChange={(e) => handleInputChange("filtros", {
-                          ...formData.filtros,
-                          melhorPreco: e.target.checked
-                        })}
-                        className="w-5 h-5 text-econotrip-orange"
-                      />
-                      <span className="text-base text-wrap">Mostrar apenas menores preços</span>
-                      <ContextualTooltip content="Exibe primeiro as opções mais econômicas para sua viagem." />
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.filtros.acessibilidade}
-                        onChange={(e) => handleInputChange("filtros", {
-                          ...formData.filtros,
-                          acessibilidade: e.target.checked
-                        })}
-                        className="w-5 h-5 text-econotrip-orange"
-                      />
-                      <span className="text-base text-wrap">Voos com acessibilidade</span>
-                      <ContextualTooltip content="Prioriza voos e companhias que oferecem facilidades para pessoas com mobilidade reduzida ou necessidades especiais." />
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.filtros.sustentavel}
-                        onChange={(e) => handleInputChange("filtros", {
-                          ...formData.filtros,
-                          sustentavel: e.target.checked
-                        })}
-                        className="w-5 h-5 text-econotrip-orange"
-                      />
-                      <span className="text-base text-wrap">Voos sustentáveis</span>
-                      <ContextualTooltip content="Mostra voos com menor impacto ambiental, usando aeronaves mais eficientes." />
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.filtros.voosDiretos}
-                        onChange={(e) => handleInputChange("filtros", {
-                          ...formData.filtros,
-                          voosDiretos: e.target.checked
-                        })}
-                        className="w-5 h-5 text-econotrip-orange"
-                      />
-                      <span className="text-base text-wrap">Apenas voos diretos</span>
-                      <ContextualTooltip content="Exibe somente voos sem conexões, mais rápidos e confortáveis." />
-                    </label>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Botão de Busca */}
-          <div className="mt-8 text-center">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleSearch}
-              icon={Search}
-              iconPosition="right"
-              className="w-full md:w-auto bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white text-xl px-12 py-4 h-16 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-            >
-              Buscar passagens
-            </Button>
-            <p className="text-sm text-gray-600 mt-3 text-wrap break-words">
-              Vamos encontrar as melhores opções para sua viagem!
-            </p>
-          </div>
-        </Card>
+        <FlightSearchForm
+          formData={formData}
+          onInputChange={handleInputChange}
+          onPassengerChange={handlePassengerChange}
+          onSearch={handleSearch}
+        />
       </motion.div>
 
       <StandardModal
