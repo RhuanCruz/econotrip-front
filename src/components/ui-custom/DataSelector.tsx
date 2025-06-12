@@ -90,8 +90,8 @@ export function DataSelector({
           Opções rápidas
         </h4>
         
-        {/* Cards em mobile (empilhados) e desktop (horizontal) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Cards responsivos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {options.map((option, index) => {
             const IconComponent = iconMap[option.icon];
             const isSelected = selectedOption === option.date;
@@ -102,65 +102,62 @@ export function DataSelector({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`cursor-pointer transition-all duration-200 ${
-                  disabled ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={() => !disabled && handleOptionSelect(option)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Selecionar ${option.label}, ${option.description}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    !disabled && handleOptionSelect(option);
-                  }
-                }}
+                whileHover={!disabled ? { scale: 1.02 } : {}}
+                whileTap={!disabled ? { scale: 0.98 } : {}}
               >
-                <Card
-                  className={`transition-all duration-200 ${
-                    isSelected
-                      ? "ring-2 ring-econotrip-orange bg-econotrip-orange/5 border-econotrip-orange"
-                      : "hover:bg-blue-50 focus:ring-2 focus:ring-econotrip-blue/50"
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => !disabled && handleOptionSelect(option)}
+                  className={`w-full text-left transition-all duration-200 ${
+                    disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
                   }`}
+                  aria-label={`Selecionar ${option.label}, ${option.description}`}
                 >
-                  <div className="p-4 min-h-[100px] flex flex-col justify-between gap-y-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-econotrip-blue/10 rounded-lg">
-                          <IconComponent className="h-6 w-6 text-econotrip-blue" />
+                  <Card
+                    className={`transition-all duration-200 ${
+                      isSelected
+                        ? "ring-2 ring-econotrip-orange bg-econotrip-orange/5 border-econotrip-orange"
+                        : "hover:bg-blue-50 focus-within:ring-2 focus-within:ring-econotrip-blue/50"
+                    }`}
+                  >
+                    <div className="p-4 min-h-[120px] flex flex-col justify-between gap-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-econotrip-blue/10 rounded-lg">
+                            <IconComponent className="h-6 w-6 text-econotrip-blue" />
+                          </div>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="p-1 bg-econotrip-orange rounded-full"
+                            >
+                              <Check className="h-4 w-4 text-white" />
+                            </motion.div>
+                          )}
                         </div>
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="p-1 bg-econotrip-orange rounded-full"
-                          >
-                            <Check className="h-4 w-4 text-white" />
-                          </motion.div>
+                        {option.badge && (
+                          <span className="px-2 py-1 text-xs font-medium bg-econotrip-green/10 text-econotrip-green rounded-full">
+                            {option.badge}
+                          </span>
                         )}
                       </div>
-                      {option.badge && (
-                        <span className="px-2 py-1 text-xs font-medium bg-econotrip-green/10 text-econotrip-green rounded-full">
-                          {option.badge}
-                        </span>
-                      )}
+                      
+                      <div className="text-left">
+                        <h5 className="text-lg font-semibold text-econotrip-blue text-balance">
+                          {option.label}
+                        </h5>
+                        <p className="text-sm text-gray-600 text-balance mb-1">
+                          {formatDateDisplay(option.date)}
+                        </p>
+                        <p className="text-xs text-gray-500 text-balance">
+                          {option.description}
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div className="text-left">
-                      <h5 className="text-lg font-semibold text-econotrip-blue text-balance">
-                        {option.label}
-                      </h5>
-                      <p className="text-sm text-gray-600 text-balance mb-1">
-                        {formatDateDisplay(option.date)}
-                      </p>
-                      <p className="text-xs text-gray-500 text-balance">
-                        {option.description}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                </button>
               </motion.div>
             );
           })}
@@ -180,7 +177,7 @@ export function DataSelector({
                 variant="secondary"
                 onClick={handleShowCustomInput}
                 disabled={disabled}
-                className="h-14 px-6 text-base"
+                className="h-14 px-6 text-base min-h-[44px]"
                 aria-label="Mostrar seletor de data personalizada"
               >
                 <Calendar className="h-5 w-5 mr-2" />
@@ -195,7 +192,7 @@ export function DataSelector({
                 <label className="block text-lg font-medium text-econotrip-blue text-balance">
                   Selecione uma data personalizada:
                 </label>
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                   <div className="flex-1 min-w-0">
                     <Input
                       type="date"
@@ -203,7 +200,7 @@ export function DataSelector({
                       onChange={(e) => handleCustomDateChange(e.target.value)}
                       min={defaultMinDate}
                       disabled={disabled}
-                      className="h-14 text-lg"
+                      className="h-14 text-lg min-h-[44px]"
                       aria-label="Selecionar data personalizada"
                     />
                   </div>
@@ -211,7 +208,7 @@ export function DataSelector({
                     variant="secondary"
                     onClick={() => setShowCustomInput(false)}
                     disabled={disabled}
-                    className="h-14 px-4"
+                    className="h-14 px-4 min-h-[44px]"
                     aria-label="Cancelar seleção de data personalizada"
                   >
                     Cancelar
