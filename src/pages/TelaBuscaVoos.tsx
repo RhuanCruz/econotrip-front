@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Plane } from "lucide-react";
 
 import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
-import { FlightSearchForm } from "@/components/search/FlightSearchForm";
+import { ModernFlightSearchForm } from "@/components/search/ModernFlightSearchForm";
 import { useLastSearch } from "@/hooks/useLastSearch";
-import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
 interface FormData {
@@ -141,49 +141,98 @@ export default function TelaBuscaVoos() {
   };
 
   return (
-    <div className="max-w-screen-sm mx-auto px-4 pb-24">
-      <AnimatePresence>
-        {showRestorePrompt && lastSearch && (
-          <LastSearchPrompt
-            lastSearch={lastSearch}
-            onRestore={handleRestoreLastSearch}
-            onDismiss={hideRestorePrompt}
-          />
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
+      <div className="max-w-screen-sm mx-auto px-4 pb-24">
+        <AnimatePresence>
+          {showRestorePrompt && lastSearch && (
+            <LastSearchPrompt
+              lastSearch={lastSearch}
+              onRestore={handleRestoreLastSearch}
+              onDismiss={hideRestorePrompt}
+            />
+          )}
+        </AnimatePresence>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
-      >
-        <div className="text-center py-6">
-          <h1 className="text-3xl font-museomoderno font-bold text-econotrip-blue mb-3 text-balance">
-            Encontre sua próxima viagem
-          </h1>
-          <p className="text-lg text-gray-600 text-balance">
-            Informe seus dados abaixo para descobrir as melhores opções de passagens
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8"
+        >
+          {/* Header */}
+          <div className="text-center pt-8 pb-4">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+            >
+              <Plane className="w-8 h-8 text-white" />
+            </motion.div>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-museomoderno font-bold text-econotrip-blue mb-3 text-balance"
+            >
+              Buscar Voos
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-lg text-gray-600 text-balance"
+            >
+              Para onde vamos viajar hoje?
+            </motion.p>
+          </div>
 
-        <MotivationalHint message="Você está a poucos cliques de realizar sua próxima aventura!" />
+          {/* Quick Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-3 gap-4 mb-8"
+          >
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-econotrip-blue">200+</div>
+              <div className="text-sm text-gray-600">Destinos</div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-econotrip-orange">24/7</div>
+              <div className="text-sm text-gray-600">Suporte</div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-econotrip-green">95%</div>
+              <div className="text-sm text-gray-600">Satisfação</div>
+            </div>
+          </motion.div>
 
-        <FlightSearchForm
-          formData={formData}
-          onInputChange={handleInputChange}
-          onPassengerChange={handlePassengerChange}
-          onSearch={handleSearch}
+          {/* Search Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <ModernFlightSearchForm
+              formData={formData}
+              onInputChange={handleInputChange}
+              onPassengerChange={handlePassengerChange}
+              onSearch={handleSearch}
+            />
+          </motion.div>
+        </motion.div>
+
+        <StandardModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          type={modalConfig.type}
+          title={modalConfig.title}
+          description={modalConfig.description}
+          confirmText="Entendi"
         />
-      </motion.div>
-
-      <StandardModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        type={modalConfig.type}
-        title={modalConfig.title}
-        description={modalConfig.description}
-        confirmText="Entendi"
-      />
+      </div>
     </div>
   );
 }
