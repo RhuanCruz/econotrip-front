@@ -9,6 +9,7 @@ interface CardProps {
   footer?: React.ReactNode;
   children?: React.ReactNode;
   variant?: "default" | "highlight";
+  onClick?: () => void;
 }
 
 export function Card({
@@ -18,14 +19,17 @@ export function Card({
   footer,
   children,
   variant = "default",
+  onClick,
 }: CardProps) {
   return (
     <div
       className={cn(
         "rounded-lg border bg-card shadow-sm",
         variant === "highlight" && "border-econotrip-green bg-econotrip-green/10",
+        onClick && "cursor-pointer",
         className
       )}
+      onClick={onClick}
     >
       {(title || description) && (
         <div className="p-6 border-b">
