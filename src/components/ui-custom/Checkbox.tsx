@@ -4,13 +4,14 @@ import { cn } from "@/lib/utils";
 
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  description?: string;
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, label, ...props }, ref) => {
+  ({ className, label, description, ...props }, ref) => {
     return (
-      <label className="flex items-center space-x-3 cursor-pointer">
-        <div className="relative">
+      <label className="flex items-start space-x-3 cursor-pointer group">
+        <div className="relative mt-0.5">
           <input
             type="checkbox"
             className="sr-only"
@@ -19,7 +20,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <div
             className={cn(
-              "block h-6 w-6 rounded-md border-2 border-econotrip-blue",
+              "block h-5 w-5 sm:h-6 sm:w-6 rounded-md border-2 border-econotrip-blue transition-all duration-200 group-hover:border-econotrip-orange",
               props.checked && "bg-econotrip-orange border-econotrip-orange",
               className
             )}
@@ -27,7 +28,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             {props.checked && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-white"
+                className="h-full w-full text-white p-0.5"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -40,8 +41,17 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             )}
           </div>
         </div>
-        {label && (
-          <span className="text-lg text-econotrip-blue">{label}</span>
+        {(label || description) && (
+          <div className="flex-1 min-w-0">
+            {label && (
+              <span className="text-base sm:text-lg text-econotrip-blue font-medium">
+                {label}
+              </span>
+            )}
+            {description && (
+              <p className="text-sm text-econotrip-blue/60 mt-1">{description}</p>
+            )}
+          </div>
         )}
       </label>
     );

@@ -7,16 +7,17 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   icon?: LucideIcon;
   error?: string;
+  hint?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, icon: Icon, error, ...props }, ref) => {
+  ({ className, type, label, icon: Icon, error, hint, ...props }, ref) => {
     return (
       <div className="w-full space-y-2">
         {label && (
           <label
             htmlFor={props.id}
-            className="block text-lg font-medium text-econotrip-blue"
+            className="block text-base sm:text-lg font-medium text-econotrip-blue"
           >
             {label}
           </label>
@@ -24,14 +25,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <div className="relative">
           {Icon && (
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <Icon className="w-6 h-6 text-gray-500" aria-hidden="true" />
+              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-econotrip-blue/60" aria-hidden="true" />
             </div>
           )}
           <input
             type={type}
             className={cn(
-              "flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-lg ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-              Icon && "pl-12",
+              "flex h-11 sm:h-12 w-full rounded-xl border border-econotrip-blue/20 bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-econotrip-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
+              Icon && "pl-10 sm:pl-12",
               error && "border-red-500 focus-visible:ring-red-500",
               className
             )}
@@ -39,7 +40,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
         </div>
-        {error && <p className="text-red-500 text-base">{error}</p>}
+        {hint && !error && (
+          <p className="text-sm text-econotrip-blue/60">{hint}</p>
+        )}
+        {error && (
+          <p className="text-sm sm:text-base text-red-500 flex items-center gap-1">
+            <span className="text-xs">⚠️</span>
+            {error}
+          </p>
+        )}
       </div>
     );
   }

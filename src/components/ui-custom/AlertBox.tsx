@@ -23,33 +23,33 @@ export function AlertBox({
       case "warning":
         return "bg-yellow-50 border-yellow-400 text-yellow-800";
       case "success":
-        return "bg-econotrip-green/20 border-econotrip-green text-green-800";
+        return "bg-econotrip-green/10 border-econotrip-green text-econotrip-blue";
       case "error":
         return "bg-red-50 border-red-400 text-red-800";
       default:
-        return "bg-blue-50 border-econotrip-blue text-econotrip-blue";
+        return "bg-econotrip-blue/5 border-econotrip-blue/30 text-econotrip-blue";
     }
   };
 
   return (
     <div
       className={cn(
-        "rounded-lg border p-4",
+        "rounded-xl border p-4 sm:p-6 transition-all duration-200",
         getTypeClasses(),
         className
       )}
     >
-      <div className="flex items-start">
+      <div className="flex items-start gap-3">
         {Icon && (
-          <div className="flex-shrink-0 mr-3">
-            <Icon className="h-6 w-6" aria-hidden="true" />
+          <div className="flex-shrink-0 mt-0.5">
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
           </div>
         )}
-        <div>
+        <div className="flex-1 min-w-0">
           {title && (
-            <h3 className="text-xl font-medium mb-2">{title}</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">{title}</h3>
           )}
-          <div className="text-lg">{children}</div>
+          <div className="text-base sm:text-lg leading-relaxed">{children}</div>
         </div>
       </div>
     </div>
