@@ -5,13 +5,15 @@ import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 
+interface PassengerCounts {
+  adults: number;
+  children: number;
+  infants: number;
+}
+
 interface PassengerSelectionSectionProps {
-  passageiros: {
-    adults: number;
-    children: number;
-    infants: number;
-  };
-  onPassengerChange: (type: keyof typeof passageiros, increment: boolean) => void;
+  passageiros: PassengerCounts;
+  onPassengerChange: (type: keyof PassengerCounts, increment: boolean) => void;
 }
 
 export function PassengerSelectionSection({
