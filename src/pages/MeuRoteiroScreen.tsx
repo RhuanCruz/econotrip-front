@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
@@ -23,25 +22,8 @@ import {
 export default function MeuRoteiroScreen() {
   const [activeTab, setActiveTab] = useState<"atual" | "historico">("atual");
 
-  const roteiroAtual = {
-    destino: "Lisboa, Portugal",
-    dataInicio: "15 Mar 2024",
-    dataFim: "22 Mar 2024",
-    progresso: 75,
-    itens: [
-      { id: 1, titulo: "Reservar passagem aérea", concluido: true },
-      { id: 2, titulo: "Reservar hotel", concluido: true },
-      { id: 3, titulo: "Contratar seguro viagem", concluido: true },
-      { id: 4, titulo: "Verificar documentos", concluido: false },
-      { id: 5, titulo: "Fazer check-in online", concluido: false },
-    ],
-    atividades: [
-      { id: 1, titulo: "Visitar Torre de Belém", dia: "Dia 1", tipo: "histórico" },
-      { id: 2, titulo: "Mosteiro dos Jerónimos", dia: "Dia 1", tipo: "histórico" },
-      { id: 3, titulo: "Provar pastéis de nata", dia: "Dia 2", tipo: "culinária" },
-      { id: 4, titulo: "Bairro Alto à noite", dia: "Dia 2", tipo: "entretenimento" },
-    ]
-  };
+  // Simulação: roteiroAtual nulo para exibir estado vazio
+  const roteiroAtual = null;
 
   const viagensAnteriores = [
     { id: 1, destino: "Paris, França", data: "Dez 2023", avaliacao: 5 },
@@ -118,7 +100,29 @@ export default function MeuRoteiroScreen() {
             </div>
           </motion.div>
 
-          {activeTab === "atual" && (
+          {/* Estado vazio: sem viagem atual */}
+          {activeTab === "atual" && !roteiroAtual && (
+            <motion.div
+              variants={itemAnimation}
+              className="flex flex-col items-center justify-center py-16"
+            >
+              <h2 className="text-xl font-bold text-econotrip-blue mb-2">Nenhuma viagem atual</h2>
+              <p className="text-gray-600 mb-6 text-center">Você ainda não criou um roteiro. Que tal planejar sua próxima aventura?</p>
+              <Button
+                icon={Plus}
+                size="lg"
+                className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+                onClick={() => window.location.href = '/nova-viagem'}
+              >
+                Criar Nova Viagem
+              </Button>
+              <p className="text-center text-sm text-gray-500 mt-3">
+                Encontre o roteiro perfeito para sua próxima jornada!
+              </p>
+            </motion.div>
+          )}
+
+          {activeTab === "atual" && roteiroAtual && (
             <motion.div
               variants={containerAnimation}
               initial="hidden"
@@ -213,8 +217,11 @@ export default function MeuRoteiroScreen() {
 
               {/* Botão adicionar atividade */}
               <motion.div variants={itemAnimation}>
-                <Button className="w-full h-14 bg-gradient-to-r from-econotrip-green to-econotrip-green/90 hover:from-econotrip-green/90 hover:to-econotrip-green text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200">
-                  <Plus className="mr-2 h-5 w-5" />
+                <Button
+                  icon={Plus}
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-econotrip-green to-econotrip-green/90 hover:from-econotrip-green/90 hover:to-econotrip-green text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+                >
                   Adicionar Nova Atividade
                 </Button>
               </motion.div>
@@ -237,7 +244,7 @@ export default function MeuRoteiroScreen() {
                 </div>
                 <div className="space-y-4">
                   {viagensAnteriores.map((viagem) => (
-                    <Card key={viagem.id} className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all cursor-pointer">
+                    <Card key={viagem.id} className="p-6 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all cursor-pointer">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className="w-14 h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">

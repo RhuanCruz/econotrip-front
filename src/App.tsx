@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -34,6 +33,7 @@ import RadarOfertasScreen from "./pages/RadarOfertasScreen";
 import AvaliacaoScreen from "./pages/AvaliacaoScreen";
 import TurismoSustentavelScreen from "./pages/TurismoSustentavelScreen";
 import MinhaEvolucaoScreen from "./pages/MinhaEvolucaoScreen";
+import NovaViagemScreen from "./pages/NovaViagemScreen";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +87,7 @@ const App = () => {
                 <Route path="/radar-ofertas" element={<RadarOfertasScreen />} />
                 <Route path="/avaliacao" element={<AvaliacaoScreen />} />
                 <Route path="/turismo-sustentavel" element={<TurismoSustentavelScreen />} />
+                <Route path="/nova-viagem" element={<NovaViagemScreen />} />
               </Route>
 
               {/* Rota para página não encontrada */}

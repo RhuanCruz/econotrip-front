@@ -31,9 +31,12 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function DashboardScreen() {
   const navigate = useNavigate();
+
+  const { user } = useAuthStore();
 
   // Dados do programa de fidelidade
   const pontosAtuais = 180;
@@ -80,7 +83,7 @@ export default function DashboardScreen() {
             </motion.div>
             
             <h1 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-2">
-              Olá, Maria! 👋
+              Olá, {user.fullname.split(' ')[0]}! 👋
             </h1>
             <p className="text-base text-gray-600 text-balance px-2">
               Que bom ter você de volta! Pronta para sua próxima aventura?

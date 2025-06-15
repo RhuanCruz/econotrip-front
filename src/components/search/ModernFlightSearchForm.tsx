@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Search, MapPin, Calendar, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
@@ -125,20 +124,20 @@ export function ModernFlightSearchForm({
 
         {/* Date Selection */}
         <div className="p-6 border-b border-gray-100">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Partida</label>
               <div className="relative">
                 <Calendar className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue" />
                 <input
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={formData.dataIda}
                   onChange={(e) => onInputChange("dataIda", e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent"
                 />
               </div>
             </div>
-            
             {tripType === 'round-trip' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Retorno</label>
@@ -146,6 +145,7 @@ export function ModernFlightSearchForm({
                   <Calendar className="absolute left-4 top-4 h-5 w-5 text-econotrip-orange" />
                   <input
                     type="date"
+                    min={formData.dataIda || new Date().toISOString().split('T')[0]}
                     value={formData.dataVolta}
                     onChange={(e) => onInputChange("dataVolta", e.target.value)}
                     className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent"
@@ -158,7 +158,7 @@ export function ModernFlightSearchForm({
 
         {/* Passengers & Class */}
         <div className="p-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Passageiros</label>
               <div className="relative">
@@ -168,13 +168,13 @@ export function ModernFlightSearchForm({
                 </div>
               </div>
             </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Classe</label>
               <select
                 value={formData.classe}
                 onChange={(e) => onInputChange("classe", e.target.value)}
                 className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg"
+                disabled
               >
                 <option value="economica">Econômica</option>
                 <option value="executiva">Executiva</option>
@@ -251,9 +251,10 @@ export function ModernFlightSearchForm({
       <div className="pt-4">
         <Button
           onClick={onSearch}
-          className="w-full h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+          icon={Search}
+          size="lg"
+          className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
         >
-          <Search className="mr-3 h-6 w-6" />
           Buscar Voos
         </Button>
         <p className="text-center text-sm text-gray-500 mt-3">
