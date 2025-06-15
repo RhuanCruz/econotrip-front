@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Plane, Hotel, MapPin, Clock, Bell, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { StandardModal } from "@/components/ui-custom/StandardModal";
 
 interface EventoRoteiro {
   id: string;
@@ -19,51 +19,17 @@ interface EventoRoteiro {
 
 interface LinhaDoTempoRoteiroProps {
   objetivo: string;
+  eventosExternos?: EventoRoteiro[];
 }
 
-export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
-  const [eventos, setEventos] = useState<EventoRoteiro[]>([
-    {
-      id: "1",
-      dia: 1,
-      horario: "08:00",
-      titulo: "Embarque no aeroporto",
-      descricao: "Chegada ao aeroporto - Gate A12",
-      tipo: "viagem",
-      concluido: false,
-      lembrete: true,
-    },
-    {
-      id: "2",
-      dia: 1,
-      horario: "14:30",
-      titulo: "Check-in no hotel",
-      descricao: "Hotel Pousada do Sol - Rua das Flores, 123",
-      tipo: "hotel",
-      concluido: false,
-      lembrete: false,
-    },
-    {
-      id: "3",
-      dia: 2,
-      horario: "09:00",
-      titulo: "Passeio cultural",
-      descricao: "Centro histórico - Guia incluído",
-      tipo: "passeio",
-      concluido: false,
-      lembrete: true,
-    },
-    {
-      id: "4",
-      dia: 3,
-      horario: "16:00",
-      titulo: "Retorno ao aeroporto",
-      descricao: "Transporte saindo do hotel",
-      tipo: "transporte",
-      concluido: false,
-      lembrete: true,
-    },
-  ]);
+export function LinhaDoTempoRoteiro({ objetivo, eventosExternos }: LinhaDoTempoRoteiroProps) {
+  const [eventos, setEventos] = useState<EventoRoteiro[]>(eventosExternos);
+  const [showAddModal, setShowAddModal] = useState<number | null>(null);
+  const [newAtividade, setNewAtividade] = useState({
+    horario: "",
+    titulo: "",
+    descricao: ""
+  });
 
   const getIconByTipo = (tipo: string) => {
     switch (tipo) {
@@ -131,22 +97,31 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
   }, {} as Record<number, EventoRoteiro[]>);
 
   return (
-    <Card className="p-4">
+    <Card className="">
       <div className="space-y-6">
         {Object.entries(eventosPorDia).map(([dia, eventosODia]) => (
           <motion.div
             key={dia}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="border-l-4 border-econotrip-blue pl-4 relative"
-          >
-            <div className="absolute -left-3 top-0 w-6 h-6 bg-econotrip-blue rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">{dia}</span>
+            className="relative"
+          > 
+            <div className="flex items-center mb-3 gap-2">
+              <h3 className="text-lg font-bold text-econotrip-blue">
+                Dia {dia}
+              </h3>
+              <button
+                className="ml-1 w-8 h-8 rounded-full bg-econotrip-blue text-white flex items-center justify-center hover:bg-econotrip-blue/90 transition"
+                onClick={() => setShowAddModal(Number(dia))}
+                type="button"
+                aria-label="Adicionar atividade"
+              >
+                <span className="sr-only">Adicionar atividade</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
             </div>
-            
-            <h3 className="text-lg font-bold text-econotrip-blue mb-3">
-              Dia {dia}
-            </h3>
             
             <div className="space-y-3">
               {eventosODia.map((evento) => {
@@ -154,7 +129,7 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
                 return (
                   <div
                     key={evento.id}
-                    className={`p-3 rounded-lg border transition-all ${
+                    className={`w-full p-3 rounded-lg border transition-all ${
                       evento.concluido 
                         ? "bg-green-50 border-green-200 opacity-75" 
                         : "bg-white border-gray-200 hover:border-econotrip-blue/30"
@@ -179,33 +154,13 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
                         
                         <div className="flex flex-wrap gap-2 mt-2">
                           <Button
-                            variant={evento.lembrete ? "primary" : "secondary"}
-                            size="sm"
-                            icon={Bell}
-                            onClick={() => toggleLembrete(evento.id)}
-                            className="text-xs px-2 py-1 h-8 flex-shrink-0"
-                          >
-                            {evento.lembrete ? "Ativo" : "Lembrar"}
-                          </Button>
-                          
-                          <Button
-                            variant={evento.concluido ? "secondary" : "primary"}
-                            size="sm"
-                            icon={Check}
-                            onClick={() => marcarConcluido(evento.id)}
-                            className="text-xs px-2 py-1 h-8 flex-shrink-0"
-                          >
-                            {evento.concluido ? "Desmarcar" : "Feito"}
-                          </Button>
-                          
-                          <Button
                             variant="secondary"
                             size="sm"
                             icon={X}
                             onClick={() => cancelarEvento(evento.id)}
                             className="text-xs px-2 py-1 h-8 text-red-600 hover:bg-red-50 flex-shrink-0"
                           >
-                            Cancelar
+                            Remover
                           </Button>
                         </div>
                       </div>
@@ -217,6 +172,49 @@ export function LinhaDoTempoRoteiro({ objetivo }: LinhaDoTempoRoteiroProps) {
           </motion.div>
         ))}
       </div>
+
+      {/* Modal de adicionar atividade */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+            <h2 className="text-xl font-bold text-econotrip-blue mb-4">Adicionar nova atividade</h2>
+            <form className="space-y-3 px-1 pt-2" onSubmit={e => { e.preventDefault(); if (!newAtividade.titulo) return; setEventos(prev => [ ...prev, { id: `${showAddModal}-a${prev.length + 1}`, dia: showAddModal, horario: newAtividade.horario, titulo: newAtividade.titulo, descricao: newAtividade.descricao, tipo: "passeio", concluido: false, lembrete: false } ]); setShowAddModal(null); setNewAtividade({ horario: "", titulo: "", descricao: "" }); }}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={newAtividade.horario}
+                  onChange={e => setNewAtividade(a => ({ ...a, horario: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                <input
+                  type="text"
+                  value={newAtividade.titulo}
+                  onChange={e => setNewAtividade(a => ({ ...a, titulo: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <textarea
+                  value={newAtividade.descricao}
+                  onChange={e => setNewAtividade(a => ({ ...a, descricao: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
+                  rows={2}
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300" onClick={() => setShowAddModal(null)}>Cancelar</button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-econotrip-blue text-white font-semibold hover:bg-econotrip-blue/90">Adicionar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

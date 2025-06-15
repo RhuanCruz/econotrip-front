@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Radar, 
-  MapPin, 
-  Clock, 
-  Star, 
+import {
+  Radar,
+  MapPin,
+  Clock,
+  Star,
   Filter,
   Plane,
   Tag,
@@ -80,6 +79,11 @@ const mockOfertas: Oferta[] = [
 
 export default function RadarOfertasScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Recebe o radarId ou novoRadar da navegação
+  const radarId = location.state?.radarId;
+  const novoRadar = location.state?.novoRadar;
+
   const [ofertas, setOfertas] = useState<Oferta[]>(mockOfertas);
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
   const [favoritadas, setFavoritadas] = useState<Set<string>>(new Set());
@@ -92,8 +96,8 @@ export default function RadarOfertasScreen() {
     { id: "sustentavel", label: "Sustentável", icon: Plane },
   ];
 
-  const ofertasFiltradas = ofertas.filter(oferta => 
-    filtroCategoria === "todas" || 
+  const ofertasFiltradas = ofertas.filter(oferta =>
+    filtroCategoria === "todas" ||
     oferta.categoria === filtroCategoria ||
     (filtroCategoria === "sustentavel" && oferta.isSustentavel)
   );
@@ -109,12 +113,12 @@ export default function RadarOfertasScreen() {
   };
 
   const handleVerOferta = (oferta: Oferta) => {
-    navigate("/busca-voos", { 
-      state: { 
-        origem: oferta.origem, 
+    navigate("/busca-voos", {
+      state: {
+        origem: oferta.origem,
         destino: oferta.destino,
-        ofertaId: oferta.id 
-      } 
+        ofertaId: oferta.id
+      }
     });
   };
 
@@ -127,170 +131,166 @@ export default function RadarOfertasScreen() {
   };
 
   return (
-    <LayoutBase>
-      <div className="max-w-screen-sm mx-auto px-4 py-4 pb-28">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6"
-        >
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="p-3 bg-econotrip-orange/10 rounded-2xl">
-              <Radar className="h-8 w-8 text-econotrip-orange" />
-            </div>
-            <h1 className="text-2xl font-bold text-econotrip-blue">
-              Radar de Ofertas
-            </h1>
+    <div className="max-w-screen-sm mx-auto px-4 py-4 pb-28">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-6"
+      >
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="p-3 bg-econotrip-orange/10 rounded-2xl">
+            <Radar className="h-8 w-8 text-econotrip-orange" />
           </div>
-          <p className="text-gray-600 text-lg">
-            Ofertas personalizadas para você
-          </p>
-        </motion.div>
+          <h1 className="text-2xl font-bold text-econotrip-blue">
+            Radar de Ofertas
+          </h1>
+        </div>
+        <p className="text-gray-600 text-lg">
+          Ofertas personalizadas para você
+        </p>
+      </motion.div>
 
-        {/* Filtros */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="h-5 w-5 text-econotrip-blue" />
-            <span className="font-medium text-econotrip-blue">Filtrar por:</span>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {categorias.map((categoria) => (
-              <button
-                key={categoria.id}
-                onClick={() => setFiltroCategoria(categoria.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${
-                  filtroCategoria === categoria.id
-                    ? "border-econotrip-orange bg-econotrip-orange text-white"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-orange"
+      {/* Filtros */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Filter className="h-5 w-5 text-econotrip-blue" />
+          <span className="font-medium text-econotrip-blue">Filtrar por:</span>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {categorias.map((categoria) => (
+            <button
+              key={categoria.id}
+              onClick={() => setFiltroCategoria(categoria.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${filtroCategoria === categoria.id
+                  ? "border-econotrip-orange bg-econotrip-orange text-white"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-orange"
                 }`}
-              >
-                <categoria.icon className="h-4 w-4" />
-                {categoria.label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+            >
+              <categoria.icon className="h-4 w-4" />
+              {categoria.label}
+            </button>
+          ))}
+        </div>
+      </motion.div>
 
-        {/* Lista de Ofertas */}
+      {/* Lista de Ofertas */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="space-y-4"
+      >
+        {ofertasFiltradas.map((oferta, index) => (
+          <motion.div
+            key={oferta.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <div className="p-6">
+                {/* Header da oferta */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-5 w-5 text-econotrip-blue" />
+                      <span className="text-lg font-semibold text-econotrip-blue">
+                        {oferta.origem} → {oferta.destino}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span className="text-sm text-gray-600">
+                        {oferta.avaliacao}/5.0
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleFavoritar(oferta.id)}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label="Favoritar oferta"
+                  >
+                    <Heart
+                      className={`h-6 w-6 ${favoritadas.has(oferta.id)
+                          ? "text-red-500 fill-current"
+                          : "text-gray-400"
+                        }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Preço e desconto */}
+                <div className="mb-4">
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-2xl font-bold text-econotrip-orange">
+                      R$ {oferta.preco.toLocaleString()}
+                    </span>
+                    <span className="text-lg text-gray-500 line-through">
+                      R$ {oferta.precoOriginal.toLocaleString()}
+                    </span>
+                  </div>
+                  <Badge variant="secondary" className="bg-econotrip-green text-white">
+                    {oferta.desconto}% OFF
+                  </Badge>
+                </div>
+
+                {/* Badges e informações */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {oferta.isSustentavel && <SustainableBadge type="carbon" />}
+
+                  {oferta.pontosMilhas && (
+                    <Badge variant="outline" className="border-econotrip-blue text-econotrip-blue">
+                      <Star className="h-3 w-3 mr-1" />
+                      {oferta.pontosMilhas.toLocaleString()} milhas
+                    </Badge>
+                  )}
+
+                  <Badge variant="outline" className="border-red-500 text-red-500">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Até {formatarDataLimite(oferta.dataLimite)}
+                  </Badge>
+                </div>
+
+                {/* Botão de ação */}
+                <Button
+                  variant="primary"
+                  onClick={() => handleVerOferta(oferta)}
+                  className="w-full h-12 text-lg"
+                  icon={ArrowRight}
+                  iconPosition="right"
+                >
+                  Ver esta oferta
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {ofertasFiltradas.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-4"
+          className="text-center py-12"
         >
-          {ofertasFiltradas.map((oferta, index) => (
-            <motion.div
-              key={oferta.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <div className="p-6">
-                  {/* Header da oferta */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <MapPin className="h-5 w-5 text-econotrip-blue" />
-                        <span className="text-lg font-semibold text-econotrip-blue">
-                          {oferta.origem} → {oferta.destino}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span className="text-sm text-gray-600">
-                          {oferta.avaliacao}/5.0
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={() => handleFavoritar(oferta.id)}
-                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                      aria-label="Favoritar oferta"
-                    >
-                      <Heart 
-                        className={`h-6 w-6 ${
-                          favoritadas.has(oferta.id) 
-                            ? "text-red-500 fill-current" 
-                            : "text-gray-400"
-                        }`} 
-                      />
-                    </button>
-                  </div>
-
-                  {/* Preço e desconto */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-2xl font-bold text-econotrip-orange">
-                        R$ {oferta.preco.toLocaleString()}
-                      </span>
-                      <span className="text-lg text-gray-500 line-through">
-                        R$ {oferta.precoOriginal.toLocaleString()}
-                      </span>
-                    </div>
-                    <Badge variant="secondary" className="bg-econotrip-green text-white">
-                      {oferta.desconto}% OFF
-                    </Badge>
-                  </div>
-
-                  {/* Badges e informações */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {oferta.isSustentavel && <SustainableBadge type="carbon" />}
-                    
-                    {oferta.pontosMilhas && (
-                      <Badge variant="outline" className="border-econotrip-blue text-econotrip-blue">
-                        <Star className="h-3 w-3 mr-1" />
-                        {oferta.pontosMilhas.toLocaleString()} milhas
-                      </Badge>
-                    )}
-                    
-                    <Badge variant="outline" className="border-red-500 text-red-500">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Até {formatarDataLimite(oferta.dataLimite)}
-                    </Badge>
-                  </div>
-
-                  {/* Botão de ação */}
-                  <Button
-                    variant="primary"
-                    onClick={() => handleVerOferta(oferta)}
-                    className="w-full h-12 text-lg"
-                    icon={ArrowRight}
-                    iconPosition="right"
-                  >
-                    Ver esta oferta
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+          <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Radar className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            Nenhuma oferta encontrada
+          </h3>
+          <p className="text-gray-500">
+            Tente ajustar os filtros ou volte mais tarde
+          </p>
         </motion.div>
-
-        {ofertasFiltradas.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Radar className="h-8 w-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-600 mb-2">
-              Nenhuma oferta encontrada
-            </h3>
-            <p className="text-gray-500">
-              Tente ajustar os filtros ou volte mais tarde
-            </p>
-          </motion.div>
-        )}
-      </div>
-    </LayoutBase>
+      )}
+    </div>
   );
 }

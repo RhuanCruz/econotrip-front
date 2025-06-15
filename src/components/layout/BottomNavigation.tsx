@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
@@ -27,6 +26,12 @@ export function BottomNavigation() {
       icon: Search, 
       route: '/busca-voos', 
       isActive: location.pathname === '/busca-voos' || location.pathname === '/resultados-voos' || location.pathname === '/detalhes-voo'
+    },
+    {
+      name: 'Radar',
+      icon: Plane, // Substitua por Radar se houver um ícone mais adequado
+      route: '/meus-radares', // Agora leva para a tela de listagem de radares
+      isActive: location.pathname === '/meus-radares' || location.pathname === '/radar-ofertas'
     },
     { 
       name: 'Roteiro', 

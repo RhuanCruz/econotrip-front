@@ -4,9 +4,19 @@ import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Plus, Navigation } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuthStore } from "@/stores/authStore";
+import { PlannerService } from "@/api/planner/PlannerService";
+import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
 export default function NovaViagemScreen() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    type: "info" as ModalType,
+    title: "",
+    description: ""
+  });
   const [form, setForm] = useState({
     partida: "",
     destino: "",
@@ -16,16 +26,42 @@ export default function NovaViagemScreen() {
     estilo: "",
   });
 
+  const { token } = useAuthStore();
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // Aqui você pode integrar com a API ou navegar para a tela de roteiro gerado
-    // Exemplo: navigate('/roteiro-gerado', { state: { ...form } });
-    navigate("/roteiro-gerado", { state: { ...form } });
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();    
+    if (form.duracao > 20) return;
+    setLoading(true);
+    setModalConfig({
+      isOpen: true,
+      type: "info",
+      title: "Criando viagem...",
+      description: "Aguarde enquanto processamos sua solicitação."
+    });
+
+    console.log("Form data:", form);
+
+    const plannerBody = {
+      start: form.inicio,
+      duration: Number(form.duracao),
+      amountPeople: Number(form.pessoas),
+      tripStyle: form.estilo,
+      origin: form.partida,
+      destination: form.destino,
+    };
+
+    const roteiro = await PlannerService.generate(token, plannerBody);
+    navigate("/roteiro-gerado", { state: { roteiro } });
+
+    setLoading(false);
+    setModalConfig({ ...modalConfig, isOpen: false });
+    navigate("/roteiro-gerado", { state: { roteiro } });
+
   }
 
   const containerAnimation = {
@@ -35,7 +71,7 @@ export default function NovaViagemScreen() {
       transition: { staggerChildren: 0.1 }
     }
   };
-  
+
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
@@ -44,26 +80,26 @@ export default function NovaViagemScreen() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
       <motion.div
-          variants={containerAnimation}
-          initial="hidden"
-          animate="visible"
-          className="space-y-6"
-        >
-          {/* Header moderno */}
-          <motion.div variants={itemAnimation} className="text-center py-4">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="w-20 h-20 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
-            >
-              <Plus className="w-10 h-10 text-white" />
-            </motion.div>
-            
-            <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
-              Criar Nova Viagem
-            </h1>
+        variants={containerAnimation}
+        initial="hidden"
+        animate="visible"
+        className="space-y-6"
+      >
+        {/* Header moderno */}
+        <motion.div variants={itemAnimation} className="text-center py-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="w-20 h-20 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
+          >
+            <Plus className="w-10 h-10 text-white" />
           </motion.div>
+
+          <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
+            Criar Nova Viagem
+          </h1>
+        </motion.div>
       </motion.div>
       <Card className="max-w-md w-full p-8 rounded-3xl shadow-xl bg-white/90">
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -157,6 +193,15 @@ export default function NovaViagemScreen() {
           </Button>
         </form>
       </Card>
+      <StandardModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        description={modalConfig.description}
+        confirmText="Aguarde..."
+        showCancel={false}
+      />
     </div>
   );
 }

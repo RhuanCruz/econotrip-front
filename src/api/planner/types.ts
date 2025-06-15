@@ -18,7 +18,7 @@ export type CreatePlannerBody = {
 
 export type GeneratePlannerBody = {
   start: string;
-  end: string;
+  duration: number;
   amountPeople?: number;
   tripStyle?: string;
   origin: string;

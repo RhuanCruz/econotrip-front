@@ -34,6 +34,8 @@ import AvaliacaoScreen from "./pages/AvaliacaoScreen";
 import TurismoSustentavelScreen from "./pages/TurismoSustentavelScreen";
 import MinhaEvolucaoScreen from "./pages/MinhaEvolucaoScreen";
 import NovaViagemScreen from "./pages/NovaViagemScreen";
+import RoteiroGeradoScreen from "./pages/RoteiroGeradoScreen";
+import MeusRadaresScreen from "./pages/MeusRadaresScreen";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +90,9 @@ const App = () => {
                 <Route path="/avaliacao" element={<AvaliacaoScreen />} />
                 <Route path="/turismo-sustentavel" element={<TurismoSustentavelScreen />} />
                 <Route path="/nova-viagem" element={<NovaViagemScreen />} />
+                <Route path="/roteiro-gerado" element={<RoteiroGeradoScreen />} />
+                <Route path="/meus-radares" element={<MeusRadaresScreen />} />
+
               </Route>
 
               {/* Rota para página não encontrada */}
