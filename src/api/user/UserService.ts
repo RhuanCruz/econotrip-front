@@ -1,0 +1,21 @@
+import { handleApiError } from '@/utils/ErrorHandler';
+
+import { api } from '../client';
+import { CheckExistenceBody, CheckExistenceResponse, CreateUserBody, User } from './types';
+
+const CreateUser = async (data: CreateUserBody): Promise<User> => {
+  return api.post('/users', data)
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) });
+}
+
+const CheckExistence = async (data: CheckExistenceBody): Promise<CheckExistenceResponse> => {
+  return api.post<CheckExistenceResponse>('/users/check', data)
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
+export const UserService = {
+  create: CreateUser,
+  checkExistence: CheckExistence,
+}

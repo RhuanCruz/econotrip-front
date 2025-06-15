@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, LogIn } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
@@ -8,35 +8,39 @@ import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const { isAuthenticated, isLoading, login, error, clearError } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Você será redirecionado para a página inicial.",
+      });
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: error ?? "Erro no login",
+        description: "Por favor, preencha todos os campos.",
+      });
+      clearError();
+    }
+  }, [clearError, error])
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simulate login API call
-    setTimeout(() => {
-      setLoading(false);
-      
-      if (email && password) {
-        toast({
-          title: "Bem-vinda de volta!",
-          description: "Acesso realizado com sucesso. Preparando suas opções de viagem...",
-        });
-        navigate("/busca-voos");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Ops! Algo não está certo",
-          description: "Por favor, preencha seu e-mail e senha para continuar.",
-        });
-      }
-    }, 1000);
+    await login(email, password);
   };
 
   return (
@@ -112,7 +116,7 @@ export default function LoginScreen() {
             variant="primary"
             size="lg"
             icon={LogIn}
-            loading={loading}
+            loading={isLoading}
             className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-6"
           >
             Entrar na minha conta

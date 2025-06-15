@@ -18,9 +18,12 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { DetailItem } from "@/pages/FlightDetails/components/DetailItem";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
+
+  const { user } = useAuthStore();
 
   const handleViewLoyalty = () => {
     navigate("/fidelidade");
@@ -109,7 +112,7 @@ export default function ProfileScreen() {
             <DetailItem 
               icon={UserCircle} 
               title="Nome Completo" 
-              value="Maria Oliveira" 
+              value={user.fullname}
             />
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-xl">
@@ -119,7 +122,7 @@ export default function ProfileScreen() {
                 </svg>
                 <div className="min-w-0">
                   <p className="font-medium text-econotrip-blue text-sm md:text-base">E-mail</p>
-                  <p className="text-gray-700 text-sm md:text-base break-all">maria@exemplo.com</p>
+                  <p className="text-gray-700 text-sm md:text-base break-all">{user.email}</p>
                 </div>
               </div>
             </div>
@@ -127,7 +130,7 @@ export default function ProfileScreen() {
             <DetailItem 
               icon={Calendar} 
               title="Data de Nascimento" 
-              value="12/05/1958" 
+              value={user.birthdate ? new Date(user.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
             />
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-xl">
@@ -138,7 +141,7 @@ export default function ProfileScreen() {
                 </svg>
                 <div className="min-w-0">
                   <p className="font-medium text-econotrip-blue text-sm md:text-base">CPF</p>
-                  <p className="text-gray-700 text-sm md:text-base">123.456.789-00</p>
+                  <p className="text-gray-700 text-sm md:text-base">{user.cpf ? user.cpf : 'Não informado'}</p>
                 </div>
               </div>
             </div>

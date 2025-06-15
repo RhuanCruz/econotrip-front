@@ -2,16 +2,21 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Settings, LogOut } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { User as UserType } from "@/api/user/types";
+import { useAuthStore } from "@/stores/authStore";
+
 interface HeaderProps {
-  userName?: string;
+  user?: UserType;
   variant?: "default" | "compact";
 }
 export function Header({
-  userName,
+  user,
   variant = "default"
 }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { logout } = useAuthStore();
 
   // Determine if we should show back button based on the route
   const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard"].includes(location.pathname);
@@ -21,9 +26,10 @@ export function Header({
   const handleLogout = () => {
     // In a real app, this would handle logout logic
     console.log("Logout clicked");
+    logout();
     navigate("/");
   };
-  const isLoggedIn = !!userName;
+  const isLoggedIn = !!user;
   return <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm h-16 px-3 md:px-6 flex items-center justify-between w-full">
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         <div className="flex items-center min-w-0 flex-1">
@@ -58,8 +64,8 @@ export function Header({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 shadow-xl border-gray-100">
                 <div className="px-3 py-2 border-b border-gray-100">
-                  <div className="font-medium text-econotrip-blue">{userName}</div>
-                  <div className="text-sm text-gray-500">maria@exemplo.com</div>
+                  <div className="font-medium text-econotrip-blue">{user.fullname}</div>
+                  <div className="text-sm text-gray-500">{user.email}</div>
                 </div>
                 <DropdownMenuItem onClick={() => navigate("/perfil")} className="hover:bg-econotrip-orange/10">
                   <User className="mr-2 h-4 w-4" />

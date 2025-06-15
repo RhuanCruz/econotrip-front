@@ -5,6 +5,7 @@ import { Button } from "@/components/ui-custom/Button";
 import { Input } from "@/components/ui-custom/Input";
 import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
+import { UserService } from "@/api/user/UserService";
 
 export default function RegisterScreen() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function RegisterScreen() {
     setFormData((prev) => ({ ...prev, cpf: formattedCPF }));
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -58,24 +59,25 @@ export default function RegisterScreen() {
       return;
     }
     
-    // Simulate registration API call
-    setTimeout(() => {
-      setLoading(false);
-      
-      if (Object.values(formData).every(value => value)) {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Bem-vindo(a) ao ECONOTRIP!",
-        });
-        navigate("/busca-voos");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erro no cadastro",
-          description: "Por favor, preencha todos os campos corretamente.",
-        });
-      }
-    }, 1500);
+    await UserService.create({
+      fullname: formData.name,
+      birthdate: formData.birthdate,
+      email: formData.email,
+      password: formData.password,
+      cpf: formData.cpf.replace(/[.-]/g, "")
+    }).then(() => {
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Bem-vindo(a) ao ECONOTRIP!",
+      });
+      navigate("/login");
+    }).catch(() => {
+      toast({
+        variant: "destructive",
+        title: "Erro no cadastro",
+        description: "Por favor, preencha todos os campos corretamente.",
+      });
+    });
   };
 
   return (
