@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SustainableBadge } from "@/components/sustainable/SustainableBadge";
+import { RadarService } from "@/api/radar/RadarService";
+import { useAuthStore } from "@/stores/authStore";
+import { DatasDisponiveisModal } from "@/components/roteiro/DatasDisponiveisModal";
 
 interface Oferta {
   id: string;
@@ -80,13 +83,40 @@ const mockOfertas: Oferta[] = [
 export default function RadarOfertasScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { token } = useAuthStore();
   // Recebe o radarId ou novoRadar da navegação
   const radarId = location.state?.radarId;
   const novoRadar = location.state?.novoRadar;
 
-  const [ofertas, setOfertas] = useState<Oferta[]>(mockOfertas);
+  const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
   const [favoritadas, setFavoritadas] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!token || !radarId) return;
+    setLoading(true);
+    RadarService.getFlights(token, radarId)
+      .then((res) => {
+        // Adapte para o formato de Oferta se necessário
+        const ofertasConvertidas = res.records.map((item, idx) => ({
+          id: String(idx),
+          destino: res.destination,
+          origem: res.origin,
+          preco: item.price,
+          precoOriginal: item.price, // ou outro campo se houver
+          desconto: 0,
+          dataLimite: item.date,
+          categoria: "promocao" as const,
+          avaliacao: 5,
+          imagem: "/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png",
+          isSustentavel: false,
+        }));
+        setOfertas(ofertasConvertidas);
+      })
+      .catch(() => setOfertas([]))
+      .finally(() => setLoading(false));
+  }, [token, radarId]);
 
   const categorias = [
     { id: "todas", label: "Todas", icon: Tag },
@@ -101,6 +131,16 @@ export default function RadarOfertasScreen() {
     oferta.categoria === filtroCategoria ||
     (filtroCategoria === "sustentavel" && oferta.isSustentavel)
   );
+
+  // Agrupa ofertas por preço
+  const ofertasPorPreco: Record<number, Oferta[]> = {};
+  ofertasFiltradas.forEach((oferta) => {
+    if (!ofertasPorPreco[oferta.preco]) ofertasPorPreco[oferta.preco] = [];
+    ofertasPorPreco[oferta.preco].push(oferta);
+  });
+  const precosOrdenados = Object.keys(ofertasPorPreco).map(Number).sort((a, b) => a - b);
+
+  const [modalDatas, setModalDatas] = useState<{ preco: number; datas: string[] } | null>(null);
 
   const handleFavoritar = (ofertaId: string) => {
     const novasFavoritadas = new Set(favoritadas);
@@ -119,14 +159,6 @@ export default function RadarOfertasScreen() {
         destino: oferta.destino,
         ofertaId: oferta.id
       }
-    });
-  };
-
-  const formatarDataLimite = (data: string) => {
-    const dataObj = new Date(data);
-    return dataObj.toLocaleDateString("pt-BR", {
-      day: "numeric",
-      month: "short",
     });
   };
 
@@ -179,21 +211,19 @@ export default function RadarOfertasScreen() {
         </div>
       </motion.div>
 
-      {/* Lista de Ofertas */}
+      {/* Lista de Ofertas agrupadas por preço */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
         className="space-y-4"
       >
-        {ofertasFiltradas.map((oferta, index) => (
-          <motion.div
-            key={oferta.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+        {precosOrdenados.map((preco) => {
+          const grupo = ofertasPorPreco[preco];
+          if (!grupo.length) return null;
+          const primeira = grupo[0];
+          return (
+            <Card key={preco} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
               <div className="p-6">
                 {/* Header da oferta */}
                 <div className="flex justify-between items-start mb-4">
@@ -201,78 +231,64 @@ export default function RadarOfertasScreen() {
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="h-5 w-5 text-econotrip-blue" />
                       <span className="text-lg font-semibold text-econotrip-blue">
-                        {oferta.origem} → {oferta.destino}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm text-gray-600">
-                        {oferta.avaliacao}/5.0
+                        {primeira.origem} → {primeira.destino}
                       </span>
                     </div>
                   </div>
-
                   <button
-                    onClick={() => handleFavoritar(oferta.id)}
+                    onClick={() => handleFavoritar(primeira.id)}
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Favoritar oferta"
                   >
                     <Heart
-                      className={`h-6 w-6 ${favoritadas.has(oferta.id)
-                          ? "text-red-500 fill-current"
-                          : "text-gray-400"
-                        }`}
+                      className={`h-6 w-6 ${favoritadas.has(primeira.id)
+                        ? "text-red-500 fill-current"
+                        : "text-gray-400"
+                      }`}
                     />
                   </button>
                 </div>
-
-                {/* Preço e desconto */}
+                {/* Preço */}
                 <div className="mb-4">
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-2xl font-bold text-econotrip-orange">
-                      R$ {oferta.preco.toLocaleString()}
-                    </span>
-                    <span className="text-lg text-gray-500 line-through">
-                      R$ {oferta.precoOriginal.toLocaleString()}
+                      R$ {preco.toLocaleString()}
                     </span>
                   </div>
-                  <Badge variant="secondary" className="bg-econotrip-green text-white">
-                    {oferta.desconto}% OFF
-                  </Badge>
                 </div>
-
                 {/* Badges e informações */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {oferta.isSustentavel && <SustainableBadge type="carbon" />}
-
-                  {oferta.pontosMilhas && (
+                  {primeira.isSustentavel && <SustainableBadge type="carbon" />}
+                  {primeira.pontosMilhas && (
                     <Badge variant="outline" className="border-econotrip-blue text-econotrip-blue">
                       <Star className="h-3 w-3 mr-1" />
-                      {oferta.pontosMilhas.toLocaleString()} milhas
+                      {primeira.pontosMilhas.toLocaleString()} milhas
                     </Badge>
                   )}
-
-                  <Badge variant="outline" className="border-red-500 text-red-500">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Até {formatarDataLimite(oferta.dataLimite)}
-                  </Badge>
                 </div>
-
                 {/* Botão de ação */}
                 <Button
                   variant="primary"
-                  onClick={() => handleVerOferta(oferta)}
+                  onClick={() => setModalDatas({ preco, datas: grupo.map(o => o.dataLimite) })}
                   className="w-full h-12 text-lg"
-                  icon={ArrowRight}
-                  iconPosition="right"
                 >
-                  Ver esta oferta
+                  Mostrar datas disponíveis
                 </Button>
               </div>
             </Card>
-          </motion.div>
-        ))}
+          );
+        })}
       </motion.div>
+      {modalDatas && (
+        <DatasDisponiveisModal
+          isOpen={!!modalDatas}
+          onClose={() => setModalDatas(null)}
+          preco={modalDatas.preco}
+          datas={modalDatas.datas}
+          origem={ofertas.length > 0 ? ofertas[0].origem : ""}
+          destino={ofertas.length > 0 ? ofertas[0].destino : ""}
+        />
+      )}
 
       {ofertasFiltradas.length === 0 && (
         <motion.div

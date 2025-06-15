@@ -1,4 +1,3 @@
-
 import React from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
@@ -11,10 +10,11 @@ interface StandardModalProps {
   onConfirm?: () => void;
   type: ModalType;
   title: string;
-  description: string;
+  description?: string;
   confirmText?: string;
   cancelText?: string;
   showCancel?: boolean;
+  children?: React.ReactNode;
 }
 
 export function StandardModal({
@@ -23,10 +23,11 @@ export function StandardModal({
   onConfirm,
   type,
   title,
-  description,
+  description = "",
   confirmText = "Confirmar",
   cancelText = "Cancelar",
-  showCancel = false
+  showCancel = false,
+  children
 }: StandardModalProps) {
   const getIcon = () => {
     switch (type) {
@@ -66,10 +67,13 @@ export function StandardModal({
           <AlertDialogTitle className="text-xl font-museomoderno font-bold text-econotrip-blue mb-2">
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-lg text-gray-700 leading-relaxed">
-            {description}
-          </AlertDialogDescription>
+          {description && (
+            <AlertDialogDescription className="text-lg text-gray-700 leading-relaxed">
+              {description}
+            </AlertDialogDescription>
+          )}
         </AlertDialogHeader>
+        {children && <div className="my-4">{children}</div>}
         <AlertDialogFooter className="flex flex-col gap-3 mt-6">
           <AlertDialogAction
             onClick={onConfirm || onClose}
