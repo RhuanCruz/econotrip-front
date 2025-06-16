@@ -5,6 +5,7 @@ import { Plus, Radar } from "lucide-react";
 import { NovoRadarModal } from "@/components/roteiro/NovoRadarModal";
 import { RadarService } from "@/api/radar/RadarService";
 import { useAuthStore } from "@/stores/authStore";
+import { isTokenValid } from "@/utils/tokenUtils";
 
 export default function MeusRadaresScreen() {
   const navigate = useNavigate();
@@ -13,11 +14,14 @@ export default function MeusRadaresScreen() {
   const { token } = useAuthStore();
 
   React.useEffect(() => {
-    if (!token) return;
+    if (!token || !isTokenValid(token)) {
+      navigate("/login");
+      return;
+    }
     RadarService.list(token)
       .then((res) => setRadares(res.records))
       .catch(() => setRadares([]));
-  }, [token]);
+  }, [token, navigate]);
 
   const handleNovoRadar = () => {
     setModalOpen(true);

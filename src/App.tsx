@@ -13,7 +13,7 @@ import { AccessibilityBar } from "./components/accessibility/AccessibilityBar";
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
-import FlightDetailsScreen from "./pages/FlightDetails/FlightDetailsScreen";
+import FlightDetailsScreen from "./pages/FlightDetailsScreen";
 import CheckoutScreen from "./pages/Checkout/CheckoutScreen";
 import ConfirmationScreen from "./pages/ConfirmationScreen";
 import ProfileScreen from "./pages/ProfileScreen";
@@ -76,7 +76,7 @@ const App = () => {
                 <Route path="/busca-voos" element={<TelaBuscaVoos />} />
                 <Route path="/resultados-voos" element={<ResultsScreen />} />
                 <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
-                <Route path="/detalhes-voo/:id" element={<FlightDetailsScreen />} />
+                {/* <Route path="/detalhes-voo/:id" element={<FlightDetailsScreen />} /> */}
                 <Route path="/checkout" element={<CheckoutScreen />} />
                 <Route path="/perfil" element={<ProfileScreen />} />
                 <Route path="/editar-perfil" element={<EditProfileScreen />} />

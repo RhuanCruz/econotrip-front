@@ -183,11 +183,12 @@ export default function RoteiroGeradoScreen() {
           </div>
         </section>
       </div>
-      <div className="flex justify-end max-w-2xl mx-auto pb-8 pt-8">
+      <div className="flex justify-end max-w-2xl mx-auto pb-8">
         <Button
           size="lg"
           className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
         >
+          <Plus className="h-6 w-6" />
           Salvar
         </Button>
       </div>

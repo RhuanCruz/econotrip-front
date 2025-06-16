@@ -1,7 +1,9 @@
-import React from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import { Search, MapPin, Calendar, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { motion } from "framer-motion";
+import { LocationApi } from "@/api/location/location.api";
+import type { Location } from "@/api/location/types";
 
 interface FormData {
   origem: string;
@@ -35,18 +37,62 @@ interface ModernFlightSearchFormProps {
   onSearch: () => void;
 }
 
-export function ModernFlightSearchForm({
+export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm({
   formData,
   onInputChange,
   onPassengerChange,
   onSearch
-}: ModernFlightSearchFormProps) {
+}: ModernFlightSearchFormProps, ref) {
   const [tripType, setTripType] = React.useState<'one-way' | 'round-trip'>('round-trip');
   const [showAdvanced, setShowAdvanced] = React.useState(false);
+  const [origemSuggestions, setOrigemSuggestions] = React.useState<Location[]>([]);
+  const [destinoSuggestions, setDestinoSuggestions] = React.useState<Location[]>([]);
+  const [loadingOrigem, setLoadingOrigem] = React.useState(false);
+  const [loadingDestino, setLoadingDestino] = React.useState(false);
+  const [showOrigemDropdown, setShowOrigemDropdown] = React.useState(false);
+  const [showDestinoDropdown, setShowDestinoDropdown] = React.useState(false);
+
+  // Adiciona estados para armazenar o Location selecionado
+  const [selectedOrigem, setSelectedOrigem] = React.useState<Location | null>(null);
+  const [selectedDestino, setSelectedDestino] = React.useState<Location | null>(null);
+
+  // Busca sugestões para origem
+  React.useEffect(() => {
+    if (formData.origem.length >= 3) {
+      setLoadingOrigem(true);
+      LocationApi.listLocations(formData.origem).then((res) => {
+        setOrigemSuggestions(res);
+        setShowOrigemDropdown(true);
+      }).finally(() => setLoadingOrigem(false));
+    } else {
+      setOrigemSuggestions([]);
+      setShowOrigemDropdown(false);
+    }
+  }, [formData.origem]);
+
+  // Busca sugestões para destino
+  React.useEffect(() => {
+    if (formData.destino.length >= 3) {
+      setLoadingDestino(true);
+      LocationApi.listLocations(formData.destino).then((res) => {
+        setDestinoSuggestions(res);
+        setShowDestinoDropdown(true);
+      }).finally(() => setLoadingDestino(false));
+    } else {
+      setDestinoSuggestions([]);
+      setShowDestinoDropdown(false);
+    }
+  }, [formData.destino]);
 
   const getTotalPassengers = () => {
     return formData.passageiros.adults + formData.passageiros.children + formData.passageiros.infants;
   };
+
+  // Exporta o valor correto para busca
+  useImperativeHandle(ref, () => ({
+    getOrigemBusca: () => selectedOrigem?.iata || selectedOrigem?.city || formData.origem,
+    getDestinoBusca: () => selectedDestino?.iata || selectedDestino?.city || formData.destino,
+  }));
 
   return (
     <div className="space-y-6">
@@ -91,8 +137,28 @@ export function ModernFlightSearchForm({
                   placeholder="São Paulo, Brasil"
                   value={formData.origem}
                   onChange={(e) => onInputChange("origem", e.target.value)}
+                  onFocus={() => formData.origem.length >= 3 && setShowOrigemDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg"
                 />
+                {showOrigemDropdown && origemSuggestions.length > 0 && (
+                  <ul className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {origemSuggestions.map((loc) => (
+                      <li
+                        key={loc.id}
+                        className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10"
+                        onMouseDown={() => {
+                          onInputChange("origem", `${loc.name} (${loc.iata})`);
+                          setSelectedOrigem(loc);
+                          setShowOrigemDropdown(false);
+                        }}
+                      >
+                        <span className="font-semibold text-econotrip-blue">{loc.iata}</span> - {loc.name}, {loc.city}, {loc.country}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {loadingOrigem && <div className="absolute right-4 top-4 text-xs text-gray-400">Buscando...</div>}
               </div>
             </div>
 
@@ -115,8 +181,28 @@ export function ModernFlightSearchForm({
                   placeholder="Lisboa, Portugal"
                   value={formData.destino}
                   onChange={(e) => onInputChange("destino", e.target.value)}
+                  onFocus={() => formData.destino.length >= 3 && setShowDestinoDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-lg"
                 />
+                {showDestinoDropdown && destinoSuggestions.length > 0 && (
+                  <ul className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {destinoSuggestions.map((loc) => (
+                      <li
+                        key={loc.id}
+                        className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10"
+                        onMouseDown={() => {
+                          onInputChange("destino", `${loc.name} (${loc.iata})`);
+                          setSelectedDestino(loc);
+                          setShowDestinoDropdown(false);
+                        }}
+                      >
+                        <span className="font-semibold text-econotrip-orange">{loc.iata}</span> - {loc.name}, {loc.city}, {loc.country}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {loadingDestino && <div className="absolute right-4 top-4 text-xs text-gray-400">Buscando...</div>}
               </div>
             </div>
           </div>
@@ -194,18 +280,18 @@ export function ModernFlightSearchForm({
         {showAdvanced && (
           <div className="bg-white rounded-2xl p-6 shadow-lg space-y-4">
             <h3 className="text-lg font-semibold text-econotrip-blue mb-4">Opções Avançadas</h3>
-            
             <div className="space-y-3">
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={formData.usarMilhas}
-                  onChange={(e) => onInputChange("usarMilhas", e.target.checked)}
-                  className="w-5 h-5 text-econotrip-orange rounded"
-                />
-                <span className="text-gray-700">Usar milhas</span>
-              </label>
-              
+              {tripType === 'one-way' && (
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={formData.usarMilhas}
+                    onChange={(e) => onInputChange("usarMilhas", e.target.checked)}
+                    className="w-5 h-5 text-econotrip-orange rounded"
+                  />
+                  <span className="text-gray-700">Usar milhas</span>
+                </label>
+              )}
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -218,7 +304,6 @@ export function ModernFlightSearchForm({
                 />
                 <span className="text-gray-700">Apenas voos diretos</span>
               </label>
-              
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -263,4 +348,4 @@ export function ModernFlightSearchForm({
       </div>
     </div>
   );
-}
+});

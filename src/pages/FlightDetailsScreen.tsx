@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
@@ -7,28 +6,31 @@ import { Plane, Clock, Luggage, Shield, Leaf, Accessibility, ArrowLeft, HelpCirc
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
-
-const mockFlightDetails = {
-  id: "flight-1",
-  origin: "São Paulo",
-  originCode: "GRU",
-  destination: "Lisboa",
-  destinationCode: "LIS",
-  date: "10/03/2024",
-  duration: "10h 25min",
-  stops: "Voo direto",
-  baggage: "1 mala de 23kg + 1 item pessoal",
-  price: 2350.0,
-  isLowEmission: true,
-  isAccessible: true,
-  cancellationPolicy: "Cancelamento gratuito até 48h antes",
-};
+import { FlightService } from "@/api/flight/FlightService";
 
 export default function FlightDetailsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const flightDetails = mockFlightDetails;
+  const [flightDetails, setFlightDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedFlightIndex, setSelectedFlightIndex] = useState(0);
+
+  useEffect(() => {
+    const searchData = location.state?.searchData;
+    console.log("Search Data:", searchData);
+    if (!searchData) return;
+    const body = {
+      origin: searchData.origem,
+      destination: searchData.destino,
+      departure: searchData.dataIda,
+      return: searchData.dataVolta || undefined,
+      bookingToken: searchData.bookingToken || undefined,
+    };
+    FlightService.getFlighDetails(body)
+      .then((res) => setFlightDetails(res))
+      .catch(() => setFlightDetails(null))
+      .finally(() => setLoading(false));
+  }, [location.state]);
 
   const handleReserveFlight = () => {
     navigate("/checkout");
@@ -42,6 +44,26 @@ export default function FlightDetailsScreen() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
+
+  if (loading) return <div className="text-center py-20">Carregando detalhes do voo...</div>;
+  if (!flightDetails) return <div className="text-center py-20 text-red-500">Não foi possível carregar os detalhes do voo.</div>;
+
+  // Extrai dados do voo principal
+  const main = flightDetails.selected_flights?.[selectedFlightIndex];
+  const firstLeg = main?.flights?.[0];
+  const lastLeg = main?.flights?.[main.flights.length - 1];
+  const companhia = firstLeg?.airline || "";
+  const origem = firstLeg?.departure_airport?.name || "";
+  const origemCodigo = firstLeg?.departure_airport?.id || "";
+  const destino = lastLeg?.arrival_airport?.name || "";
+  const destinoCodigo = lastLeg?.arrival_airport?.id || "";
+  const dataPartida = firstLeg?.departure_airport?.time ? new Date(firstLeg.departure_airport.time).toLocaleString("pt-BR") : "";
+  const dataChegada = lastLeg?.arrival_airport?.time ? new Date(lastLeg.arrival_airport.time).toLocaleString("pt-BR") : "";
+  const duracao = main?.total_duration ? `${Math.floor(main.total_duration/60)}h ${main.total_duration%60}min` : "";
+  const paradas = main?.layovers?.length || 0;
+  const preco = main?.price;
+  const tipoVoo = paradas === 0 ? "Voo direto" : `${paradas} parada${paradas > 1 ? 's' : ''}`;
+  const bagagem = flightDetails.baggage_prices?.together?.join(", ") || "Consultar regras";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
@@ -78,12 +100,39 @@ export default function FlightDetailsScreen() {
           transition={{ delay: 0.3 }}
         >
           <Card className="mb-6 p-6 rounded-3xl shadow-xl bg-white/95 backdrop-blur-sm border-0">
+            {/* Seletor de trecho (ida/volta) - visual igual ao ModernFlightSearchForm */}
+            {Array.isArray(flightDetails.selected_flights) && flightDetails.selected_flights.length > 1 && (
+              <div className="bg-white rounded-2xl p-2 shadow mb-6">
+                <div className="flex bg-gray-100 rounded-xl p-1">
+                  <button
+                    onClick={() => setSelectedFlightIndex(0)}
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
+                      selectedFlightIndex === 0
+                        ? 'bg-white text-econotrip-blue shadow-sm'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Ida
+                  </button>
+                  <button
+                    onClick={() => setSelectedFlightIndex(1)}
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
+                      selectedFlightIndex === 1
+                        ? 'bg-white text-econotrip-blue shadow-sm'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    Volta
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Rota do voo moderna */}
             <div className="mb-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-2xl">
               <div className="flex items-center space-x-4 mb-6">
                 <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
-                    <span className="font-bold text-lg text-white">{flightDetails.originCode}</span>
+                    <span className="font-bold text-lg text-white">{origemCodigo}</span>
                   </div>
                 </div>
                 <div className="flex-1 relative">
@@ -95,18 +144,20 @@ export default function FlightDetailsScreen() {
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
-                    <span className="font-bold text-lg text-white">{flightDetails.destinationCode}</span>
+                    <span className="font-bold text-lg text-white">{destinoCodigo}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between px-4">
-                <div className="text-center">
-                  <h3 className="font-bold text-econotrip-blue text-xl">{flightDetails.origin}</h3>
-                  <p className="text-gray-600">Origem</p>
+              <div className="flex flex-col sm:flex-row justify-between px-4 gap-4">
+                <div className="flex-1 text-left break-words">
+                  <h3 className="font-bold text-econotrip-blue text-base sm:text-lg">{origem}</h3>
+                  <p className="text-gray-600 text-sm">Origem ({origemCodigo})</p>
+                  <p className="text-xs text-gray-500 mt-1">{dataPartida}</p>
                 </div>
-                <div className="text-center">
-                  <h3 className="font-bold text-econotrip-blue text-xl">{flightDetails.destination}</h3>
-                  <p className="text-gray-600">Destino</p>
+                <div className="flex-1 text-left break-words">
+                  <h3 className="font-bold text-econotrip-blue text-base sm:text-lg">{destino}</h3>
+                  <p className="text-gray-600 text-sm">Destino ({destinoCodigo})</p>
+                  <p className="text-xs text-gray-500 mt-1">{dataChegada}</p>
                 </div>
               </div>
             </div>
@@ -125,7 +176,7 @@ export default function FlightDetailsScreen() {
                 </div>
                 <div>
                   <p className="font-semibold text-econotrip-blue text-lg">Data e Duração</p>
-                  <p className="text-gray-700">{flightDetails.date} • {flightDetails.duration}</p>
+                  <p className="text-gray-700">{dataPartida} • {duracao}</p>
                 </div>
               </motion.div>
 
@@ -141,7 +192,7 @@ export default function FlightDetailsScreen() {
                 </div>
                 <div>
                   <p className="font-semibold text-econotrip-blue text-lg">Tipo de Voo</p>
-                  <p className="text-gray-700">{flightDetails.stops}</p>
+                  <p className="text-gray-700">{tipoVoo}</p>
                 </div>
               </motion.div>
 
@@ -157,7 +208,7 @@ export default function FlightDetailsScreen() {
                 </div>
                 <div>
                   <p className="font-semibold text-econotrip-blue text-lg">Bagagem incluída</p>
-                  <p className="text-gray-700">{flightDetails.baggage}</p>
+                  <p className="text-gray-700">{bagagem}</p>
                 </div>
               </motion.div>
 
@@ -209,7 +260,7 @@ export default function FlightDetailsScreen() {
                 </div>
                 <div>
                   <p className="font-semibold text-econotrip-blue text-lg">Política de cancelamento</p>
-                  <p className="text-gray-700">{flightDetails.cancellationPolicy}</p>
+                  <p className="text-gray-700">{flightDetails.cancellationPolicy ? flightDetails.cancellationPolicy : "Não informado"}</p>
                 </div>
               </motion.div>
             </div>
@@ -222,14 +273,34 @@ export default function FlightDetailsScreen() {
               transition={{ delay: 1.0 }}
               className="mt-8 border-t border-gray-200 pt-8"
             >
-              <div className="text-center mb-6 p-6 bg-gradient-to-r from-econotrip-orange/10 to-econotrip-orange/5 rounded-2xl">
-                <p className="text-gray-600 text-lg mb-3">Preço total por pessoa</p>
-                <p className="text-4xl font-bold text-econotrip-orange">
-                  R$ {flightDetails.price.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
-                <p className="text-sm text-gray-600 mt-2">Taxas incluídas</p>
+              <div className="mb-6 p-6 bg-gradient-to-r from-econotrip-orange/10 to-econotrip-orange/5 rounded-2xl">
+                <p className="font-semibold text-econotrip-blue text-lg mb-3">Opções de compra</p>
+                {Array.isArray(flightDetails.booking_options) && flightDetails.booking_options.length > 0 ? (
+                  flightDetails.booking_options.map((bookingOption, idx) => (
+                    <div key={idx} className="mb-4 p-4 bg-white rounded-xl shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <div className="font-bold text-econotrip-orange text-lg">
+                          {bookingOption.together?.price ? `R$ ${bookingOption.together.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "Preço indisponível"}
+                        </div>
+                        <div className="text-sm text-gray-700 mt-1">
+                          {bookingOption.together?.book_with ? `Agência: ${bookingOption.together.book_with}` : ""}
+                        </div>
+                      </div>
+                      {bookingOption.together?.booking_request?.url && bookingOption.together?.booking_request?.post_data && (
+                        <a
+                          href={`${bookingOption.together.booking_request.url}?${bookingOption.together.booking_request.post_data}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block mt-2 sm:mt-0 w-full px-5 py-2 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 text-white font-semibold rounded-xl shadow hover:from-econotrip-blue/90 hover:to-econotrip-blue transition-all text-center"
+                        >
+                          Comprar
+                        </a>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-500">Nenhuma opção de compra disponível.</div>
+                )}
               </div>
             </motion.div>
           </Card>
@@ -257,6 +328,7 @@ export default function FlightDetailsScreen() {
         </div>
 
         {/* Botão fixo no bottom moderno */}
+        {/*
         <div className="fixed bottom-20 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-gray-200/50 shadow-xl z-30">
           <div className="max-w-screen-sm mx-auto">
             <Button
@@ -268,6 +340,7 @@ export default function FlightDetailsScreen() {
             </Button>
           </div>
         </div>
+        */}
       </div>
     </div>
   );

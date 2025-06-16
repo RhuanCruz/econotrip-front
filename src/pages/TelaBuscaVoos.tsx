@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane } from "lucide-react";
@@ -71,6 +70,8 @@ export default function TelaBuscaVoos() {
     acessibilidade: false,
   });
 
+  const formRef = useRef<any>(null);
+
   useEffect(() => {
     const destinoSugerido = location.state?.destinoSugerido;
     if (destinoSugerido) {
@@ -104,7 +105,6 @@ export default function TelaBuscaVoos() {
     }
 
     saveSearch(formData);
-    
     setModalConfig({
       type: "success",
       title: "Buscando suas opções de viagem",
@@ -114,7 +114,11 @@ export default function TelaBuscaVoos() {
 
     setTimeout(() => {
       setShowModal(false);
-      navigate("/resultados-voos", { state: { searchData: formData } });
+      // Busca os códigos corretos via ref
+      const origemCode = formRef.current?.getOrigemBusca?.() || formData.origem;
+      const destinoCode = formRef.current?.getDestinoBusca?.() || formData.destino;
+      const searchData = { ...formData, origem: origemCode, destino: destinoCode };
+      navigate("/resultados-voos", { state: { searchData } });
     }, 2000);
   };
 
@@ -216,6 +220,7 @@ export default function TelaBuscaVoos() {
             transition={{ delay: 0.6 }}
           >
             <ModernFlightSearchForm
+              ref={formRef}
               formData={formData}
               onInputChange={handleInputChange}
               onPassengerChange={handlePassengerChange}

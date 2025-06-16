@@ -9,23 +9,24 @@ import { AssistButton } from "@/components/ui-custom/AssistButton";
 import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 import { useAuthStore } from "@/stores/authStore";
+import { isTokenValid } from "@/utils/tokenUtils";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isAuthenticated, isLoading, login, error, clearError } = useAuthStore();
+  const { isAuthenticated, isLoading, login, error, clearError, token } = useAuthStore();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isTokenValid(token)) {
       toast({
         title: "Login realizado com sucesso!",
         description: "Você será redirecionado para a página inicial.",
       });
       navigate("/dashboard");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, token]);
 
   useEffect(() => {
     if (error) {
