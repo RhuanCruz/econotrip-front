@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
@@ -16,20 +16,68 @@ import {
   Star,
   Navigation,
   Plane,
-  Globe
+  Globe,
+  PiggyBank
 } from "lucide-react";
+import { PlannerService } from "../api/planner/PlannerService";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function MeuRoteiroScreen() {
   const [activeTab, setActiveTab] = useState<"atual" | "historico">("atual");
+  const [roteiroAtual, setRoteiroAtual] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const { token } = useAuthStore();
+
+  useEffect(() => {
+    async function fetchRoteiroAtual() {
+      setLoading(true);
+      try {
+        if (token) {
+          const planner = await PlannerService.getCurrent(token);
+          setRoteiroAtual(planner?.content || null);
+        } else {
+          setRoteiroAtual(null);
+        }
+      } catch (e) {
+        setRoteiroAtual(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRoteiroAtual();
+  }, []);
 
   // Simulação: roteiroAtual nulo para exibir estado vazio
-  const roteiroAtual = null;
-
   const viagensAnteriores = [
     { id: 1, destino: "Paris, França", data: "Dez 2023", avaliacao: 5 },
     { id: 2, destino: "Roma, Itália", data: "Set 2023", avaliacao: 4.5 },
     { id: 3, destino: "Barcelona, Espanha", data: "Jun 2023", avaliacao: 4.8 },
   ];
+
+  // Checklist interativo com persistência local
+  const checklistStorageKey = 'checklistItensRoteiro';
+  const checklistDefault = [
+    { id: 1, titulo: "Reservar passagem aérea", concluido: true },
+    { id: 2, titulo: "Reservar hotel", concluido: true },
+    { id: 3, titulo: "Contratar seguro viagem", concluido: true },
+    { id: 4, titulo: "Verificar documentos", concluido: false },
+    { id: 5, titulo: "Fazer check-in online", concluido: false },
+  ];
+  const [checklistItens, setChecklistItens] = useState(() => {
+    const saved = localStorage.getItem(checklistStorageKey);
+    return saved ? JSON.parse(saved) : checklistDefault;
+  });
+  useEffect(() => {
+    localStorage.setItem(checklistStorageKey, JSON.stringify(checklistItens));
+  }, [checklistItens]);
+
+  // Progresso baseado nos itens do checklist
+  const progressoChecklist = Math.round((checklistItens.filter(i => i.concluido).length / checklistItens.length) * 100);
+
+  function toggleChecklistItem(id) {
+    setChecklistItens(itens => itens.map(item => item.id === id ? { ...item, concluido: !item.concluido } : item));
+  }
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -113,6 +161,7 @@ export default function MeuRoteiroScreen() {
                 size="lg"
                 className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
                 onClick={() => window.location.href = '/nova-viagem'}
+                disabled
               >
                 Criar Nova Viagem
               </Button>
@@ -143,19 +192,86 @@ export default function MeuRoteiroScreen() {
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-econotrip-orange">{roteiroAtual.progresso}%</div>
+                      <div className="text-3xl font-bold text-econotrip-orange">{progressoChecklist}%</div>
                       <div className="text-sm text-gray-600">Concluído</div>
                     </div>
                   </div>
                   
                   <Progress 
-                    value={roteiroAtual.progresso} 
+                    value={progressoChecklist} 
                     className="h-3 mb-4 bg-gray-200 rounded-full" 
                   />
                   
                   <p className="text-gray-700 text-center">
                     Sua viagem está quase pronta! Faltam poucos preparativos.
                   </p>
+                </Card>
+              </motion.div>
+
+              {/* Visão Geral da Viagem */}
+              <motion.div variants={itemAnimation}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Globe className="h-5 w-5 text-econotrip-blue" />
+                  <h2 className="text-lg font-semibold text-econotrip-blue">
+                    Visão Geral
+                  </h2>
+                </div>
+                <Card className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
+                  <div className="space-y-2 text-gray-700 text-base">
+                    <div><b>Origem:</b> {roteiroAtual.resumo_viagem?.origem}</div>
+                    <div><b>Destino:</b> {roteiroAtual.resumo_viagem?.destino}</div>
+                    <div><b>Período:</b> {roteiroAtual.resumo_viagem?.periodo}</div>
+                    <div><b>Duração:</b> {roteiroAtual.resumo_viagem?.duracao_dias} dias</div>
+                    <div><b>Estilo:</b> {roteiroAtual.resumo_viagem?.estilo_viagem}</div>
+                    <div><b>Pessoas:</b> {roteiroAtual.resumo_viagem?.numero_pessoas}</div>
+                  </div>
+                </Card>
+              </motion.div>
+
+              {/* Custos Estimados */}
+              <motion.div variants={itemAnimation}>
+                <div className="flex items-center gap-2 mb-4">
+                  <PiggyBank className="h-5 w-5 text-econotrip-orange" />
+                  <h2 className="text-lg font-semibold text-econotrip-blue">
+                    Custos Estimados
+                  </h2>
+                </div>
+                <Card className="p-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-blue-900">Passagens</span>
+                      <span className="text-lg font-bold text-blue-700">R$ {roteiroAtual.custos_estimados?.passagens_aereas?.valor_total}</span>
+                      <span className="text-xs text-blue-800 mt-1">{roteiroAtual.custos_estimados?.passagens_aereas?.observacoes}</span>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-green-900">Hospedagem</span>
+                      <span className="text-lg font-bold text-green-700">R$ {roteiroAtual.custos_estimados?.hospedagem?.valor_total}</span>
+                      <span className="text-xs text-green-800 mt-1">{roteiroAtual.custos_estimados?.hospedagem?.observacoes}</span>
+                    </div>
+                    <div className="bg-yellow-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-yellow-900">Alimentação</span>
+                      <span className="text-lg font-bold text-yellow-700">R$ {roteiroAtual.custos_estimados?.alimentacao?.valor_total}</span>
+                      <span className="text-xs text-yellow-800 mt-1">{roteiroAtual.custos_estimados?.alimentacao?.observacoes}</span>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-purple-900">Transporte local</span>
+                      <span className="text-lg font-bold text-purple-700">R$ {roteiroAtual.custos_estimados?.transporte_local?.valor_total}</span>
+                      <span className="text-xs text-purple-800 mt-1">{roteiroAtual.custos_estimados?.transporte_local?.observacoes}</span>
+                    </div>
+                    <div className="bg-pink-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-pink-900">Atividades</span>
+                      <span className="text-lg font-bold text-pink-700">R$ {roteiroAtual.custos_estimados?.atividades_turismo?.valor_total}</span>
+                      <span className="text-xs text-pink-800 mt-1">{roteiroAtual.custos_estimados?.atividades_turismo?.observacoes}</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 flex flex-col">
+                      <span className="font-medium text-gray-900">Outros</span>
+                      <span className="text-lg font-bold text-gray-700">R$ {roteiroAtual.custos_estimados?.outros_gastos?.valor_total}</span>
+                      <span className="text-xs text-gray-800 mt-1">{roteiroAtual.custos_estimados?.outros_gastos?.observacoes}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-right">
+                    <span className="font-bold text-xl text-econotrip-orange">Total estimado: R$ {roteiroAtual.resumo_financeiro?.custo_total_viagem}</span>
+                  </div>
                 </Card>
               </motion.div>
 
@@ -169,8 +285,8 @@ export default function MeuRoteiroScreen() {
                 </div>
                 <Card className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
                   <div className="space-y-4">
-                    {roteiroAtual.itens.map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors">
+                    {checklistItens.map((item) => (
+                      <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => toggleChecklistItem(item.id)}>
                         {item.concluido ? (
                           <CheckCircle2 className="h-6 w-6 text-econotrip-green flex-shrink-0" />
                         ) : (
@@ -194,24 +310,28 @@ export default function MeuRoteiroScreen() {
                   </h2>
                 </div>
                 <div className="space-y-3">
-                  {roteiroAtual.atividades.map((atividade) => (
-                    <Card key={atividade.id} className="p-4 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center">
-                            <Camera className="h-5 w-5 text-white" />
+                  {roteiroAtual.itinerario_detalhado?.flatMap((dia) =>
+                    dia.atividades?.map((atividade, idx) => (
+                      <Card key={`${dia.dia}-${idx}`} className="p-4 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center">
+                              <Camera className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-econotrip-blue">{atividade.nome_atividade}</h4>
+                              <p className="text-sm text-gray-600">Dia {dia.dia} - {atividade.horario}</p>
+                              <p className="text-xs text-gray-500">{atividade.categoria}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-econotrip-blue">{atividade.titulo}</h4>
-                            <p className="text-sm text-gray-600">{atividade.dia}</p>
-                          </div>
+                          <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 rounded-full">
+                            {atividade.categoria}
+                          </Badge>
                         </div>
-                        <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 rounded-full">
-                          {atividade.tipo}
-                        </Badge>
-                      </div>
-                    </Card>
-                  ))}
+                        <div className="mt-2 text-gray-700 text-sm">{atividade.descricao}</div>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </motion.div>
 

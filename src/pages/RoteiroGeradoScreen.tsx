@@ -1,46 +1,101 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScreenContainer } from "../components/layout/ScreenContainer";
 import { Button } from "../components/ui/button";
 import { LinhaDoTempoRoteiro } from "../components/roteiro/LinhaDoTempoRoteiro";
 import { Card } from "../components/ui-custom/Card";
 import { CalendarDays, MapPin, Users, Briefcase, PiggyBank, Timer, Info, BookOpen, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { PlannerService } from "../api/planner/PlannerService";
+import { useToast } from "../hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function RoteiroGeradoScreen() {
   const location = useLocation();
-  console.log(location.state?.roteiro)
-  
-  if (!location.state?.roteiro) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { token } = useAuthStore();
+
+  // Garante que o hook nunca é chamado condicionalmente
+  const roteiro = location.state?.roteiro;
+  const itinerario_detalhado = roteiro?.itinerario_detalhado || [];
+
+  const [eventos, setEventos] = useState(() => itinerario_detalhado.flatMap((dia, idx) => {
+    const atividades = dia.atividades
+      ? dia.atividades.filter(a => {
+          const cat = a.categoria?.toLowerCase();
+          return cat !== "transporte";
+        })
+        .map((a, i) => ({
+          id: `${dia.dia}-a${i}`,
+          dia: dia.dia,
+          horario: a.horario,
+          titulo: a.nome_atividade,
+          descricao: a.descricao,
+          tipo: a.categoria?.toLowerCase() === "refeição" || a.categoria?.toLowerCase() === "refeicao" ? "refeicao" : "passeio",
+          concluido: false,
+          lembrete: false,
+          categoria: a.categoria
+        }))
+      : [];
+    return atividades;
+  }));
+
+  if (!roteiro) {
     return <div>Roteiro não encontrado. Volte e gere um roteiro.</div>;
   }
 
-  const roteiro = location.state?.roteiro;
-  const { resumo_viagem, custos_estimados, itinerario_detalhado, resumo_financeiro, dicas_economia, dicas_otimizacao_tempo, observacoes_importantes, informacoes_praticas } = roteiro;
+  const { resumo_viagem, custos_estimados, resumo_financeiro, dicas_economia, dicas_otimizacao_tempo, observacoes_importantes, informacoes_praticas } = roteiro;
 
-  // Adapta o itinerario_detalhado para o formato de eventos do componente LinhaDoTempoRoteiro
-  const eventos = itinerario_detalhado.flatMap((dia, idx) => {
-    const atividades = dia.atividades.map((a, i) => ({
-      id: `${dia.dia}-a${i}`,
-      dia: dia.dia,
-      horario: a.horario,
-      titulo: a.nome_atividade,
-      descricao: a.descricao,
-      tipo: "passeio",
-      concluido: false,
-      lembrete: false,
-    }));
-    const refeicoes = dia.refeicoes.map((r, i) => ({
-      id: `${dia.dia}-r${i}`,
-      dia: dia.dia,
-      horario: "",
-      titulo: r.tipo_refeicao,
-      descricao: `${r.local_sugerido} (R$ ${r.custo_estimado_por_pessoa})`,
-      tipo: "passeio",
-      concluido: false,
-      lembrete: false,
-    }));
-    return [...atividades, ...refeicoes];
-  });
+  // Atualiza eventos ao editar/adicionar/remover no componente filho
+  function handleEventosChange(novosEventos) {
+    setEventos(novosEventos);
+  }
+
+  // Extrai todas as atividades sugeridas da API (de todos os dias), incluindo categoria e filtrando acomodações, transporte e refeições
+  const atividadesSugeridas = itinerario_detalhado.flatMap((dia) =>
+    dia.atividades
+      .filter(a => {
+        const cat = a.categoria?.toLowerCase();
+        return cat !== "acomodação" && cat !== "acomodacao" && cat !== "transporte" && cat !== "refeição" && cat !== "refeicao";
+      })
+      .map((a, i) => ({
+        id: `${dia.dia}-a${i}`,
+        nome: a.nome_atividade,
+        descricao: a.descricao,
+        categoria: a.categoria
+      }))
+  );
+
+  // Função para salvar o planner
+  async function handleSalvar() {
+    try {
+      // Monta novo itinerario_detalhado a partir dos eventos
+      const novoItinerario = [];
+      for (const dia of itinerario_detalhado) {
+        const atividadesDoDia = eventos.filter(ev => ev.dia === dia.dia).map(ev => ({
+          horario: ev.horario,
+          nome_atividade: ev.titulo,
+          descricao: ev.descricao,
+          categoria: ev.categoria || "passeio"
+        }));
+        novoItinerario.push({ ...dia, atividades: atividadesDoDia });
+      }
+      const content = {
+        ...roteiro,
+        itinerario_detalhado: novoItinerario
+      };
+      await PlannerService.create(token, {
+        start: resumo_viagem.periodo.split(' a ')[0],
+        end: resumo_viagem.periodo.split(' a ')[1],
+        destination: resumo_viagem.destino,
+        content
+      });
+      toast({ title: "Roteiro salvo com sucesso!" });
+    } catch (e) {
+      toast({ title: "Erro ao salvar roteiro", description: e.message, variant: "destructive" });
+    }
+  }
 
   function formatPeriodo(periodo: string) {
     // Espera formato: "2025-09-01T00:00:00.000Z a 2025-09-10T00:00:00.000Z"
@@ -128,7 +183,7 @@ export default function RoteiroGeradoScreen() {
         </section>
         <section className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Itinerário Detalhado</h2>
-          <LinhaDoTempoRoteiro objetivo={resumo_viagem.estilo_viagem} eventosExternos={eventos}/>
+          <LinhaDoTempoRoteiro objetivo={resumo_viagem.estilo_viagem} eventosExternos={eventos} atividadesDisponiveis={atividadesSugeridas} onEventosChange={handleEventosChange}/>
         </section>
         <section className="mb-6">
           {/* Dicas, observações e informações práticas em coluna única */}
@@ -187,6 +242,7 @@ export default function RoteiroGeradoScreen() {
         <Button
           size="lg"
           className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
+          onClick={handleSalvar}
         >
           <Plus className="h-6 w-6" />
           Salvar

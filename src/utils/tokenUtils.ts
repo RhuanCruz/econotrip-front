@@ -10,3 +10,7 @@ export function isTokenValid(token?: string | null): boolean {
     return false;
   }
 }
+
+export function getToken(): string | null {
+  return localStorage.getItem('token');
+}

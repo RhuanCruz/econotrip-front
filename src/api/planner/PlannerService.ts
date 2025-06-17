@@ -9,6 +9,12 @@ const createPlanner = async (token: string, data: CreatePlannerBody): Promise<Pl
     .catch((err) => { throw new Error(handleApiError(err)) })
 }
 
+const getCurrentPlanner = async (token: string): Promise<Planner> => {
+  return api.get<Planner>('/planners/current', { headers: { Authorization: `Bearer ${token}`}})
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
 const listPlanner = async (token: string): Promise<ListPlannerResponse> => {
   return api.post<ListPlannerResponse>('/planners/list', {}, { headers: { Authorization: `Bearer ${token}`}})
     .then((res) => res.data)
@@ -24,6 +30,7 @@ export const generatePlanner = async (token: string, data: GeneratePlannerBody):
 
 export const PlannerService = {
   create: createPlanner,
+  getCurrent: getCurrentPlanner,
   list: listPlanner,
   generate: generatePlanner,
 }

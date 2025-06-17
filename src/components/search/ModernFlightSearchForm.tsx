@@ -43,7 +43,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   onPassengerChange,
   onSearch
 }: ModernFlightSearchFormProps, ref) {
-  const [tripType, setTripType] = React.useState<'one-way' | 'round-trip'>('round-trip');
+  const [tripType, setTripType] = React.useState<'one-way' | 'round-trip'>('one-way');
   const [showAdvanced, setShowAdvanced] = React.useState(false);
   const [origemSuggestions, setOrigemSuggestions] = React.useState<Location[]>([]);
   const [destinoSuggestions, setDestinoSuggestions] = React.useState<Location[]>([]);
