@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 import { PlannerService } from "../api/planner/PlannerService";
 import { useAuthStore } from "@/stores/authStore";
+import { useNavigate } from "react-router-dom";
 
 export default function MeuRoteiroScreen() {
   const [activeTab, setActiveTab] = useState<"atual" | "historico">("atual");
   const [roteiroAtual, setRoteiroAtual] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
   const { token } = useAuthStore();
 
   useEffect(() => {
@@ -160,7 +162,7 @@ export default function MeuRoteiroScreen() {
                 icon={Plus}
                 size="lg"
                 className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
-                onClick={() => window.location.href = '/nova-viagem'}
+                onClick={() => navigate("/nova-viagem")}
               >
                 Criar Nova Viagem
               </Button>
