@@ -99,12 +99,12 @@ export default function RadarOfertasScreen() {
     RadarService.getFlights(token, radarId)
       .then((res) => {
         // Adapte para o formato de Oferta se necessário
-        const ofertasConvertidas = res.records.map((item, idx) => ({
+        const ofertasConvertidas = res.results.map((item, idx) => ({
           id: String(idx),
-          destino: res.destination,
-          origem: res.origin,
-          preco: item.price,
-          precoOriginal: item.price, // ou outro campo se houver
+          destino: item.destination,
+          origem: item.origin,
+          preco: item.value,
+          precoOriginal: item.value, // ou outro campo se houver
           desconto: 0,
           dataLimite: item.date,
           categoria: "promocao" as const,

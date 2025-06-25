@@ -26,10 +26,14 @@ export type ListRadarResponse = {
 }
 
 export type GetRadarFlightsResponse = {
-  origin: string;
-  destination: string;
-  records: {
-    date: string;
-    price: number;
-  }[];
+  results: Array<{
+      _id: string;
+      origin: string;
+      destination: string;
+      type: 'MONEY' | 'AIRMILES';
+      date: string;
+      value: number;
+      createdAt: string;
+      __v: number;
+  }>;
 };
