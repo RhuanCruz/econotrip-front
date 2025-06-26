@@ -18,6 +18,9 @@ interface NovoRadarModalProps {
 }
 
 export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProps) {
+  // Utilitário para data de hoje no formato yyyy-mm-dd
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const [partida, setPartida] = useState("");
   const [destino, setDestino] = useState("");
   const [inicio, setInicio] = useState("");
@@ -132,11 +135,11 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Início</label>
-        <input type="date" value={inicio} onChange={e => setInicio(e.target.value)} className="w-full border rounded-lg px-3 py-2" />
+        <input type="date" value={inicio} onChange={e => setInicio(e.target.value)} min={todayStr} className="w-full border rounded-lg px-3 py-2" />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Fim</label>
-        <input type="date" value={fim} onChange={e => setFim(e.target.value)} className="w-full border rounded-lg px-3 py-2" />
+        <input type="date" value={fim} onChange={e => setFim(e.target.value)} min={inicio || todayStr} className="w-full border rounded-lg px-3 py-2" />
       </div>
       <div className="flex items-center gap-2 mt-2">
         <input type="checkbox" id="milhas" checked={milhas} onChange={e => setMilhas(e.target.checked)} />

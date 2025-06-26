@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
-import { Plus, Radar } from "lucide-react";
+import { Plus, Radar, X } from "lucide-react";
 import { NovoRadarModal } from "@/components/roteiro/NovoRadarModal";
 import { RadarService } from "@/api/radar/RadarService";
 import { useAuthStore } from "@/stores/authStore";
 import { isTokenValid } from "@/utils/tokenUtils";
+import { StandardModal } from "@/components/ui-custom/StandardModal";
 
 export default function MeusRadaresScreen() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [radares, setRadares] = useState([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const { token } = useAuthStore();
 
   React.useEffect(() => {
@@ -18,25 +20,50 @@ export default function MeusRadaresScreen() {
       navigate("/login");
       return;
     }
-    RadarService.list(token)
+    fetchData();
+  }, [token, navigate]);
+
+  const fetchData = async () => {
+    await RadarService.list(token)
       .then((res) => setRadares(res.records))
       .catch(() => setRadares([]));
-  }, [token, navigate]);
+  }
 
   const handleNovoRadar = () => {
     setModalOpen(true);
   };
 
-  const handleCreateRadar = (data: { partida: string; destino: string; inicio: string; fim: string; milhas: boolean }) => {
+  const handleCreateRadar = async (data: { partida: string; destino: string; inicio: string; fim: string; milhas: boolean }) => {
     setModalOpen(false);
+    await fetchData();
+
     // Aqui você pode adicionar lógica para salvar o novo radar
     // e navegar para RadarOfertasScreen, se desejar
-    navigate("/radar-ofertas", { state: { novoRadar: true, ...data } });
+    // navigate("/radar-ofertas", { state: { novoRadar: true, ...data } });
   };
 
   const handleAbrirRadar = (radarId: string) => {
     navigate("/radar-ofertas", { state: { radarId } });
   };
+
+  // Função para remover radar
+  const handleRemoverRadar = async (radarId: number) => {
+    setConfirmDeleteId(radarId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    try {
+      await RadarService.delete(token, confirmDeleteId);
+      setRadares((prev) => prev.filter((r) => r.id !== confirmDeleteId));
+    } catch (e) {
+      // Aqui pode exibir um toast de erro se desejar
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  };
+
+  const handleCancelDelete = () => setConfirmDeleteId(null);
 
   return (
     <div className="max-w-screen-sm mx-auto px-4 py-6 pb-28">
@@ -58,8 +85,16 @@ export default function MeusRadaresScreen() {
           <button
             key={radar.id}
             onClick={() => handleAbrirRadar(radar.id)}
-            className="w-full text-left bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5 border border-gray-100 flex flex-col gap-2"
+            className="w-full text-left bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5 border border-gray-100 flex flex-col gap-2 relative"
           >
+            {/* Botão de remover no canto superior direito */}
+            <span
+              className="absolute top-2 right-2 z-10 h-7 w-7 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition-colors cursor-pointer"
+              onClick={e => { e.stopPropagation(); handleRemoverRadar(radar.id); }}
+              title="Remover radar"
+            >
+              <X className="h-4 w-4 text-red-600" />
+            </span>
             <div className="flex items-center gap-2 mb-1">
               <Radar className="h-5 w-5 text-econotrip-orange" />
               <span className="font-semibold text-lg text-econotrip-blue">
@@ -80,6 +115,14 @@ export default function MeusRadaresScreen() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onCreate={handleCreateRadar}
+      />
+      <StandardModal
+        isOpen={!!confirmDeleteId}
+        onClose={handleCancelDelete}
+        type="warning"
+        title="Remover radar"
+        description="Tem certeza que deseja remover este radar? Esta ação não poderá ser desfeita."
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

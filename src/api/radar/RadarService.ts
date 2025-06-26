@@ -21,8 +21,14 @@ export const getRadarFlights = async (token: string, radarId: number): Promise<G
     .catch((err) => { throw new Error(handleApiError(err)) });
 }
 
+export const deleteRadar = async (token: string, radarId: number): Promise<void> => {
+  await api.delete(`/radars/${radarId}`, { headers: { Authorization: `Bearer ${token}`}})
+    .catch((err) => { throw new Error(handleApiError(err)) });
+}
+
 export const RadarService = {
   create: createRadar,
   list: listRadar,
   getFlights: getRadarFlights,
+  delete: deleteRadar
 }
