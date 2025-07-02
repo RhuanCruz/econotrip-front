@@ -229,11 +229,11 @@ export default function ResultsScreen() {
                 </div>
                 <div className="text-gray-600">
                   {location.state?.searchData?.dataIda &&
-                    new Date(location.state.searchData.dataIda).toLocaleDateString("pt-BR")}
+                    new Date(location.state.searchData.dataIda.split(' ')[0]).toLocaleDateString("pt-BR")}
                   {location.state?.searchData?.dataVolta && (
                     <>
                       <span className="mx-1">•</span>
-                      {new Date(location.state.searchData.dataVolta).toLocaleDateString("pt-BR")}
+                      {new Date(location.state.searchData.dataVolta.split(' ')[0]).toLocaleDateString("pt-BR")}
                     </>
                   )}
                 </div>
@@ -299,7 +299,7 @@ export default function ResultsScreen() {
                     
                     <div className="text-right">
                       <div className="text-3xl font-bold text-econotrip-orange">
-                        R$ {voo.preco.toLocaleString()}
+                        R$ {voo.preco}
                       </div>
                       <div className="text-sm text-gray-600">por pessoa</div>
                     </div>

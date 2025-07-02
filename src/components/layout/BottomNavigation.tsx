@@ -56,16 +56,6 @@ export function BottomNavigation() {
     >
       <div className="max-w-screen-sm mx-auto px-2">
         <div className="flex justify-around items-center relative">
-          {/* Background indicator */}
-          <motion.div
-            className="absolute top-3 h-12 w-16 bg-econotrip-orange/10 rounded-2xl"
-            animate={{
-              x: navigationItems.findIndex(item => item.isActive) * 
-                 (typeof window !== 'undefined' ? window.innerWidth / 4 - 32 : 88)
-            }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          />
-          
           {navigationItems.map((item, index) => (
             <motion.button
               key={item.name}

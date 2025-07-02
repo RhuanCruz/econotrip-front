@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import { Search, MapPin, Calendar, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { motion } from "framer-motion";
@@ -56,32 +56,66 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   const [selectedOrigem, setSelectedOrigem] = React.useState<Location | null>(null);
   const [selectedDestino, setSelectedDestino] = React.useState<Location | null>(null);
 
-  // Busca sugestões para origem
+  // Refs para ignorar busca ao selecionar do droplist
+  const ignoreNextOrigemEffectRef = useRef(false);
+  const ignoreNextDestinoEffectRef = useRef(false);
+
+  // Ref para evitar busca ao selecionar sugestão
+  const origemSelectBySuggestion = React.useRef(false);
+  const destinoSelectBySuggestion = React.useRef(false);
+
+  // Debounce para busca de origem/destino
+  const origemDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const destinoDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Busca sugestões para origem (com debounce)
   React.useEffect(() => {
+    if (origemSelectBySuggestion.current) {
+      origemSelectBySuggestion.current = false;
+      return;
+    }
+    if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
     if (formData.origem.length >= 3) {
-      setLoadingOrigem(true);
-      LocationApi.listLocations(formData.origem).then((res) => {
-        setOrigemSuggestions(res);
-        setShowOrigemDropdown(true);
-      }).finally(() => setLoadingOrigem(false));
+      origemDebounceRef.current = setTimeout(() => {
+        setLoadingOrigem(true);
+        LocationApi.listLocations(formData.origem).then((res) => {
+          setOrigemSuggestions(res.data);
+          setShowOrigemDropdown(true);
+        }).finally(() => setLoadingOrigem(false));
+      }, 400);
     } else {
       setOrigemSuggestions([]);
       setShowOrigemDropdown(false);
     }
+    // Cleanup
+    return () => {
+      if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
+    };
   }, [formData.origem]);
 
-  // Busca sugestões para destino
+  // Busca sugestões para destino (com debounce)
   React.useEffect(() => {
+    if (destinoSelectBySuggestion.current) {
+      destinoSelectBySuggestion.current = false;
+      return;
+    }
+    if (destinoDebounceRef.current) clearTimeout(destinoDebounceRef.current);
     if (formData.destino.length >= 3) {
-      setLoadingDestino(true);
-      LocationApi.listLocations(formData.destino).then((res) => {
-        setDestinoSuggestions(res);
-        setShowDestinoDropdown(true);
-      }).finally(() => setLoadingDestino(false));
+      destinoDebounceRef.current = setTimeout(() => {
+        setLoadingDestino(true);
+        LocationApi.listLocations(formData.destino).then((res) => {
+          setDestinoSuggestions(res.data);
+          setShowDestinoDropdown(true);
+        }).finally(() => setLoadingDestino(false));
+      }, 400);
     } else {
       setDestinoSuggestions([]);
       setShowDestinoDropdown(false);
     }
+    // Cleanup
+    return () => {
+      if (destinoDebounceRef.current) clearTimeout(destinoDebounceRef.current);
+    };
   }, [formData.destino]);
 
   const getTotalPassengers = () => {
@@ -90,8 +124,8 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Exporta o valor correto para busca
   useImperativeHandle(ref, () => ({
-    getOrigemBusca: () => selectedOrigem?.iata || selectedOrigem?.city || formData.origem,
-    getDestinoBusca: () => selectedDestino?.iata || selectedDestino?.city || formData.destino,
+    getOrigemBusca: () => selectedOrigem?.navigation?.relevantFlightParams?.skyId || selectedOrigem?.presentation?.suggestionTitle || formData.origem,
+    getDestinoBusca: () => selectedDestino?.navigation?.relevantFlightParams?.skyId || selectedDestino?.presentation?.suggestionTitle || formData.destino,
   }));
 
   return (
@@ -131,34 +165,64 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">De onde</label>
               <div className="relative">
-                <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue" />
-                <input
-                  type="text"
-                  placeholder="São Paulo, Brasil"
-                  value={formData.origem}
-                  onChange={(e) => onInputChange("origem", e.target.value)}
-                  onFocus={() => formData.origem.length >= 3 && setShowOrigemDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg"
-                />
-                {showOrigemDropdown && origemSuggestions.length > 0 && (
-                  <ul className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                    {origemSuggestions.map((loc) => (
+                <div className="flex items-center">
+                  <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="São Paulo, Brasil"
+                    value={formData.origem}
+                    onChange={(e) => {
+                      onInputChange("origem", e.target.value);
+                      setSelectedOrigem(null);
+                    }}
+                    onFocus={() => formData.origem.length >= 3 && setShowOrigemDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
+                    className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
+                    disabled={!!selectedOrigem}
+                  />
+                  {selectedOrigem && (
+                    <button
+                      type="button"
+                      aria-label="Remover seleção de origem"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
+                      style={{ zIndex: 30 }}
+                      onClick={() => {
+                        setSelectedOrigem(null);
+                        onInputChange("origem", "");
+                        setOrigemSuggestions([]);
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  )}
+                </div>
+                {(showOrigemDropdown || loadingOrigem) && (
+                  <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-20">
+                    {loadingOrigem && (
+                      <li className="px-4 py-2 text-gray-500 italic flex items-center gap-2 justify-center">
+                        <svg className="animate-spin h-4 w-4 text-gray-400" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                        Procurando...
+                      </li>
+                    )}
+                    {!loadingOrigem && origemSuggestions.length > 0 && origemSuggestions.map((loc) => (
                       <li
-                        key={loc.id}
+                        key={loc.navigation.entityId}
                         className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10"
                         onMouseDown={() => {
-                          onInputChange("origem", `${loc.name} (${loc.iata})`);
+                          origemSelectBySuggestion.current = true;
+                          onInputChange("origem", loc.presentation.suggestionTitle);
                           setSelectedOrigem(loc);
                           setShowOrigemDropdown(false);
                         }}
                       >
-                        <span className="font-semibold text-econotrip-blue">{loc.iata}</span> - {loc.name}, {loc.city}, {loc.country}
+                        <span className="font-semibold text-econotrip-blue">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
                       </li>
                     ))}
+                    {!loadingOrigem && origemSuggestions.length === 0 && (
+                      <li className="px-4 py-2 text-gray-400 italic text-center">Nenhum resultado</li>
+                    )}
                   </ul>
                 )}
-                {loadingOrigem && <div className="absolute right-4 top-4 text-xs text-gray-400">Buscando...</div>}
               </div>
             </div>
 
@@ -175,34 +239,64 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">Para onde</label>
               <div className="relative">
-                <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-orange" />
-                <input
-                  type="text"
-                  placeholder="Lisboa, Portugal"
-                  value={formData.destino}
-                  onChange={(e) => onInputChange("destino", e.target.value)}
-                  onFocus={() => formData.destino.length >= 3 && setShowDestinoDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-lg"
-                />
-                {showDestinoDropdown && destinoSuggestions.length > 0 && (
-                  <ul className="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                    {destinoSuggestions.map((loc) => (
+                <div className="flex items-center">
+                  <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-orange pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Lisboa, Portugal"
+                    value={formData.destino}
+                    onChange={(e) => {
+                      onInputChange("destino", e.target.value);
+                      setSelectedDestino(null);
+                    }}
+                    onFocus={() => formData.destino.length >= 3 && setShowDestinoDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
+                    className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
+                    disabled={!!selectedDestino}
+                  />
+                  {selectedDestino && (
+                    <button
+                      type="button"
+                      aria-label="Remover seleção de destino"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
+                      style={{ zIndex: 30 }}
+                      onClick={() => {
+                        setSelectedDestino(null);
+                        onInputChange("destino", "");
+                        setDestinoSuggestions([]);
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  )}
+                </div>
+                {(showDestinoDropdown || loadingDestino) && (
+                  <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-20">
+                    {loadingDestino && (
+                      <li className="px-4 py-2 text-gray-500 italic flex items-center gap-2 justify-center">
+                        <svg className="animate-spin h-4 w-4 text-gray-400" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                        Procurando...
+                      </li>
+                    )}
+                    {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc) => (
                       <li
-                        key={loc.id}
+                        key={loc.navigation.entityId}
                         className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10"
                         onMouseDown={() => {
-                          onInputChange("destino", `${loc.name} (${loc.iata})`);
+                          destinoSelectBySuggestion.current = true;
+                          onInputChange("destino", loc.presentation.suggestionTitle);
                           setSelectedDestino(loc);
                           setShowDestinoDropdown(false);
                         }}
                       >
-                        <span className="font-semibold text-econotrip-orange">{loc.iata}</span> - {loc.name}, {loc.city}, {loc.country}
+                        <span className="font-semibold text-econotrip-orange">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
                       </li>
                     ))}
+                    {!loadingDestino && destinoSuggestions.length === 0 && (
+                      <li className="px-4 py-2 text-gray-400 italic text-center">Nenhum resultado</li>
+                    )}
                   </ul>
                 )}
-                {loadingDestino && <div className="absolute right-4 top-4 text-xs text-gray-400">Buscando...</div>}
               </div>
             </div>
           </div>

@@ -1,8 +1,8 @@
 import { api } from '../client';
-import { Location } from './types';
+import IListLocationResponse from './types';
 
-const listLocations = async (keyword: string): Promise<Location[]> => {
-  return api.post<Location[]>('/locations/list', { keyword })
+const listLocations = async (keyword: string): Promise<IListLocationResponse> => {
+  return api.post<IListLocationResponse>('/locations/list', { keyword })
     .then((res) => res.data)
 }
 
