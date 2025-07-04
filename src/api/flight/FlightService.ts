@@ -2,10 +2,10 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 
 import { api } from '../client';
-import { GetFlightDetailBody, GetFlightDetailResponse, GetHomeOfferResponse, GetTripByMileageResponse, SearchFlightByMileageResponse, SearchFlightOffersBody, SearchFlightOffersResponse } from './types';
+import ISearchFlightResponse, { GetFlightDetailBody, GetFlightDetailResponse, GetHomeOfferResponse, GetTripByMileageResponse, SearchFlightByMileageResponse, SearchFlightOffersBody, SearchFlightOffersResponse } from './types';
 
-const SearchFlightOffersService = async (data: SearchFlightOffersBody): Promise<SearchFlightOffersResponse> => {
-  return api.post<SearchFlightOffersResponse>('/flights/offers/search', data)
+const SearchFlightOffersService = async (data: SearchFlightOffersBody): Promise<ISearchFlightResponse> => {
+  return api.post<ISearchFlightResponse>('/flights/skyscrapper/search', data)
     .then((res) => res.data)
     .catch((err) => { throw new Error(handleApiError(err)) });
 }
@@ -17,7 +17,7 @@ const SearchFlightOffersByMileageService = async (data: SearchFlightOffersBody):
 }
 
 const GetSearchFlightDetailService = async (data: GetFlightDetailBody): Promise<GetFlightDetailResponse> => {
-  return api.post<GetFlightDetailResponse>('/flights/offers/search/detail', data)
+  return api.post<GetFlightDetailResponse>('/flights/skyscrapper/search/detail', data)
     .then((res) => res.data)
     .catch((err) => { throw new Error(handleApiError(err)) });
 }

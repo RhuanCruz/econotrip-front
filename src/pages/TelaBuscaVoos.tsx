@@ -118,7 +118,11 @@ export default function TelaBuscaVoos() {
       const origemCode = formRef.current?.getOrigemBusca?.() || formData.origem;
       const destinoCode = formRef.current?.getDestinoBusca?.() || formData.destino;
       const searchData = { ...formData, origem: origemCode, destino: destinoCode };
-      navigate("/resultados-voos", { state: { searchData } });
+      if (formData.dataVolta) {
+        navigate("/resultados-ida-volta", { state: { searchData } });
+      } else {
+        navigate("/resultados-voos", { state: { searchData } });
+      }
     }, 2000);
   };
 

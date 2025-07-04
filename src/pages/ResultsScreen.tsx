@@ -36,6 +36,8 @@ interface Voo {
   isAcessivel: boolean;
   pontuacao: number;
   departureToken?: string; // usado para buscar voo de volta
+  itineraryId: string;
+  token: string;
 }
 
 // Utilitário para formatar hora ISO para HH:mm
@@ -53,13 +55,15 @@ function formatHora(horaIso: string) {
 export default function ResultsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  // Removido redirecionamento automático para ida/volta. A navegação deve ser feita na tela de pesquisa de voos.
+  const searchData = location.state?.searchData;
+
+  // Estado de voos e ordenação
   const [voos, setVoos] = useState<Voo[]>([]);
-  const [ordenacao, setOrdenacao] = useState<"preco" | "duracao" | "pontuacao">("preco");
+  const [ordenacao, setOrdenacao] = useState<"preco" | "duracao">("preco");
 
   useEffect(() => {
-    const searchData = location.state?.searchData;
     if (!searchData) return;
-    // Monta o body para a API
     const body = {
       origin: searchData.origem,
       destination: searchData.destino,
@@ -68,34 +72,34 @@ export default function ResultsScreen() {
       departureToken: searchData.departureToken || undefined
     };
     FlightService.search(body).then((res) => {
-      // Converte os resultados para o formato Voo[] usado na tela
-      const allFlights = [
-        ...(res.best_flights || []),
-        ...(res.other_flights || [])
-      ];
-      console.log(allFlights[0]);
-
+      const allFlights = Array.isArray(res?.data?.itineraries) ? res.data.itineraries : [];
       setVoos(
-        allFlights.map((f, idx) => ({
-          id: f.booking_token || String(idx),
-          origem: body.origin,
-          origemCodigo: f.flights[0]?.departure_airport?.id || "",
-          destino: body.destination,
-          destinoCodigo: f.flights[f.flights.length-1]?.arrival_airport?.id || "",
-          dataIda: body.departure,
-          horaPartida: f.flights[0]?.departure_airport?.time || "",
-          horaChegada: f.flights[f.flights.length-1]?.arrival_airport?.time || "",
-          preco: f.price,
-          duracao: `${Math.floor((f.total_duration || 0)/60)}h ${(f.total_duration || 0)%60}min`,
-          paradas: f.layovers?.length || 0,
-          companhia: f.flights[0]?.airline || "",
-          isAcessivel: false,
-          pontuacao: 5,
-          departureToken: f.departure_token || ""
-        }))
+        allFlights.map((f, idx) => {
+          const firstLeg = f.legs?.[0];
+          const lastLeg = f.legs?.[f.legs.length - 1];
+          return {
+            id: f.id || String(idx),
+            origem: firstLeg?.origin?.city || body.origin,
+            origemCodigo: firstLeg?.origin?.displayCode || "",
+            destino: lastLeg?.destination?.city || body.destination,
+            destinoCodigo: lastLeg?.destination?.displayCode || "",
+            dataIda: firstLeg?.departure?.split("T")[0] || body.departure,
+            horaPartida: firstLeg?.departure || "",
+            horaChegada: lastLeg?.arrival || "",
+            preco: f.price?.raw || 0,
+            duracao: firstLeg?.durationInMinutes !== undefined ? `${Math.floor(firstLeg.durationInMinutes/60)}h ${firstLeg.durationInMinutes%60}min` : "",
+            paradas: firstLeg?.stopCount ?? 0,
+            companhia: firstLeg?.carriers?.marketing?.[0]?.name || "",
+            isAcessivel: false,
+            pontuacao: 5,
+            departureToken: f.id || "",
+            itineraryId: f.id,
+            token: res.data.token
+          };
+        })
       );
     });
-  }, [location.state]);
+  }, [searchData]);
 
   const voosOrdenados = [...voos].sort((a, b) => {
     switch (ordenacao) {
@@ -103,8 +107,6 @@ export default function ResultsScreen() {
         return a.preco - b.preco;
       case "duracao":
         return parseInt(a.duracao) - parseInt(b.duracao);
-      case "pontuacao":
-        return b.pontuacao - a.pontuacao;
       default:
         return 0;
     }
@@ -116,26 +118,12 @@ export default function ResultsScreen() {
       description: `Voo ${voo.companhia} ${voo.origemCodigo} → ${voo.destinoCodigo}`,
     });
     const searchData = location.state?.searchData;
-    const detailParams: {
-      origem?: string;
-      destino?: string;
-      dataIda?: string;
-      dataVolta?: string;
-      bookingToken: string;
-    } = {
-      origem: searchData?.origem,
-      destino: searchData?.destino,
-      dataIda: searchData?.dataIda,
-      bookingToken: voo.id
-    };
-    if (searchData?.dataVolta && searchData.dataVolta !== "") {
-      detailParams.dataVolta = searchData.dataVolta;
-    }
+    // Enviar apenas token e itineraryId
     navigate("/detalhes-voo", {
       state: {
         searchData: {
-          ...detailParams,
-          dataVolta: detailParams.dataVolta ?? undefined
+          token: voo.token,
+          itineraryId: voo.itineraryId
         }
       }
     });
@@ -218,24 +206,41 @@ export default function ResultsScreen() {
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-econotrip-blue" />
                   <span className="font-semibold text-econotrip-blue">
-                    {location.state?.searchData?.origem} → {location.state?.searchData?.destino}
+                    {/* Origem */}
+                    {voos.length > 0
+                      ? `${voos[0].origem} (${voos[0].origemCodigo})`
+                      : location.state?.searchData?.origem}
+                    <span className="mx-1">→</span>
+                    {/* Destino */}
+                    {voos.length > 0
+                      ? `${voos[0].destino} (${voos[0].destinoCodigo})`
+                      : location.state?.searchData?.destino}
                     {location.state?.searchData?.dataVolta && (
                       <>
                         <span className="mx-2 text-gray-400">|</span>
-                        {location.state?.searchData?.destino} → {location.state?.searchData?.origem}
+                        {/* Volta: Destino → Origem */}
+                        {voos.length > 0
+                          ? `${voos[0].destino} (${voos[0].destinoCodigo})`
+                          : location.state?.searchData?.destino}
+                        <span className="mx-1">→</span>
+                        {voos.length > 0
+                          ? `${voos[0].origem} (${voos[0].origemCodigo})`
+                          : location.state?.searchData?.origem}
                       </>
                     )}
                   </span>
                 </div>
-                <div className="text-gray-600">
+                <div className="text-gray-600 flex items-center gap-2 flex-wrap">
                   {location.state?.searchData?.dataIda &&
-                    new Date(location.state.searchData.dataIda.split(' ')[0]).toLocaleDateString("pt-BR")}
+                    <span>{new Date(location.state.searchData.dataIda.split(' ')[0]).toLocaleDateString("pt-BR")}</span>}
                   {location.state?.searchData?.dataVolta && (
                     <>
                       <span className="mx-1">•</span>
-                      {new Date(location.state.searchData.dataVolta.split(' ')[0]).toLocaleDateString("pt-BR")}
+                      <span>{new Date(location.state.searchData.dataVolta.split(' ')[0]).toLocaleDateString("pt-BR")}</span>
                     </>
                   )}
+                  <span className="mx-2">|</span>
+                  <span className="text-econotrip-blue font-semibold">{voos.length} resultados</span>
                 </div>
               </div>
             </div>
@@ -243,23 +248,22 @@ export default function ResultsScreen() {
 
           {/* Filtros de ordenação modernos */}
           <div className="mb-6">
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-3 w-full">
               {[
                 { id: "preco", label: "Menor preço", icon: DollarSign },
                 { id: "duracao", label: "Menor tempo", icon: Clock },
-                { id: "pontuacao", label: "Melhor avaliado", icon: Star },
               ].map((opcao) => (
                 <motion.button
                   key={opcao.id}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setOrdenacao(opcao.id as any)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-2xl transition-all whitespace-nowrap shadow-md ${
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setOrdenacao(opcao.id as "preco" | "duracao")}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl transition-all shadow-md text-base font-medium border-2 ${
                     ordenacao === opcao.id
-                      ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white shadow-lg"
-                      : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-white/90"
+                      ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white border-econotrip-orange shadow-lg"
+                      : "bg-white/80 backdrop-blur-sm text-gray-700 border-transparent hover:bg-white/90"
                   }`}
                 >
-                  <opcao.icon className="h-4 w-4" />
+                  <opcao.icon className="h-5 w-5" />
                   {opcao.label}
                 </motion.button>
               ))}
@@ -281,23 +285,18 @@ export default function ResultsScreen() {
               transition={{ delay: index * 0.1 }}
             >
               <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
-                <div className="p-6">
-                  {/* Header do voo */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
-                          <Plane className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <span className="font-bold text-xl text-econotrip-blue">
-                            {voo.companhia}
-                          </span>
-                        </div>
+                <div className="p-3 sm:p-1">
+                  {/* Header do voo - nome e preço alinhados à esquerda */}
+                  <div className="flex flex-col items-start mb-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
+                        <Plane className="h-6 w-6 text-white" />
                       </div>
+                      <span className="font-bold text-xl text-econotrip-blue">
+                        {voo.companhia}
+                      </span>
                     </div>
-                    
-                    <div className="text-right">
+                    <div className="mt-2 text-left">
                       <div className="text-3xl font-bold text-econotrip-orange">
                         R$ {voo.preco}
                       </div>

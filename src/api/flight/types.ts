@@ -3,15 +3,12 @@ export type SearchFlightOffersBody = {
   destination: string;
   departure: string;
   return?: string;
-  departureToken?: string;
+  // departureToken?: string;
 };
 
 export type GetFlightDetailBody = {
-  origin: string;
-  destination: string;
-  departure: string;
-  return?: string;
-  bookingToken: string;
+  token: string;
+  itineraryId: string;
 };
 
 export type SearchFlightByMileageResponse = {
@@ -182,55 +179,205 @@ export type GetTripByMileageResponse = {
 }
 
 export type GetFlightDetailResponse = {
-  selected_flights: {
-    flights: Flight[];
-    layovers: Layovers[];
-    total_duration: number;
-    carbon_emissions: {
-      this_flight: number;
-      typical_for_this_route: number;
-      difference_percent: number;
-    },
-    price: number;
-    type: string;
-    airline_logo: string;
-    extensions: string[];
-    departure_token: string;
-    booking_token: string;
-  }[];
-  baggage_prices: {
-    together: string[];
-    departing: string[];
-    returning: string[];
-  },
-  booking_options: {
-    separate_tickets: boolean;
-    together: {
-      book_with: string;
-      airline_logos: string[];
-      marketed_as: string[];
-      price: number;
-      local_prices: {
-        currency: string;
-        price: number;
-      }
-      option_title: string;
-      extensions: string[];
-      baggage_prices: string[];
-      booking_request: {
+  data: {
+    itinerary: {
+      id: string;
+      legs: {
+        id: string;
+        origin: {
+          id: string;
+          name: string;
+          displayCode: string;
+          city: string;
+        };
+        destination: {
+          id: string;
+          name: string;
+          displayCode: string;
+          city: string;
+        };
+        segments: {
+          id: string;
+          origin: {
+            id: string;
+            name: string;
+            displayCode: string;
+            city: string;
+          };
+          destination: {
+            id: string;
+            name: string;
+            displayCode: string;
+            city: string;
+          };
+          duration: number;
+          dayChange: number;
+          flightNumber: string;
+          departure: string;
+          arrival: string;
+          marketingCarrier: {
+            id: string;
+            name: string;
+            displayCode: string;
+            displayCodeType: string;
+            logo: string;
+            altId: string;
+            brandColor?: string;
+          };
+          operatingCarrier: {
+            id: string;
+            name: string;
+            displayCode: string;
+            displayCodeType: string;
+            logo: string;
+            altId: string;
+            brandColor?: string;
+          };
+          goodToKnowItems: {
+            icon: string;
+            body: {
+              value: string;
+              isHighlighted: boolean;
+              position: number;
+            };
+            badge?: {
+              value: string;
+              isHighlighted: boolean;
+              position: number;
+            };
+            date?: {
+              value: string;
+              isHighlighted: boolean;
+              position: number;
+            };
+          }[];
+        }[];
+        layovers: {
+          segmentId: string;
+          origin: {
+            id: string;
+            name: string;
+            displayCode: string;
+            city: string;
+          };
+          destination: {
+            id: string;
+            name: string;
+            displayCode: string;
+            city: string;
+          };
+          duration: number;
+        }[];
+        duration: number;
+        stopCount: number;
+        departure: string;
+        arrival: string;
+        dayChange: number;
+      }[];
+      pricingOptions: {
+        agents: {
+          id: string;
+          name: string;
+          isCarrier: boolean;
+          bookingProposition: string;
+          url: string;
+          price: number;
+          rating: {
+            value: number;
+            count: number;
+          };
+          updateStatus: string;
+          segments: {
+            id: string;
+            origin: {
+              id: string;
+              name: string;
+              displayCode: string;
+              city: string;
+            };
+            destination: {
+              id: string;
+              name: string;
+              displayCode: string;
+              city: string;
+            };
+            duration: number;
+            dayChange: number;
+            flightNumber: string;
+            departure: string;
+            arrival: string;
+            marketingCarrier: {
+              id: string;
+              name: string;
+              displayCode: string;
+              displayCodeType: string;
+              logo: string;
+              altId: string;
+              brandColor?: string;
+            };
+            operatingCarrier: {
+              id: string;
+              name: string;
+              displayCode: string;
+              displayCodeType: string;
+              logo: string;
+              altId: string;
+              brandColor?: string;
+            };
+            goodToKnowItems: {
+              icon: string;
+              body: {
+                value: string;
+                isHighlighted: boolean;
+                position: number;
+              };
+              badge?: {
+                value: string;
+                isHighlighted: boolean;
+                position: number;
+              };
+              date?: {
+                value: string;
+                isHighlighted: boolean;
+                position: number;
+              };
+            }[];
+          }[];
+          transferProtection: string;
+          isDirectDBookUrl: boolean;
+          quoteAge: number;
+        }[];
+        totalPrice: number;
+        fare: {
+          leg_details: any[];
+        };
+        id: string;
+      }[];
+      isTransferRequired: boolean;
+      destinationImage: string;
+      operatingCarrierSafetyAttributes: {
+        carrierID: string;
+        carrierName: string;
+        faceMasksCompulsory: null | boolean;
+        aircraftDeepCleanedDaily: null | boolean;
+        attendantsWearPPE: null | boolean;
+        cleaningPacksProvided: null | boolean;
+        foodServiceChanges: null | boolean;
+        safetyUrl: null | string;
+      }[];
+      flexibleTicketPolicies: any[];
+      transferProtectionDetails: {
+        title: string;
+        body: string;
         url: string;
-        post_data: string;
-      },
-      booking_phone: string;
-      estimated_phone_service_fee: number;
-    },
-  }[],
-  price_insights: {
-    lowest_price: number;
-    price_level: string;
-    typical_price_range: string[];
-    price_history: string[];
-  },
+        urlTitle: string;
+      };
+    };
+    pollingCompleted: boolean;
+    bookingSessionId: string;
+  };
+  status: boolean;
+  message: string;
 }
 
 interface Flight {
@@ -316,3 +463,153 @@ export type GetHomeOfferResponse = {
   asia: Array<ContinentOvreview>;
   others: Array<ContinentOvreview>;
 }
+
+export type ISearchFlightResponse = {
+    data: {
+    context: {
+      status: string;
+      sessionId: string;
+      totalResults: number;
+    };
+    itineraries: Array<{
+      id: string;
+      price: {
+        raw: number;
+        formatted: string;
+        pricingOptionId: string;
+      };
+      legs: {
+        id: string;
+        origin: {
+          id: string;
+          name: string;
+          displayCode: string;
+          city: string;
+          country: string;
+          isHighlighted: boolean;
+        };
+        destination: {
+          id: string;
+          name: string;
+          displayCode: string;
+          city: string;
+          country: string;
+          isHighlighted: boolean;
+        };
+        durationInMinutes: number;
+        stopCount: number;
+        isSmallestStops: boolean;
+        departure: string;
+        arrival: string;
+        timeDeltaInDays: number;
+        carriers: {
+          marketing: {
+            id: number;
+            logoUrl: string;
+            name: string;
+          }[];
+          operationType: string;
+        };
+        segments: {
+          id: string;
+          origin: {
+            flightPlaceId: string;
+            displayCode: string;
+            parent?: {
+              flightPlaceId: string;
+              displayCode: string;
+              name: string;
+              type: string;
+            };
+            name: string;
+            type: string;
+          };
+          destination: {
+            flightPlaceId: string;
+            displayCode: string;
+            parent?: {
+              flightPlaceId: string;
+              displayCode: string;
+              name: string;
+              type: string;
+            };
+            name: string;
+            type: string;
+          };
+          departure: string;
+          arrival: string;
+          durationInMinutes: number;
+          flightNumber: string;
+          marketingCarrier: {
+            id: number;
+            name: string;
+            alternateId: string;
+            allianceId: number;
+            displayCode: string;
+          };
+          operatingCarrier: {
+            id: number;
+            name: string;
+            alternateId: string;
+            allianceId: number;
+            displayCode: string;
+          };
+        }[];
+      }[];
+      isSelfTransfer: boolean;
+      isProtectedSelfTransfer: boolean;
+      farePolicy: {
+        isChangeAllowed: boolean;
+        isPartiallyChangeable: boolean;
+        isCancellationAllowed: boolean;
+        isPartiallyRefundable: boolean;
+      };
+      fareAttributes: Record<string, any>;
+      tags: string[];
+      isMashUp: boolean;
+      hasFlexibleOptions: boolean;
+      score: number;
+    }>;
+    messages: any[];
+    filterStats: {
+      duration: {
+        min: number;
+        max: number;
+        multiCityMin: number;
+        multiCityMax: number;
+      };
+      airports: {
+        city: string;
+        airports: {
+          id: string;
+          name: string;
+        }[];
+      }[];
+      carriers: {
+        id: number;
+        logoUrl: string;
+        name: string;
+      }[];
+      stopPrices: {
+        direct: {
+          isPresent: boolean;
+        };
+        one: {
+          isPresent: boolean;
+          formattedPrice?: string;
+        };
+        twoOrMore: {
+          isPresent: boolean;
+          formattedPrice?: string;
+        };
+      };
+    };
+    flightsSessionId: string;
+    destinationImageUrl: string;
+    token: string;
+  };
+  status: boolean;
+  message: string;
+}
+
+export default ISearchFlightResponse;

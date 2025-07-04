@@ -13,7 +13,9 @@ import { AccessibilityBar } from "./components/accessibility/AccessibilityBar";
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
+import RoundTripResultsScreen from "./pages/RoundTripResultsScreen";
 import FlightDetailsScreen from "./pages/FlightDetailsScreen";
+import RoundTripFlightDetailsScreen from "./pages/RoundTripFlightDetailsScreen";
 import CheckoutScreen from "./pages/Checkout/CheckoutScreen";
 import ConfirmationScreen from "./pages/ConfirmationScreen";
 import ProfileScreen from "./pages/ProfileScreen";
@@ -75,7 +77,9 @@ const App = () => {
                 <Route path="/dashboard" element={<DashboardScreen />} />
                 <Route path="/busca-voos" element={<TelaBuscaVoos />} />
                 <Route path="/resultados-voos" element={<ResultsScreen />} />
+                <Route path="/resultados-ida-volta" element={<RoundTripResultsScreen />} />
                 <Route path="/detalhes-voo" element={<FlightDetailsScreen />} />
+                <Route path="/detalhes-ida-volta" element={<RoundTripFlightDetailsScreen />} />
                 {/* <Route path="/detalhes-voo/:id" element={<FlightDetailsScreen />} /> */}
                 <Route path="/checkout" element={<CheckoutScreen />} />
                 <Route path="/perfil" element={<ProfileScreen />} />
