@@ -31,6 +31,7 @@ import WelcomeScreen from "./pages/WelcomeScreen";
 import LoginScreen from "./pages/LoginScreen";
 import RegisterScreen from "./pages/RegisterScreen";
 import RecoverPasswordScreen from "./pages/RecoverPasswordScreen";
+import ResetPasswordScreen from "./pages/ResetPasswordScreen";
 import RadarOfertasScreen from "./pages/RadarOfertasScreen";
 import AvaliacaoScreen from "./pages/AvaliacaoScreen";
 import TurismoSustentavelScreen from "./pages/TurismoSustentavelScreen";
@@ -69,6 +70,7 @@ const App = () => {
               <Route path="/login" element={<LoginScreen />} />
               <Route path="/registro" element={<RegisterScreen />} />
               <Route path="/recuperar-senha" element={<RecoverPasswordScreen />} />
+              <Route path="/redefinir-senha" element={<ResetPasswordScreen />} />
               <Route path="/confirmacao" element={<ConfirmationScreen />} />
               
               {/* Rotas que usam o LayoutBase */}

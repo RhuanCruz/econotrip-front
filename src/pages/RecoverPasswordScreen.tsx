@@ -6,6 +6,7 @@ import { Input } from "@/components/ui-custom/Input";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
+import { UserService } from "@/api/user/UserService";
 
 export default function RecoverPasswordScreen() {
   const navigate = useNavigate();
@@ -13,28 +14,26 @@ export default function RecoverPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await UserService.forgotPassword(email);
+      setSubmitted(true);
+      toast({
+        title: "E-mail enviado",
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar",
+        description: error instanceof Error ? error.message : "Por favor, tente novamente.",
+      });
+    } finally {
       setLoading(false);
-      
-      if (email) {
-        setSubmitted(true);
-        toast({
-          title: "E-mail enviado",
-          description: "Verifique sua caixa de entrada para redefinir sua senha.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao enviar",
-          description: "Por favor, digite um e-mail válido.",
-        });
-      }
-    }, 1000);
+    }
   };
 
   return (

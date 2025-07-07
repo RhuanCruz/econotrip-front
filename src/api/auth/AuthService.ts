@@ -1,7 +1,10 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 
 import { api } from '../client';
-import { LoginBody, LoginResponse } from './types';
+import { 
+  LoginBody, 
+  LoginResponse, 
+} from './types';
 
 const Login = async (data: LoginBody): Promise<LoginResponse> => {
   return api.post<LoginResponse>('/auth', data)

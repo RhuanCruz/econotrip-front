@@ -1,7 +1,7 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 
 import { api } from '../client';
-import { CheckExistenceBody, CheckExistenceResponse, CreateUserBody, User } from './types';
+import { CheckExistenceBody, CheckExistenceResponse, CreateUserBody, ResetPasswordBody, User } from './types';
 
 const CreateUser = async (data: CreateUserBody): Promise<User> => {
   return api.post('/users', data)
@@ -15,7 +15,21 @@ const CheckExistence = async (data: CheckExistenceBody): Promise<CheckExistenceR
     .catch((err) => { throw new Error(handleApiError(err)) })
 }
 
+const ForgotPassword = async (email: string): Promise<void> => {
+  await api.post('/users/forgot-password', { email })
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
+const ResetPassword = async (data: ResetPasswordBody): Promise<void> => {
+  return api.post('/users/reset-password', data)
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
 export const UserService = {
   create: CreateUser,
   checkExistence: CheckExistence,
+  forgotPassword: ForgotPassword,
+  resetPassword: ResetPassword,
 }

@@ -22,3 +22,9 @@ export type CheckExistenceBody = {
 export type CheckExistenceResponse= {
   exists: boolean;
 }
+
+export type ResetPasswordBody = {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
