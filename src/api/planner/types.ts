@@ -184,3 +184,7 @@ interface PracticalInfo {
   moeda_local: string;
   voltagem: string;
 }
+
+export type IListPlannerFilterBody = {
+  history: boolean;
+}

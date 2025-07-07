@@ -208,7 +208,7 @@ export default function DashboardScreen() {
 
               <Card
                 className="p-3 bg-gradient-to-br from-econotrip-blue/10 to-econotrip-blue/5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
-                onClick={() => navigate("/radar-ofertas")}
+                onClick={() => navigate("/meus-radares")}
               >
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-lg flex items-center justify-center mx-auto mb-2">

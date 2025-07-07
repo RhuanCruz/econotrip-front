@@ -4,6 +4,8 @@ import { RadarService } from "@/api/radar/RadarService";
 import { useAuthStore } from "@/stores/authStore";
 import { LocationApi } from "@/api/location/location.api";
 import type { Location } from "@/api/location/types";
+import type { CreateRadarBody } from "@/api/radar/types";
+import { AlertCircle, Mail, MessageSquare } from "lucide-react";
 
 interface NovoRadarModalProps {
   isOpen: boolean;
@@ -27,6 +29,14 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const [fim, setFim] = useState("");
   const [milhas, setMilhas] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // Estados para alerta de preço
+  const [valorLimite, setValorLimite] = useState("");
+  const [tipoMoeda, setTipoMoeda] = useState<"reais" | "milhas">("reais");
+  const [notificarEmail, setNotificarEmail] = useState(true);
+  const [notificarTelegram, setNotificarTelegram] = useState(true);
+  const [valorLimiteError, setValorLimiteError] = useState("");
+  
   const { token } = useAuthStore();
 
   // Autocomplete states
@@ -48,26 +58,66 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const ignorePartidaEffectRef = useRef(false);
   const ignoreDestinoEffectRef = useRef(false);
 
-  // Debounce para busca de sugestões
+  // Refs para AbortController para cancelar requisições
+  const partidaAbortControllerRef = useRef<AbortController | null>(null);
+  const destinoAbortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounce para busca de sugestões com cancelamento de requisições
   React.useEffect(() => {
     if (ignorePartidaEffectRef.current) {
       ignorePartidaEffectRef.current = false;
       return;
     }
+
+    // Cancelar requisição anterior se existir
+    if (partidaAbortControllerRef.current) {
+      partidaAbortControllerRef.current.abort();
+    }
+
     const handler = setTimeout(() => {
       if (partida.length >= 3) {
         setLoadingPartida(true);
-        LocationApi.listLocations(partida).then((res) => {
-          setPartidaSuggestions(res.data);
-          setShowPartidaDropdown(true);
-        }).finally(() => setLoadingPartida(false));
+        
+        // Criar novo AbortController para esta requisição
+        const controller = new AbortController();
+        partidaAbortControllerRef.current = controller;
+        
+        LocationApi.listLocations(partida, controller.signal)
+          .then((res) => {
+            // Verificar se a requisição não foi cancelada
+            if (!controller.signal.aborted) {
+              setPartidaSuggestions(res.data);
+              setShowPartidaDropdown(true);
+            }
+          })
+          .catch((error) => {
+            // Ignorar erros de cancelamento
+            if (error.name !== 'AbortError') {
+              console.error('Erro ao buscar sugestões de partida:', error);
+              setPartidaSuggestions([]);
+              setShowPartidaDropdown(false);
+            }
+          })
+          .finally(() => {
+            // Só atualizar loading se não foi cancelada
+            if (!controller.signal.aborted) {
+              setLoadingPartida(false);
+            }
+          });
       } else {
         setPartidaSuggestions([]);
         setShowPartidaDropdown(false);
         setLoadingPartida(false);
       }
     }, 400);
-    return () => clearTimeout(handler);
+
+    return () => {
+      clearTimeout(handler);
+      // Cancelar requisição se o component for desmontado ou o termo mudar
+      if (partidaAbortControllerRef.current) {
+        partidaAbortControllerRef.current.abort();
+      }
+    };
   }, [partida]);
 
   React.useEffect(() => {
@@ -75,21 +125,72 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       ignoreDestinoEffectRef.current = false;
       return;
     }
+
+    // Cancelar requisição anterior se existir
+    if (destinoAbortControllerRef.current) {
+      destinoAbortControllerRef.current.abort();
+    }
+
     const handler = setTimeout(() => {
       if (destino.length >= 3) {
         setLoadingDestino(true);
-        LocationApi.listLocations(destino).then((res) => {
-          setDestinoSuggestions(res.data);
-          setShowDestinoDropdown(true);
-        }).finally(() => setLoadingDestino(false));
+        
+        // Criar novo AbortController para esta requisição
+        const controller = new AbortController();
+        destinoAbortControllerRef.current = controller;
+        
+        LocationApi.listLocations(destino, controller.signal)
+          .then((res) => {
+            // Verificar se a requisição não foi cancelada
+            if (!controller.signal.aborted) {
+              setDestinoSuggestions(res.data);
+              setShowDestinoDropdown(true);
+            }
+          })
+          .catch((error) => {
+            // Ignorar erros de cancelamento
+            if (error.name !== 'AbortError') {
+              console.error('Erro ao buscar sugestões de destino:', error);
+              setDestinoSuggestions([]);
+              setShowDestinoDropdown(false);
+            }
+          })
+          .finally(() => {
+            // Só atualizar loading se não foi cancelada
+            if (!controller.signal.aborted) {
+              setLoadingDestino(false);
+            }
+          });
       } else {
         setDestinoSuggestions([]);
         setShowDestinoDropdown(false);
         setLoadingDestino(false);
       }
     }, 400);
-    return () => clearTimeout(handler);
+
+    return () => {
+      clearTimeout(handler);
+      // Cancelar requisição se o component for desmontado ou o termo mudar
+      if (destinoAbortControllerRef.current) {
+        destinoAbortControllerRef.current.abort();
+      }
+    };
   }, [destino]);
+
+  // Cleanup quando o modal é fechado
+  React.useEffect(() => {
+    if (!isOpen) {
+      // Cancelar requisições pendentes quando o modal é fechado
+      if (partidaAbortControllerRef.current) {
+        partidaAbortControllerRef.current.abort();
+        partidaAbortControllerRef.current = null;
+      }
+      if (destinoAbortControllerRef.current) {
+        destinoAbortControllerRef.current.abort();
+        destinoAbortControllerRef.current = null;
+      }
+    }
+  }, [isOpen]);
 
   const formContent = (
     <form className="flex flex-col gap-4 mt-2 px-2">
@@ -231,9 +332,56 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Fim</label>
         <input type="date" value={fim} onChange={e => setFim(e.target.value)} min={inicio || todayStr} className="w-full border rounded-lg px-3 py-2" />
       </div>
-      <div className="flex items-center gap-2 mt-2">
-        <input type="checkbox" id="milhas" checked={milhas} onChange={e => setMilhas(e.target.checked)} />
-        <label htmlFor="milhas" className="text-sm text-gray-700">Procurar por milhas</label>
+      
+      {/* Seção de Alerta de Preço */}
+      <div className="border-t pt-4 mt-4 bg-gradient-to-r from-blue-50 to-orange-50 rounded-lg p-4 -mx-2">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertCircle className="h-5 w-5 text-econotrip-orange" />
+          <h3 className="text-lg font-semibold text-econotrip-blue">Alerta de Preço</h3>
+        </div>
+        <p className="text-sm text-gray-600 mb-4">
+          Defina um valor limite e receba notificações quando encontrarmos preços abaixo deste valor.
+        </p>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Valor limite</label>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <input
+                  type="number"
+                  value={valorLimite}
+                  onChange={e => {
+                    setValorLimite(e.target.value);
+                    setValorLimiteError("");
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 bg-white ${valorLimiteError ? 'border-red-500' : ''}`}
+                  placeholder="0,00"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <select
+                value={tipoMoeda}
+                onChange={e => setTipoMoeda(e.target.value as "reais" | "milhas")}
+                className="border rounded-lg px-3 py-2 bg-white min-w-[100px]"
+              >
+                <option value="reais">R$ (Reais)</option>
+                <option value="milhas">Milhas</option>
+              </select>
+            </div>
+            {valorLimiteError && <p className="text-xs text-red-500 mt-1">{valorLimiteError}</p>}
+            {!valorLimiteError && (
+              <p className="text-xs text-gray-500 mt-1">
+                {valorLimite 
+                  ? `Você será notificado quando o preço estiver abaixo de ${valorLimite} ${tipoMoeda === "reais" ? "reais" : "milhas"}`
+                  : "Digite um valor para receber alertas de preço"
+                }
+              </p>
+            )}
+          </div>
+        
+        </div>
       </div>
     </form>
   );
@@ -248,25 +396,45 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setDestinoError("Selecione uma opção do droplist de destino.");
       valid = false;
     }
+    if (valorLimite && (parseFloat(valorLimite) <= 0 || isNaN(parseFloat(valorLimite)))) {
+      setValorLimiteError("Digite um valor válido maior que zero.");
+      valid = false;
+    }
+    if (valorLimite && (!notificarEmail && !notificarTelegram)) {
+      setValorLimiteError("Selecione pelo menos uma forma de notificação.");
+      valid = false;
+    }
     if (!token || !valid) return;
+    
     setLoading(true);
     try {
-      await RadarService.create(token, {
+      const radarData: CreateRadarBody = {
         origin: selectedPartida.navigation.relevantFlightParams.skyId,
         destination: selectedDestino.navigation.relevantFlightParams.skyId,
         start: inicio,
         end: fim,
-        // Se o backend aceitar campo milhas, inclua aqui
-      });
+        value: parseFloat(valorLimite),
+        type: tipoMoeda === 'milhas' ? 'AIRMILES' : 'MONEY',
+      };
+          
+      await RadarService.create(token, radarData);
+      
+      // Limpar formulário
       setPartida("");
       setDestino("");
       setInicio("");
       setFim("");
       setMilhas(false);
+      setValorLimite("");
+      setTipoMoeda("reais");
+      setNotificarEmail(true);
+      setNotificarTelegram(true);
       setSelectedPartida(null);
       setSelectedDestino(null);
       setPartidaError("");
       setDestinoError("");
+      setValorLimiteError("");
+      
       onCreate({ partida, destino, inicio, fim, milhas });
     } catch (e) {
       // Trate erro se necessário

@@ -32,7 +32,7 @@ interface FormData {
 
 interface ModernFlightSearchFormProps {
   formData: FormData;
-  onInputChange: (field: keyof FormData, value: any) => void;
+  onInputChange: (field: keyof FormData, value: string | boolean | FormData["passageiros"] | FormData["filtros"]) => void;
   onPassengerChange: (type: keyof FormData["passageiros"], increment: boolean) => void;
   onSearch: () => void;
 }
@@ -68,53 +68,101 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   const origemDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const destinoDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Busca sugestões para origem (com debounce)
+  // AbortController para cancelar requisições anteriores
+  const origemAbortControllerRef = useRef<AbortController | null>(null);
+  const destinoAbortControllerRef = useRef<AbortController | null>(null);
+
+  // Busca sugestões para origem (com debounce e cancelamento)
   React.useEffect(() => {
     if (origemSelectBySuggestion.current) {
       origemSelectBySuggestion.current = false;
       return;
     }
+    
+    // Cancela requisição anterior se existir
+    if (origemAbortControllerRef.current) {
+      origemAbortControllerRef.current.abort();
+    }
+    
     if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
+    
     if (formData.origem.length >= 3) {
       origemDebounceRef.current = setTimeout(() => {
+        // Cria novo AbortController para esta requisição
+        origemAbortControllerRef.current = new AbortController();
+        
         setLoadingOrigem(true);
-        LocationApi.listLocations(formData.origem).then((res) => {
-          setOrigemSuggestions(res.data);
-          setShowOrigemDropdown(true);
-        }).finally(() => setLoadingOrigem(false));
+        LocationApi.listLocations(formData.origem, origemAbortControllerRef.current.signal)
+          .then((res) => {
+            setOrigemSuggestions(res.data);
+            setShowOrigemDropdown(true);
+          })
+          .catch((error) => {
+            // Só mostra erro se não foi cancelada
+            if (error.name !== 'AbortError') {
+              console.error('Erro ao buscar origem:', error);
+            }
+          })
+          .finally(() => setLoadingOrigem(false));
       }, 400);
     } else {
       setOrigemSuggestions([]);
       setShowOrigemDropdown(false);
     }
+    
     // Cleanup
     return () => {
       if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
+      if (origemAbortControllerRef.current) {
+        origemAbortControllerRef.current.abort();
+      }
     };
   }, [formData.origem]);
 
-  // Busca sugestões para destino (com debounce)
+  // Busca sugestões para destino (com debounce e cancelamento)
   React.useEffect(() => {
     if (destinoSelectBySuggestion.current) {
       destinoSelectBySuggestion.current = false;
       return;
     }
+    
+    // Cancela requisição anterior se existir
+    if (destinoAbortControllerRef.current) {
+      destinoAbortControllerRef.current.abort();
+    }
+    
     if (destinoDebounceRef.current) clearTimeout(destinoDebounceRef.current);
+    
     if (formData.destino.length >= 3) {
       destinoDebounceRef.current = setTimeout(() => {
+        // Cria novo AbortController para esta requisição
+        destinoAbortControllerRef.current = new AbortController();
+        
         setLoadingDestino(true);
-        LocationApi.listLocations(formData.destino).then((res) => {
-          setDestinoSuggestions(res.data);
-          setShowDestinoDropdown(true);
-        }).finally(() => setLoadingDestino(false));
+        LocationApi.listLocations(formData.destino, destinoAbortControllerRef.current.signal)
+          .then((res) => {
+            setDestinoSuggestions(res.data);
+            setShowDestinoDropdown(true);
+          })
+          .catch((error) => {
+            // Só mostra erro se não foi cancelada
+            if (error.name !== 'AbortError') {
+              console.error('Erro ao buscar destino:', error);
+            }
+          })
+          .finally(() => setLoadingDestino(false));
       }, 400);
     } else {
       setDestinoSuggestions([]);
       setShowDestinoDropdown(false);
     }
+    
     // Cleanup
     return () => {
       if (destinoDebounceRef.current) clearTimeout(destinoDebounceRef.current);
+      if (destinoAbortControllerRef.current) {
+        destinoAbortControllerRef.current.abort();
+      }
     };
   }, [formData.destino]);
 

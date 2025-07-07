@@ -5,10 +5,10 @@ import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Leaf, 
-  Recycle, 
-  TreePine, 
+import {
+  Leaf,
+  Recycle,
+  TreePine,
   Heart,
   Award,
   MapPin,
@@ -123,190 +123,188 @@ export default function TurismoSustentavelScreen() {
   };
 
   const handleBuscarDestino = (destino: DestinoSustentavel) => {
-    navigate("/busca-voos", { 
-      state: { 
+    navigate("/busca-voos", {
+      state: {
         destino: destino.nome,
-        sustentavel: true 
-      } 
+        sustentavel: true
+      }
     });
   };
 
   return (
-    <LayoutBase>
-      <div className="max-w-screen-sm mx-auto px-4 py-4 pb-28">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6"
-        >
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="p-3 bg-econotrip-green/10 rounded-2xl">
-              <Leaf className="h-8 w-8 text-econotrip-green" />
-            </div>
-            <h1 className="text-2xl font-bold text-econotrip-blue">
-              Turismo Sustentável
-            </h1>
+    <div className="max-w-screen-sm mx-auto px-4 py-4 pb-28">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-6"
+      >
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="p-3 bg-econotrip-green/10 rounded-2xl">
+            <Leaf className="h-8 w-8 text-econotrip-green" />
           </div>
-          <p className="text-gray-600 text-lg">
-            Viaje com consciência ambiental
-          </p>
-        </motion.div>
+          <h1 className="text-2xl font-bold text-econotrip-blue">
+            Turismo Sustentável
+          </h1>
+        </div>
+        <p className="text-gray-600 text-lg">
+          Viaje com consciência ambiental
+        </p>
+      </motion.div>
 
-        {/* Iniciativas Globais */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <Card className="p-6 bg-gradient-to-r from-econotrip-green/5 to-econotrip-blue/5">
-            <h2 className="text-xl font-semibold text-econotrip-blue mb-4 flex items-center gap-2">
-              <Recycle className="h-6 w-6" />
-              Nossas Iniciativas
-            </h2>
-            <div className="space-y-4">
-              {iniciativasGlobais.map((iniciativa, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start gap-3 p-3 bg-white rounded-lg"
-                >
-                  <div className={`p-2 rounded-lg ${iniciativa.cor.replace('text-', 'bg-').replace('-600', '-100').replace('-500', '-100').replace('-700', '-100')}`}>
-                    <iniciativa.icon className={`h-5 w-5 ${iniciativa.cor}`} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-econotrip-blue">
-                      {iniciativa.titulo}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {iniciativa.descricao}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Destinos Sustentáveis */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6"
-        >
+      {/* Iniciativas Globais */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
+        <Card className="p-6 bg-gradient-to-r from-econotrip-green/5 to-econotrip-blue/5">
           <h2 className="text-xl font-semibold text-econotrip-blue mb-4 flex items-center gap-2">
-            <MapPin className="h-6 w-6" />
-            Destinos Certificados
+            <Recycle className="h-6 w-6" />
+            Nossas Iniciativas
           </h2>
-          
           <div className="space-y-4">
-            {destinosSustentaveis.map((destino, index) => (
+            {iniciativasGlobais.map((iniciativa, index) => (
               <motion.div
-                key={destino.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
+                className="flex items-start gap-3 p-3 bg-white rounded-lg"
               >
-                <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="p-6">
-                    {/* Header do destino */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-econotrip-blue mb-1">
-                          {destino.nome}
-                        </h3>
-                        <p className="text-gray-600">{destino.pais}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium">
-                            {destino.avaliacaoAmbiental}/5.0 sustentabilidade
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <Badge className={`${getNivelCor(destino.nivelSustentabilidade)} border-0`}>
-                        <Award className="h-3 w-3 mr-1" />
-                        {destino.nivelSustentabilidade.toUpperCase()}
-                      </Badge>
-                    </div>
-
-                    {/* Descrição */}
-                    <p className="text-gray-700 mb-4">{destino.descricao}</p>
-
-                    {/* Iniciativas */}
-                    <div className="mb-4">
-                      <h4 className="font-medium text-econotrip-blue mb-2 text-sm">
-                        Iniciativas Sustentáveis:
-                      </h4>
-                      <div className="flex flex-wrap gap-1">
-                        {destino.iniciativas.map((iniciativa, idx) => (
-                          <Badge 
-                            key={idx} 
-                            variant="outline" 
-                            className="text-xs border-econotrip-green text-econotrip-green"
-                          >
-                            {iniciativa}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Certificações */}
-                    <div className="mb-4">
-                      <h4 className="font-medium text-econotrip-blue mb-2 text-sm">
-                        Certificações:
-                      </h4>
-                      <div className="flex flex-wrap gap-1">
-                        {destino.certificacoes.map((cert, idx) => (
-                          <SustainableBadge key={idx} type="carbon" />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Botão de ação */}
-                    <Button
-                      variant="primary"
-                      onClick={() => handleBuscarDestino(destino)}
-                      className="w-full h-12"
-                      icon={ArrowRight}
-                      iconPosition="right"
-                    >
-                      Buscar voos sustentáveis
-                    </Button>
-                  </div>
-                </Card>
+                <div className={`p-2 rounded-lg ${iniciativa.cor.replace('text-', 'bg-').replace('-600', '-100').replace('-500', '-100').replace('-700', '-100')}`}>
+                  <iniciativa.icon className={`h-5 w-5 ${iniciativa.cor}`} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-econotrip-blue">
+                    {iniciativa.titulo}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {iniciativa.descricao}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
-        </motion.div>
+        </Card>
+      </motion.div>
 
-        {/* Informações adicionais */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="p-6 border-econotrip-blue/20 bg-econotrip-blue/5">
-            <div className="flex items-start gap-3">
-              <Info className="h-6 w-6 text-econotrip-blue mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-econotrip-blue mb-2">
-                  Compromisso EconoTrip
-                </h3>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  Estamos comprometidos em reduzir o impacto ambiental das viagens. 
-                  Todos os voos incluem compensação automática de carbono, e trabalhamos 
-                  apenas com parceiros certificados em sustentabilidade.
-                </p>
-              </div>
+      {/* Destinos Sustentáveis */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mb-6"
+      >
+        <h2 className="text-xl font-semibold text-econotrip-blue mb-4 flex items-center gap-2">
+          <MapPin className="h-6 w-6" />
+          Destinos Certificados
+        </h2>
+
+        <div className="space-y-4">
+          {destinosSustentaveis.map((destino, index) => (
+            <motion.div
+              key={destino.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-6">
+                  {/* Header do destino */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-econotrip-blue mb-1">
+                        {destino.nome}
+                      </h3>
+                      <p className="text-gray-600">{destino.pais}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="text-sm font-medium">
+                          {destino.avaliacaoAmbiental}/5.0 sustentabilidade
+                        </span>
+                      </div>
+                    </div>
+
+                    <Badge className={`${getNivelCor(destino.nivelSustentabilidade)} border-0`}>
+                      <Award className="h-3 w-3 mr-1" />
+                      {destino.nivelSustentabilidade.toUpperCase()}
+                    </Badge>
+                  </div>
+
+                  {/* Descrição */}
+                  <p className="text-gray-700 mb-4">{destino.descricao}</p>
+
+                  {/* Iniciativas */}
+                  <div className="mb-4">
+                    <h4 className="font-medium text-econotrip-blue mb-2 text-sm">
+                      Iniciativas Sustentáveis:
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {destino.iniciativas.map((iniciativa, idx) => (
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="text-xs border-econotrip-green text-econotrip-green"
+                        >
+                          {iniciativa}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Certificações */}
+                  <div className="mb-4">
+                    <h4 className="font-medium text-econotrip-blue mb-2 text-sm">
+                      Certificações:
+                    </h4>
+                    <div className="flex flex-wrap gap-1">
+                      {destino.certificacoes.map((cert, idx) => (
+                        <SustainableBadge key={idx} type="carbon" />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Botão de ação */}
+                  <Button
+                    variant="primary"
+                    onClick={() => handleBuscarDestino(destino)}
+                    className="w-full h-12"
+                    icon={ArrowRight}
+                    iconPosition="right"
+                  >
+                    Buscar voos sustentáveis
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Informações adicionais */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="p-6 border-econotrip-blue/20 bg-econotrip-blue/5">
+          <div className="flex items-start gap-3">
+            <Info className="h-6 w-6 text-econotrip-blue mt-1 flex-shrink-0" />
+            <div>
+              <h3 className="font-semibold text-econotrip-blue mb-2">
+                Compromisso EconoTrip
+              </h3>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                Estamos comprometidos em reduzir o impacto ambiental das viagens.
+                Todos os voos incluem compensação automática de carbono, e trabalhamos
+                apenas com parceiros certificados em sustentabilidade.
+              </p>
             </div>
-          </Card>
-        </motion.div>
-      </div>
-    </LayoutBase>
+          </div>
+        </Card>
+      </motion.div>
+    </div>
   );
 }

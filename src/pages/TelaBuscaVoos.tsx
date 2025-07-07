@@ -3,9 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane } from "lucide-react";
 
-import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
 import { ModernFlightSearchForm } from "@/components/search/ModernFlightSearchForm";
-import { useLastSearch } from "@/hooks/useLastSearch";
 import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
 interface FormData {
@@ -36,7 +34,6 @@ interface FormData {
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
 
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({
@@ -70,7 +67,7 @@ export default function TelaBuscaVoos() {
     acessibilidade: false,
   });
 
-  const formRef = useRef<any>(null);
+  const formRef = useRef<{ getOrigemBusca?: () => string; getDestinoBusca?: () => string } | null>(null);
 
   useEffect(() => {
     const destinoSugerido = location.state?.destinoSugerido;
@@ -79,7 +76,7 @@ export default function TelaBuscaVoos() {
     }
   }, [location.state]);
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean | FormData["passageiros"] | FormData["filtros"]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -104,7 +101,6 @@ export default function TelaBuscaVoos() {
       return;
     }
 
-    saveSearch(formData);
     setModalConfig({
       type: "success",
       title: "Buscando suas opções de viagem",
@@ -126,41 +122,9 @@ export default function TelaBuscaVoos() {
     }, 2000);
   };
 
-  const handleRestoreLastSearch = () => {
-    if (lastSearch) {
-      const restoredData: FormData = {
-        origem: lastSearch.origem,
-        destino: lastSearch.destino,
-        dataIda: lastSearch.dataIda,
-        dataVolta: lastSearch.dataVolta,
-        passageiros: lastSearch.passageiros,
-        classe: lastSearch.classe,
-        usarMilhas: lastSearch.usarMilhas,
-        filtros: lastSearch.filtros,
-        orcamento: "",
-        somenteDireto: false,
-        voosSustentaveis: false,
-        tarifasFlexiveis: false,
-        acessibilidade: false,
-      };
-      setFormData(restoredData);
-      hideRestorePrompt();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
       <div className="max-w-screen-sm mx-auto px-4 pb-24">
-        <AnimatePresence>
-          {showRestorePrompt && lastSearch && (
-            <LastSearchPrompt
-              lastSearch={lastSearch}
-              onRestore={handleRestoreLastSearch}
-              onDismiss={hideRestorePrompt}
-            />
-          )}
-        </AnimatePresence>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

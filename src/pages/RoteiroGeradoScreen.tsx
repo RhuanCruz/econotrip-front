@@ -92,6 +92,7 @@ export default function RoteiroGeradoScreen() {
         content
       });
       toast({ title: "Roteiro salvo com sucesso!" });
+      navigate("/meu-roteiro")
     } catch (e) {
       toast({ title: "Erro ao salvar roteiro", description: e.message, variant: "destructive" });
     }

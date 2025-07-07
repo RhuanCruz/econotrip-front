@@ -14,6 +14,8 @@ export type CreateRadarBody = {
   end: string;
   origin: string;
   destination: string;
+  value: number;
+  type: 'AIRMILES' | 'MONEY';
 };
 
 export type ListRadarResponse = {

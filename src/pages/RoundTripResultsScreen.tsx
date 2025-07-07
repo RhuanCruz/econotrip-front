@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
@@ -132,7 +132,7 @@ export default function RoundTripResultsScreen() {
   const [token, setToken] = useState('');
 
   // Função para mapear dados da API para interface ItinerarioCompleto
-  const mapApiDataToItinerario = (itinerary: ApiItinerary): ItinerarioCompleto | null => {
+  const mapApiDataToItinerario = useCallback((itinerary: ApiItinerary): ItinerarioCompleto | null => {
     // Para voos de ida e volta, a API retorna legs em ordem cronológica
     // O primeiro leg é sempre ida, o segundo é volta
     const legIda = itinerary.legs?.[0];
@@ -169,7 +169,7 @@ export default function RoundTripResultsScreen() {
       isAcessivel: false,
       pontuacao: itinerary.score || 5
     };
-  };
+  }, [token]);
 
   useEffect(() => {
     const searchData = location.state?.searchData;
@@ -198,6 +198,11 @@ export default function RoundTripResultsScreen() {
         console.log('Fazendo busca única para ida e volta:', body);
         const response = await FlightService.search(body);
         console.log('Resposta da API:', response);
+
+      if (response.data.context.status === 'incomplete') {
+          fetchFlights();
+          return;
+        }
 
         setToken(response.data.token);
 
@@ -244,18 +249,19 @@ export default function RoundTripResultsScreen() {
     };
 
     fetchFlights();
-  }, [location.state, navigate]);
+  }, [location.state, navigate, mapApiDataToItinerario]);
 
   const itinerariosOrdenados = useMemo(() => {
     return [...itinerarios].sort((a, b) => {
       switch (ordenacao) {
         case "preco":
           return a.precoTotal - b.precoTotal;
-        case "duracao":
+        case "duracao": {
           // Somar duração de ida e volta para comparação
           const duracaoTotalA = parseInt(a.vooIda.duracao) + parseInt(a.vooVolta.duracao);
           const duracaoTotalB = parseInt(b.vooIda.duracao) + parseInt(b.vooVolta.duracao);
           return duracaoTotalA - duracaoTotalB;
+        }
         case "pontuacao":
           return b.pontuacao - a.pontuacao;
         default:

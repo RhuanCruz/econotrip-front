@@ -17,19 +17,29 @@ import {
   Navigation,
   Plane,
   Globe,
-  PiggyBank
+  PiggyBank,
+  X
 } from "lucide-react";
 import { PlannerService } from "../api/planner/PlannerService";
 import { useAuthStore } from "@/stores/authStore";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { StandardModal } from "@/components/ui-custom/StandardModal";
 
 export default function MeuRoteiroScreen() {
   const [activeTab, setActiveTab] = useState<"atual" | "historico">("atual");
   const [roteiroAtual, setRoteiroAtual] = useState(null);
+  const [roteiroAtualId, setRoteiroAtualId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [historicoViagens, setHistoricoViagens] = useState([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [errorHistorico, setErrorHistorico] = useState(null);
+  const [isCancellingTrip, setIsCancellingTrip] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const navigate = useNavigate();
   const { token } = useAuthStore();
+  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchRoteiroAtual() {
@@ -38,24 +48,76 @@ export default function MeuRoteiroScreen() {
         if (token) {
           const planner = await PlannerService.getCurrent(token);
           setRoteiroAtual(planner?.content || null);
+          setRoteiroAtualId(planner?.id)
         } else {
           setRoteiroAtual(null);
+          setRoteiroAtualId(null);
         }
       } catch (e) {
         setRoteiroAtual(null);
+        setRoteiroAtualId(null);
       } finally {
         setLoading(false);
       }
     }
     fetchRoteiroAtual();
-  }, []);
+  }, [token]);
 
-  // Simulação: roteiroAtual nulo para exibir estado vazio
-  const viagensAnteriores = [
-    { id: 1, destino: "Paris, França", data: "Dez 2023", avaliacao: 5 },
-    { id: 2, destino: "Roma, Itália", data: "Set 2023", avaliacao: 4.5 },
-    { id: 3, destino: "Barcelona, Espanha", data: "Jun 2023", avaliacao: 4.8 },
-  ];
+  // Buscar histórico de viagens quando a aba for selecionada
+  useEffect(() => {
+    async function fetchHistoricoViagens() {
+      if (!token) return;
+      
+      setLoadingHistorico(true);
+      setErrorHistorico(null);
+      
+      try {
+        const response = await PlannerService.list(token);
+        setHistoricoViagens(response.records || []);
+      } catch (error) {
+        setErrorHistorico("Erro ao carregar histórico de viagens");
+        console.error("Erro ao buscar histórico:", error);
+      } finally {
+        setLoadingHistorico(false);
+      }
+    }
+
+    if (activeTab === "historico" && token && historicoViagens.length === 0) {
+      fetchHistoricoViagens();
+    }
+  }, [activeTab, token, historicoViagens.length]);
+
+  // Formatar data para exibição
+  const formatarData = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', { 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+    const formatarDataCurta = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', { 
+        day: '2-digit',
+        month: '2-digit', 
+        year: '2-digit' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Calcular avaliação fictícia baseada no ID (para fins de demonstração)
+  const calcularAvaliacao = (id) => {
+    const avaliacoes = [4.2, 4.5, 4.8, 5.0, 4.7, 4.3, 4.9];
+    return avaliacoes[id % avaliacoes.length];
+  };
 
   // Checklist interativo com persistência local
   const checklistStorageKey = 'checklistItensRoteiro';
@@ -80,6 +142,40 @@ export default function MeuRoteiroScreen() {
   function toggleChecklistItem(id) {
     setChecklistItens(itens => itens.map(item => item.id === id ? { ...item, concluido: !item.concluido } : item));
   }
+
+  // Função para abrir modal de confirmação de cancelamento
+  const abrirModalCancelamento = () => {
+    setShowCancelModal(true);
+  };
+
+  // Função para cancelar viagem atual
+  const cancelarViagemAtual = async () => {
+    if (!token || !roteiroAtual || !roteiroAtualId) return;
+    
+    setShowCancelModal(false);
+    setIsCancellingTrip(true);
+    
+    try {
+      await PlannerService.cancelCurrent(roteiroAtualId, token);
+      setRoteiroAtual(null);
+      setRoteiroAtualId(null);
+      
+      toast({
+        title: "Viagem cancelada",
+        description: "Sua viagem foi cancelada com sucesso.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Erro ao cancelar viagem:', error);
+      toast({
+        title: "Erro ao cancelar viagem",
+        description: "Não foi possível cancelar a viagem. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCancellingTrip(false);
+    }
+  };
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -179,36 +275,6 @@ export default function MeuRoteiroScreen() {
               animate="visible"
               className="space-y-6"
             >
-              {/* Informações da viagem atual */}
-              <motion.div variants={itemAnimation}>
-                <Card className="p-6 bg-gradient-to-r from-econotrip-blue/10 to-econotrip-orange/10 rounded-3xl shadow-lg border-0">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
-                        <MapPin className="h-8 w-8 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-econotrip-blue text-xl">{roteiroAtual.destino}</h3>
-                        <p className="text-gray-600">{roteiroAtual.dataInicio} - {roteiroAtual.dataFim}</p>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-econotrip-orange">{progressoChecklist}%</div>
-                      <div className="text-sm text-gray-600">Concluído</div>
-                    </div>
-                  </div>
-                  
-                  <Progress 
-                    value={progressoChecklist} 
-                    className="h-3 mb-4 bg-gray-200 rounded-full" 
-                  />
-                  
-                  <p className="text-gray-700 text-center">
-                    Sua viagem está quase pronta! Faltam poucos preparativos.
-                  </p>
-                </Card>
-              </motion.div>
-
               {/* Visão Geral da Viagem */}
               <motion.div variants={itemAnimation}>
                 <div className="flex items-center gap-2 mb-4">
@@ -275,6 +341,36 @@ export default function MeuRoteiroScreen() {
                   </div>
                 </Card>
               </motion.div>
+
+              {/* Informações da viagem atual */}
+              {/* <motion.div variants={itemAnimation}>
+                <Card className="p-6 bg-gradient-to-r from-econotrip-blue/10 to-econotrip-orange/10 rounded-3xl shadow-lg border-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
+                        <MapPin className="h-8 w-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-econotrip-blue text-xl">{roteiroAtual.destino}</h3>
+                        <p className="text-gray-600">{roteiroAtual.dataInicio} - {roteiroAtual.dataFim}</p>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-econotrip-orange">{progressoChecklist}%</div>
+                      <div className="text-sm text-gray-600">Concluído</div>
+                    </div>
+                  </div>
+                  
+                  <Progress 
+                    value={progressoChecklist} 
+                    className="h-3 mb-4 bg-gray-200 rounded-full" 
+                  />
+                  
+                  <p className="text-gray-700 text-center">
+                    Sua viagem está quase pronta! Faltam poucos preparativos.
+                  </p>
+                </Card>
+              </motion.div> */}
 
               {/* Checklist de preparação */}
               <motion.div variants={itemAnimation}>
@@ -347,6 +443,26 @@ export default function MeuRoteiroScreen() {
                   Adicionar Nova Atividade
                 </Button>
               </motion.div>
+
+              {/* Botão cancelar viagem atual */}
+              <motion.div variants={itemAnimation}>
+                <Button
+                  icon={X}
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+                  onClick={abrirModalCancelamento}
+                  disabled={isCancellingTrip}
+                >
+                  {isCancellingTrip ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Cancelando...
+                    </div>
+                  ) : (
+                    'Cancelar Viagem Atual'
+                  )}
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
@@ -364,58 +480,131 @@ export default function MeuRoteiroScreen() {
                     Suas Aventuras Anteriores
                   </h2>
                 </div>
-                <div className="space-y-4">
-                  {viagensAnteriores.map((viagem) => (
-                    <Card key={viagem.id} className="p-6 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
-                            <Plane className="h-7 w-7 text-white" />
+                
+                {loadingHistorico && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-econotrip-blue border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-3 text-gray-600">Carregando histórico...</span>
+                  </div>
+                )}
+                
+                {errorHistorico && (
+                  <Card className="p-6 rounded-2xl shadow-lg bg-red-50 border-0">
+                    <div className="text-center">
+                      <p className="text-red-600 mb-4">{errorHistorico}</p>
+                      <Button
+                        onClick={() => window.location.reload()}
+                        className="bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        Tentar Novamente
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+                
+                {!loadingHistorico && !errorHistorico && historicoViagens.length === 0 && (
+                  <Card className="p-8 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
+                    <div className="text-center">
+                      <Globe className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                        Nenhuma viagem no histórico
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Você ainda não tem viagens concluídas.
+                      </p>
+                      <Button
+                        onClick={() => navigate("/nova-viagem")}
+                        className="bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white"
+                      >
+                        Planejar Nova Viagem
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+                
+                {!loadingHistorico && !errorHistorico && historicoViagens.length > 0 && (
+                  <div className="space-y-4">
+                    {historicoViagens.map((viagem) => (
+                      <Card key={viagem.id} className="p-6 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
+                              <Plane className="h-7 w-7 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-econotrip-blue text-lg">{viagem.destination}</h3>
+                              <p className="text-gray-600">{formatarData(viagem.start)}</p>
+                              <p className="text-sm text-gray-500">Criado em {formatarDataCurta(viagem.createdAt)}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-bold text-econotrip-blue text-lg">{viagem.destino}</h3>
-                            <p className="text-gray-600">{viagem.data}</p>
-                          </div>
+                          {/* <div className="text-right">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                              <span className="font-bold text-econotrip-blue text-lg">{calcularAvaliacao(viagem.id)}</span>
+                            </div>
+                            <p className="text-sm text-gray-600">Avaliação</p>
+                          </div> */}
                         </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1 mb-1">
-                            <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                            <span className="font-bold text-econotrip-blue text-lg">{viagem.avaliacao}</span>
-                          </div>
-                          <p className="text-sm text-gray-600">Avaliação</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </motion.div>
 
               {/* Estatísticas */}
-              <motion.div variants={itemAnimation}>
-                <Card className="p-6 bg-gradient-to-r from-econotrip-green/10 to-econotrip-blue/10 rounded-3xl shadow-lg border-0">
-                  <div className="text-center">
-                    <h3 className="font-bold text-econotrip-blue text-xl mb-4">Suas Conquistas</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-blue">4</div>
-                        <div className="text-sm text-gray-600">Países visitados</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-orange">28</div>
-                        <div className="text-sm text-gray-600">Dias viajando</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-green">4.7</div>
-                        <div className="text-sm text-gray-600">Avaliação média</div>
+              {!loadingHistorico && !errorHistorico && historicoViagens.length > 0 && (
+                <motion.div variants={itemAnimation}>
+                  <Card className="p-6 bg-gradient-to-r from-econotrip-green/10 to-econotrip-blue/10 rounded-3xl shadow-lg border-0">
+                    <div className="text-center">
+                      <h3 className="font-bold text-econotrip-blue text-xl mb-4">Suas Conquistas</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <div className="text-2xl font-bold text-econotrip-blue">{historicoViagens.length}</div>
+                          <div className="text-sm text-gray-600">Viagens planejadas</div>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-econotrip-orange">
+                            {historicoViagens.reduce((acc, viagem) => {
+                              try {
+                                const start = new Date(viagem.start);
+                                const end = new Date(viagem.end);
+                                const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+                                return acc + (days > 0 ? days : 0);
+                              } catch {
+                                return acc;
+                              }
+                            }, 0)}
+                          </div>
+                          <div className="text-sm text-gray-600">Dias planejados</div>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-econotrip-green">
+                            {(historicoViagens.reduce((acc, viagem) => acc + calcularAvaliacao(viagem.id), 0) / historicoViagens.length).toFixed(1)}
+                          </div>
+                          <div className="text-sm text-gray-600">Avaliação média</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
+                  </Card>
+                </motion.div>
+              )}
             </motion.div>
           )}
         </motion.div>
       </div>
+
+      {/* Modal de confirmação de cancelamento */}
+      <StandardModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={cancelarViagemAtual}
+        type="warning"
+        title="Cancelar Viagem"
+        description="Tem certeza que deseja cancelar esta viagem? Esta ação não pode ser desfeita e todos os dados do roteiro serão perdidos."
+        confirmText="Sim, cancelar"
+        cancelText="Não, manter viagem"
+        showCancel={true}
+      />
     </div>
   );
 }
