@@ -36,6 +36,8 @@ export default function MeuRoteiroScreen() {
   const [errorHistorico, setErrorHistorico] = useState(null);
   const [isCancellingTrip, setIsCancellingTrip] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isFinishingTrip, setIsFinishingTrip] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
   const navigate = useNavigate();
   const { token } = useAuthStore();
@@ -148,6 +150,11 @@ export default function MeuRoteiroScreen() {
     setShowCancelModal(true);
   };
 
+  // Função para abrir modal de confirmação de conclusão
+  const abrirModalConclusao = () => {
+    setShowFinishModal(true);
+  };
+
   // Função para cancelar viagem atual
   const cancelarViagemAtual = async () => {
     if (!token || !roteiroAtual || !roteiroAtualId) return;
@@ -174,6 +181,35 @@ export default function MeuRoteiroScreen() {
       });
     } finally {
       setIsCancellingTrip(false);
+    }
+  };
+
+  // Função para concluir viagem atual
+  const concluirViagemAtual = async () => {
+    if (!token || !roteiroAtual || !roteiroAtualId) return;
+    
+    setShowFinishModal(false);
+    setIsFinishingTrip(true);
+    
+    try {
+      await PlannerService.finishCurrent(roteiroAtualId, token);
+      setRoteiroAtual(null);
+      setRoteiroAtualId(null);
+      
+      toast({
+        title: "Viagem concluída!",
+        description: "Esperamos que tenha sido uma experiência incrível! Sua viagem foi movida para o histórico.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Erro ao concluir viagem:', error);
+      toast({
+        title: "Erro ao concluir viagem",
+        description: "Não foi possível concluir a viagem. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFinishingTrip(false);
     }
   };
 
@@ -433,7 +469,7 @@ export default function MeuRoteiroScreen() {
               </motion.div>
 
               {/* Botão adicionar atividade */}
-              <motion.div variants={itemAnimation}>
+              {/* <motion.div variants={itemAnimation}>
                 <Button
                   icon={Plus}
                   size="lg"
@@ -442,7 +478,7 @@ export default function MeuRoteiroScreen() {
                 >
                   Adicionar Nova Atividade
                 </Button>
-              </motion.div>
+              </motion.div> */}
 
               {/* Botão cancelar viagem atual */}
               <motion.div variants={itemAnimation}>
@@ -460,6 +496,26 @@ export default function MeuRoteiroScreen() {
                     </div>
                   ) : (
                     'Cancelar Viagem Atual'
+                  )}
+                </Button>
+              </motion.div>
+
+              {/* Botão concluir viagem */}
+              <motion.div variants={itemAnimation}>
+                <Button
+                  icon={CheckCircle2}
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-econotrip-green to-green-600 hover:from-green-600 hover:to-green-700 text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
+                  onClick={abrirModalConclusao}
+                  disabled={isFinishingTrip}
+                >
+                  {isFinishingTrip ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Concluindo...
+                    </div>
+                  ) : (
+                    'Concluir Viagem'
                   )}
                 </Button>
               </motion.div>
@@ -603,6 +659,19 @@ export default function MeuRoteiroScreen() {
         description="Tem certeza que deseja cancelar esta viagem? Esta ação não pode ser desfeita e todos os dados do roteiro serão perdidos."
         confirmText="Sim, cancelar"
         cancelText="Não, manter viagem"
+        showCancel={true}
+      />
+
+      {/* Modal de confirmação de conclusão */}
+      <StandardModal
+        isOpen={showFinishModal}
+        onClose={() => setShowFinishModal(false)}
+        onConfirm={concluirViagemAtual}
+        type="success"
+        title="Concluir Viagem"
+        description="Tem certeza que deseja marcar esta viagem como concluída? Ela será movida para o seu histórico de viagens."
+        confirmText="Sim, concluir"
+        cancelText="Não, manter atual"
         showCancel={true}
       />
     </div>

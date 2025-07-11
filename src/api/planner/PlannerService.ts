@@ -20,6 +20,11 @@ const cancelCurrentPlanner = async (id: string, token: string): Promise<void> =>
     .catch((err) => { throw new Error(handleApiError(err)) })
 }
 
+const finishCurrentPlanner = async (id: string, token: string): Promise<void> => {
+  await api.patch(`/planners/current/finish`, {}, { headers: { Authorization: `Bearer ${token}`}})
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
 const listPlanner = async (token: string, filters?: IListPlannerFilterBody): Promise<ListPlannerResponse> => {
   return api.post<ListPlannerResponse>('/planners/list', {}, { headers: { Authorization: `Bearer ${token}`}})
     .then((res) => res.data)
@@ -38,5 +43,6 @@ export const PlannerService = {
   getCurrent: getCurrentPlanner,
   list: listPlanner,
   cancelCurrent: cancelCurrentPlanner,
+  finishCurrent: finishCurrentPlanner,
   generate: generatePlanner,
 }
