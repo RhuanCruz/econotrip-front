@@ -23,6 +23,7 @@ export default function LoginScreen() {
       toast({
         title: "Login realizado com sucesso!",
         description: "Você será redirecionado para a página inicial.",
+        duration: 4000,
       });
       navigate("/dashboard");
     }
@@ -32,8 +33,9 @@ export default function LoginScreen() {
     if (error) {
       toast({
         variant: "destructive",
-        title: error ?? "Erro no login",
-        description: "Por favor, preencha todos os campos.",
+        title: "E-mail ou senha incorretos",
+        description: "Por favor, verifique se seus dados estão corretos",
+        duration: 4000,
       });
       clearError();
     }

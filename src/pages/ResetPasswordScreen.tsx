@@ -201,7 +201,7 @@ export default function ResetPasswordScreen() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-11 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-11 text-gray-400 hover:text-gray-600 transition-colors touch-target"
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -246,7 +246,7 @@ export default function ResetPasswordScreen() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-11 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-11 text-gray-400 hover:text-gray-600 transition-colors touch-target"
                 aria-label={showConfirmPassword ? "Ocultar confirmação" : "Mostrar confirmação"}
               >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

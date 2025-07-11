@@ -78,7 +78,7 @@ export function AccessibilityBar() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsExpanded(true)}
-          className="h-12 w-12 rounded-full bg-econotrip-green shadow-lg flex items-center justify-center text-white hover:bg-econotrip-green/90 transition-colors"
+          className="h-12 w-12 rounded-full bg-econotrip-green shadow-lg flex items-center justify-center text-white hover:bg-econotrip-green/90 transition-colors touch-target"
           aria-label="Abrir opções de acessibilidade"
         >
           <Glasses className="h-6 w-6" />
@@ -121,7 +121,7 @@ export function AccessibilityBar() {
                   </div>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-target"
                     aria-label="Fechar opções de acessibilidade"
                   >
                     <ChevronDown className="h-5 w-5 text-gray-500" />
@@ -139,7 +139,7 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("largeFonts")}
-                      className={`w-12 h-6 rounded-full transition-all ${
+                      className={`w-12 h-6 rounded-full transition-all touch-target ${
                         settings.largeFonts ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.largeFonts}
@@ -163,7 +163,7 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("highContrast")}
-                      className={`w-12 h-6 rounded-full transition-all ${
+                      className={`w-12 h-6 rounded-full transition-all touch-target ${
                         settings.highContrast ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.highContrast}
@@ -187,7 +187,7 @@ export function AccessibilityBar() {
                     </div>
                     <button
                       onClick={() => updateSetting("textReader")}
-                      className={`w-12 h-6 rounded-full transition-all ${
+                      className={`w-12 h-6 rounded-full transition-all touch-target ${
                         settings.textReader ? "bg-econotrip-green" : "bg-gray-300"
                       }`}
                       aria-pressed={settings.textReader}

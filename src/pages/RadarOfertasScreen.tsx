@@ -9,7 +9,6 @@ import {
   MapPin,
   Clock,
   Star,
-  Filter,
   Plane,
   Tag,
   Heart,
@@ -89,7 +88,6 @@ export default function RadarOfertasScreen() {
   const novoRadar = location.state?.novoRadar;
 
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
-  const [filtroCategoria, setFiltroCategoria] = useState<string>("todas");
   const [favoritadas, setFavoritadas] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
@@ -118,23 +116,9 @@ export default function RadarOfertasScreen() {
       .finally(() => setLoading(false));
   }, [token, radarId]);
 
-  const categorias = [
-    { id: "todas", label: "Todas", icon: Tag },
-    { id: "promocao", label: "Promoções", icon: Tag },
-    { id: "milhas", label: "Milhas", icon: Star },
-    { id: "lastminute", label: "Última hora", icon: Clock },
-    { id: "sustentavel", label: "Sustentável", icon: Plane },
-  ];
-
-  const ofertasFiltradas = ofertas.filter(oferta =>
-    filtroCategoria === "todas" ||
-    oferta.categoria === filtroCategoria ||
-    (filtroCategoria === "sustentavel" && oferta.isSustentavel)
-  );
-
   // Agrupa ofertas por preço
   const ofertasPorPreco: Record<number, Oferta[]> = {};
-  ofertasFiltradas.forEach((oferta) => {
+  ofertas.forEach((oferta) => {
     if (!ofertasPorPreco[oferta.preco]) ofertasPorPreco[oferta.preco] = [];
     ofertasPorPreco[oferta.preco].push(oferta);
   });
@@ -181,34 +165,6 @@ export default function RadarOfertasScreen() {
         <p className="text-gray-600 text-lg">
           Ofertas personalizadas para você
         </p>
-      </motion.div>
-
-      {/* Filtros */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-5 w-5 text-econotrip-blue" />
-          <span className="font-medium text-econotrip-blue">Filtrar por:</span>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {categorias.map((categoria) => (
-            <button
-              key={categoria.id}
-              onClick={() => setFiltroCategoria(categoria.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${filtroCategoria === categoria.id
-                  ? "border-econotrip-orange bg-econotrip-orange text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-orange"
-                }`}
-            >
-              <categoria.icon className="h-4 w-4" />
-              {categoria.label}
-            </button>
-          ))}
-        </div>
       </motion.div>
 
       {/* Lista de Ofertas agrupadas por preço */}
@@ -290,21 +246,35 @@ export default function RadarOfertasScreen() {
         />
       )}
 
-      {ofertasFiltradas.length === 0 && (
+      {ofertas.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
-          <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <Radar className="h-8 w-8 text-gray-400" />
+          <div className="p-4 bg-econotrip-orange/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Clock className="h-8 w-8 text-econotrip-orange" />
           </div>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
-            Nenhuma oferta encontrada
+          <h3 className="text-lg font-medium text-econotrip-blue mb-3">
+            Aguarde, estamos processando seu radar
           </h3>
-          <p className="text-gray-500">
-            Tente ajustar os filtros ou volte mais tarde
-          </p>
+          <div className="space-y-3 text-gray-600 max-w-sm mx-auto">
+            <p className="text-sm">
+              <strong>Radar recém-criado?</strong> As ofertas podem demorar até <strong>1 hora</strong> para começar a aparecer.
+            </p>
+            <p className="text-sm">
+              Se após esse período ainda não houver ofertas, recomendamos <strong>ajustar os parâmetros do radar</strong> (datas, destinos ou valor limite).
+            </p>
+          </div>
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 justify-center mb-2">
+              <Radar className="h-5 w-5 text-econotrip-blue" />
+              <span className="text-sm font-medium text-econotrip-blue">Dica</span>
+            </div>
+            <p className="text-xs text-gray-600">
+              Radares com parâmetros mais flexíveis tendem a encontrar mais ofertas
+            </p>
+          </div>
         </motion.div>
       )}
     </div>

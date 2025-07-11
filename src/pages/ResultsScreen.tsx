@@ -19,6 +19,7 @@ import {
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { FlightService } from "@/api/flight/FlightService";
+import { FlightResultSkeleton } from "@/components/ui-custom/FlightResultSkeleton";
 
 interface Voo {
   id: string;
@@ -52,6 +53,21 @@ function formatHora(horaIso: string) {
   return match ? match[1] : horaIso;
 }
 
+// Utilitário para formatar data evitando problemas de timezone
+function formatDateSafe(dateString: string): string {
+  if (!dateString) return "";
+  
+  // Se a string contém espaço, pega apenas a parte da data
+  const dateOnly = dateString.split(' ')[0];
+  
+  // Cria a data diretamente dos componentes para evitar problemas de timezone
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  if (!year || !month || !day) return "";
+  
+  const date = new Date(year, month - 1, day); // month é 0-indexed
+  return date.toLocaleDateString("pt-BR");
+}
+
 export default function ResultsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,44 +77,81 @@ export default function ResultsScreen() {
   // Estado de voos e ordenação
   const [voos, setVoos] = useState<Voo[]>([]);
   const [ordenacao, setOrdenacao] = useState<"preco" | "duracao">("preco");
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchToken, setSearchToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (!searchData) return;
-    const body = {
-      origin: searchData.origem,
-      destination: searchData.destino,
-      departure: searchData.dataIda,
-      return: searchData.dataVolta || undefined,
-      departureToken: searchData.departureToken || undefined
+
+    // Função para buscar voos com polling para status 'incomplete'
+    const fetchFlights = async () => {
+      try {
+        setIsLoading(true);
+        const body = {
+          origin: searchData.origem,
+          destination: searchData.destino,
+          departure: searchData.dataIda,
+          return: searchData.dataVolta || undefined,
+          departureToken: searchData.departureToken || undefined
+        };
+
+        const res = await FlightService.search(body);
+        
+        // Sempre processar resultados se existirem, mesmo com status 'incomplete'
+        const allFlights = Array.isArray(res?.data?.itineraries) ? res.data.itineraries : [];
+        if (allFlights.length > 0) {
+          setVoos(
+            allFlights.map((f, idx) => {
+              const firstLeg = f.legs?.[0];
+              const lastLeg = f.legs?.[f.legs.length - 1];
+              return {
+                id: f.id || String(idx),
+                origem: firstLeg?.origin?.city || body.origin,
+                origemCodigo: firstLeg?.origin?.displayCode || "",
+                destino: lastLeg?.destination?.city || body.destination,
+                destinoCodigo: lastLeg?.destination?.displayCode || "",
+                dataIda: firstLeg?.departure?.split("T")[0] || body.departure,
+                horaPartida: firstLeg?.departure || "",
+                horaChegada: lastLeg?.arrival || "",
+                preco: f.price?.raw || 0,
+                duracao: firstLeg?.durationInMinutes !== undefined ? `${Math.floor(firstLeg.durationInMinutes/60)}h ${firstLeg.durationInMinutes%60}min` : "",
+                paradas: firstLeg?.stopCount ?? 0,
+                companhia: firstLeg?.carriers?.marketing?.[0]?.name || "",
+                isAcessivel: false,
+                pontuacao: 5,
+                departureToken: f.id || "",
+                itineraryId: f.id,
+                token: res.data.token
+              };
+            })
+          );
+        }
+        
+        // Se o status for 'incomplete', continuar polling apenas se não há resultados ainda
+        if (res.data.context?.status === 'incomplete' && allFlights.length === 0) {
+          setSearchToken(res.data.token);
+          
+          // Continuar polling mas não bloquear a interface
+          setTimeout(() => fetchFlights(), 3000);
+          return;
+        }
+
+        // Se chegou aqui, a busca foi concluída
+        setSearchToken(null);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        setSearchToken(null);
+        console.error('Erro ao buscar voos:', error);
+        toast({
+          title: "Erro na busca",
+          description: "Ocorreu um erro ao buscar voos. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     };
-    FlightService.search(body).then((res) => {
-      const allFlights = Array.isArray(res?.data?.itineraries) ? res.data.itineraries : [];
-      setVoos(
-        allFlights.map((f, idx) => {
-          const firstLeg = f.legs?.[0];
-          const lastLeg = f.legs?.[f.legs.length - 1];
-          return {
-            id: f.id || String(idx),
-            origem: firstLeg?.origin?.city || body.origin,
-            origemCodigo: firstLeg?.origin?.displayCode || "",
-            destino: lastLeg?.destination?.city || body.destination,
-            destinoCodigo: lastLeg?.destination?.displayCode || "",
-            dataIda: firstLeg?.departure?.split("T")[0] || body.departure,
-            horaPartida: firstLeg?.departure || "",
-            horaChegada: lastLeg?.arrival || "",
-            preco: f.price?.raw || 0,
-            duracao: firstLeg?.durationInMinutes !== undefined ? `${Math.floor(firstLeg.durationInMinutes/60)}h ${firstLeg.durationInMinutes%60}min` : "",
-            paradas: firstLeg?.stopCount ?? 0,
-            companhia: firstLeg?.carriers?.marketing?.[0]?.name || "",
-            isAcessivel: false,
-            pontuacao: 5,
-            departureToken: f.id || "",
-            itineraryId: f.id,
-            token: res.data.token
-          };
-        })
-      );
-    });
+
+    fetchFlights();
   }, [searchData]);
 
   const voosOrdenados = [...voos].sort((a, b) => {
@@ -232,15 +285,20 @@ export default function ResultsScreen() {
                 </div>
                 <div className="text-gray-600 flex items-center gap-2 flex-wrap">
                   {location.state?.searchData?.dataIda &&
-                    <span>{new Date(location.state.searchData.dataIda.split(' ')[0]).toLocaleDateString("pt-BR")}</span>}
+                    <span>{formatDateSafe(location.state.searchData.dataIda)}</span>}
                   {location.state?.searchData?.dataVolta && (
                     <>
                       <span className="mx-1">•</span>
-                      <span>{new Date(location.state.searchData.dataVolta.split(' ')[0]).toLocaleDateString("pt-BR")}</span>
+                      <span>{formatDateSafe(location.state.searchData.dataVolta)}</span>
                     </>
                   )}
                   <span className="mx-2">|</span>
-                  <span className="text-econotrip-blue font-semibold">{voos.length} resultados</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-econotrip-blue font-semibold">{voos.length} resultados</span>
+                    {searchToken && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-econotrip-blue"></div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,7 +315,7 @@ export default function ResultsScreen() {
                   key={opcao.id}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setOrdenacao(opcao.id as "preco" | "duracao")}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl transition-all shadow-md text-base font-medium border-2 ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl transition-all shadow-md text-base font-medium border-2 touch-target ${
                     ordenacao === opcao.id
                       ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white border-econotrip-orange shadow-lg"
                       : "bg-white/80 backdrop-blur-sm text-gray-700 border-transparent hover:bg-white/90"
@@ -278,20 +336,73 @@ export default function ResultsScreen() {
           animate="visible"
           className="space-y-4 mb-6"
         >
-          {voosOrdenados.map((voo, index) => (
+          {/* Renderizar skeletons durante loading se não há voos */}
+          {isLoading && voos.length === 0 ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <motion.div
+                key={`skeleton-${index}`}
+                variants={itemAnimation}
+                transition={{ delay: index * 0.1 }}
+              >
+                <FlightResultSkeleton />
+              </motion.div>
+            ))
+          ) : voos.length === 0 && !isLoading ? (
+            /* Mensagem quando não há voos encontrados */
             <motion.div
-              key={voo.id}
               variants={itemAnimation}
-              transition={{ delay: index * 0.1 }}
+              className="text-center py-12"
             >
-              <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
-                <div className="p-3 sm:p-1">
-                  {/* Header do voo - nome e preço alinhados à esquerda */}
-                  <div className="flex flex-col items-start mb-6">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
-                        <Plane className="h-6 w-6 text-white" />
-                      </div>
+              <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-0">
+                <div className="w-20 h-20 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-10 h-10 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                  Nenhum voo encontrado
+                </h3>
+                
+                <p className="text-gray-600 mb-6 text-lg">
+                  Não encontramos voos para os critérios selecionados.
+                </p>
+                
+                <div className="bg-blue-50 rounded-2xl p-4 mb-6">
+                  <h4 className="font-semibold text-econotrip-blue mb-3 flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    Dicas para encontrar voos:
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-2 text-left">
+                    <li>• Tente buscar por datas diferentes (±3 dias)</li>
+                    <li>• Considere aeroportos próximos ao destino</li>
+                    <li>• Verifique se as datas estão corretas</li>
+                    <li>• Experimente buscar só ida ou volta separadamente</li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={handleNovaBusca}
+                  className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 touch-target"
+                >
+                  <Search className="mr-2 h-5 w-5" />
+                  Alterar Busca
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            voosOrdenados.map((voo, index) => (
+              <motion.div
+                key={voo.id}
+                variants={itemAnimation}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
+                  <div className="p-3 sm:p-1">
+                    {/* Header do voo - nome e preço alinhados à esquerda */}
+                    <div className="flex flex-col items-start mb-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
+                          <Plane className="h-6 w-6 text-white" />
+                        </div>
                       <span className="font-bold text-xl text-econotrip-blue">
                         {voo.companhia}
                       </span>
@@ -371,7 +482,7 @@ export default function ResultsScreen() {
                 </div>
               </Card>
             </motion.div>
-          ))}
+          )))}
         </motion.div>
 
         {/* Botão nova busca fixo moderno

@@ -3,11 +3,42 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
-import { Plane, Clock, DollarSign, Star, Accessibility, MapPin, ArrowRight } from "lucide-react";
+import { Plane, Clock, DollarSign, Star, Accessibility, MapPin, ArrowRight, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { FlightService } from "@/api/flight/FlightService";
+import { FlightResultSkeleton } from "@/components/ui-custom/FlightResultSkeleton";
 import type { ISearchFlightResponse } from "@/api/flight/types";
+
+// Utilitário para formatar data evitando problemas de timezone
+function formatDateSafe(dateString: string): string {
+  if (!dateString) return "";
+  
+  // Se a string contém espaço, pega apenas a parte da data
+  const dateOnly = dateString.split(' ')[0];
+  
+  // Cria a data diretamente dos componentes para evitar problemas de timezone
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  if (!year || !month || !day) return "";
+  
+  const date = new Date(year, month - 1, day); // month é 0-indexed
+  return date.toLocaleDateString("pt-BR");
+}
+
+// Utilitário para formatar data com formato customizado evitando problemas de timezone
+function formatDateWithOptions(dateString: string, options: Intl.DateTimeFormatOptions): string {
+  if (!dateString) return "";
+  
+  // Se a string contém espaço, pega apenas a parte da data
+  const dateOnly = dateString.split(' ')[0];
+  
+  // Cria a data diretamente dos componentes para evitar problemas de timezone
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  if (!year || !month || !day) return "";
+  
+  const date = new Date(year, month - 1, day); // month é 0-indexed
+  return date.toLocaleDateString("pt-BR", options);
+}
 
 interface VooLeg {
   origem: string;
@@ -43,18 +74,22 @@ const HeaderSection = React.memo(({
   origemCodigo,
   destino, 
   destinoCodigo,
-  data, 
+  dataIda, 
+  dataVolta,
   quantidadeOpcoes, 
-  dadosCarregados 
+  dadosCarregados,
+  isPolling = false
 }: {
   titulo: string;
   origem: string;
   origemCodigo?: string;
   destino: string;
   destinoCodigo?: string;
-  data?: string;
+  dataIda?: string;
+  dataVolta?: string;
   quantidadeOpcoes: number;
   dadosCarregados: boolean;
+  isPolling?: boolean;
 }) => (
   <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
     <div className="text-center mb-6">
@@ -65,9 +100,12 @@ const HeaderSection = React.memo(({
         {titulo}
       </h1>
       {dadosCarregados && (
-        <p className="text-gray-600 mb-4">
-          {quantidadeOpcoes} opções para sua viagem
-        </p>
+        <div className="text-gray-600 mb-4 flex items-center justify-center gap-2">
+          <span>{quantidadeOpcoes} opções para sua viagem</span>
+          {isPolling && (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-econotrip-blue"></div>
+          )}
+        </div>
       )}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
         <div className="flex flex-col gap-3">
@@ -97,14 +135,28 @@ const HeaderSection = React.memo(({
           {/* Data da viagem */}
           <div className="flex items-center justify-center gap-2 pt-2 border-t border-gray-200/50">
             <MapPin className="h-4 w-4 text-econotrip-blue" />
-            <span className="text-sm font-medium text-gray-700">
-              {data && new Date(data.split(' ')[0]).toLocaleDateString("pt-BR", {
-                weekday: 'short',
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-              })}
-            </span>
+            <div className="flex items-center gap-4 text-sm font-medium text-gray-700">
+              {dataIda && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide">Ida:</span>
+                  <span>{formatDateWithOptions(dataIda, {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short'
+                  })}</span>
+                </div>
+              )}
+              {dataVolta && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide">Volta:</span>
+                  <span>{formatDateWithOptions(dataVolta, {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short'
+                  })}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -130,6 +182,7 @@ export default function RoundTripResultsScreen() {
   const [loading, setLoading] = useState(true);
   const [dadosCarregados, setDadosCarregados] = useState(false);
   const [token, setToken] = useState('');
+  const [isPolling, setIsPolling] = useState(false);
 
   // Função para mapear dados da API para interface ItinerarioCompleto
   const mapApiDataToItinerario = useCallback((itinerary: ApiItinerary): ItinerarioCompleto | null => {
@@ -199,14 +252,38 @@ export default function RoundTripResultsScreen() {
         const response = await FlightService.search(body);
         console.log('Resposta da API:', response);
 
-      if (response.data.context.status === 'incomplete') {
-          fetchFlights();
+        setToken(response.data.token);
+        
+        // Sempre processar resultados se existirem, mesmo com status 'incomplete'
+        const allItineraries = Array.isArray(response?.data?.itineraries) ? response.data.itineraries : [];
+        
+        if (allItineraries.length > 0) {
+          const itinerariosCompletos: ItinerarioCompleto[] = [];
+
+          // Processar itinerários completos (ida + volta)
+          allItineraries.forEach((itinerary) => {
+            const itinerarioCompleto = mapApiDataToItinerario(itinerary);
+            if (itinerarioCompleto) {
+              itinerariosCompletos.push(itinerarioCompleto);
+            }
+          });
+
+          setItinerarios(itinerariosCompletos);
+          setDadosCarregados(true);
+        }
+
+        // Se o status for 'incomplete', continuar polling apenas se não há resultados ainda
+        if (response.data.context?.status === 'incomplete' && allItineraries.length === 0) {
+          setIsPolling(true);
+          
+          // Continuar polling
+          setTimeout(() => fetchFlights(), 3000);
           return;
         }
 
-        setToken(response.data.token);
-
-        const allItineraries = Array.isArray(response?.data?.itineraries) ? response.data.itineraries : [];
+        // Busca concluída
+        setLoading(false);
+        setIsPolling(false);
         
         if (allItineraries.length === 0) {
           toast({
@@ -216,25 +293,6 @@ export default function RoundTripResultsScreen() {
           });
           return;
         }
-
-        const itinerariosCompletos: ItinerarioCompleto[] = [];
-
-        // Processar itinerários completos (ida + volta)
-        allItineraries.forEach((itinerary) => {
-          try {
-            const itinerarioCompleto = mapApiDataToItinerario(itinerary);
-            if (itinerarioCompleto) {
-              itinerariosCompletos.push(itinerarioCompleto);
-            }
-          } catch (error) {
-            console.warn('Erro ao processar itinerário:', itinerary.id, error);
-          }
-        });
-
-        console.log('Itinerários completos processados:', itinerariosCompletos.length);
-
-        setItinerarios(itinerariosCompletos);
-        setDadosCarregados(true);
 
       } catch (error) {
         console.error('Erro ao buscar voos:', error);
@@ -283,7 +341,8 @@ export default function RoundTripResultsScreen() {
       origemCodigo: primeiroItinerario?.vooIda.origemCodigo || '',
       destino: primeiroItinerario?.vooIda.destino || searchData?.destino || '',
       destinoCodigo: primeiroItinerario?.vooIda.destinoCodigo || '',
-      data: searchData?.dataIda
+      dataIda: searchData?.dataIda,
+      dataVolta: searchData?.dataVolta
     };
   }, [searchData, itinerarios]);
 
@@ -338,27 +397,6 @@ export default function RoundTripResultsScreen() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50 flex items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
-            className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-          >
-            <Plane className="w-8 h-8 text-white" />
-          </motion.div>
-          <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-2">
-            Buscando voos...
-          </h2>
-          <p className="text-gray-600">Aguarde enquanto encontramos as melhores opções</p>
-        </div>
-      </div>
-    );
-  }
-
   const formatarParadas = (paradas: number) => {
     if (paradas === 0) return "Direto";
     if (paradas === 1) return "1 parada";
@@ -390,9 +428,11 @@ export default function RoundTripResultsScreen() {
           origemCodigo={headerData.origemCodigo}
           destino={headerData.destino}
           destinoCodigo={headerData.destinoCodigo}
-          data={headerData.data}
+          dataIda={headerData.dataIda}
+          dataVolta={headerData.dataVolta}
           quantidadeOpcoes={opcoesPorEtapa}
           dadosCarregados={dadosCarregados}
+          isPolling={isPolling}
         />
 
         {/* Botões de ordenação separados do header */}
@@ -406,7 +446,7 @@ export default function RoundTripResultsScreen() {
                 key={opcao.id}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setOrdenacao(opcao.id as "preco" | "duracao")}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-md ${
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-md touch-target ${
                   ordenacao === opcao.id
                     ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white shadow-lg"
                     : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-white/90"
@@ -421,10 +461,63 @@ export default function RoundTripResultsScreen() {
 
         {/* Lista de itinerários completos */}
         <motion.div variants={containerAnimation} initial="hidden" animate="visible" className="space-y-4 mb-6">
-          {itinerariosOrdenados.map((itinerario, index) => (
-            <motion.div key={itinerario.id} variants={itemAnimation} transition={{ delay: index * 0.1 }}>
-              <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
-                <div className="p-4">
+          {/* Renderizar skeletons durante loading se não há itinerários */}
+          {loading && itinerarios.length === 0 ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <motion.div
+                key={`skeleton-${index}`}
+                variants={itemAnimation}
+                transition={{ delay: index * 0.1 }}
+              >
+                <FlightResultSkeleton />
+              </motion.div>
+            ))
+          ) : itinerarios.length === 0 && !loading ? (
+            /* Mensagem quando não há voos encontrados */
+            <motion.div
+              variants={itemAnimation}
+              className="text-center py-12"
+            >
+              <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-0">
+                <div className="w-20 h-20 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-10 h-10 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                  Nenhum voo encontrado
+                </h3>
+                
+                <p className="text-gray-600 mb-6 text-lg">
+                  Não encontramos voos de ida e volta para os critérios selecionados.
+                </p>
+                
+                <div className="bg-blue-50 rounded-2xl p-4 mb-6">
+                  <h4 className="font-semibold text-econotrip-blue mb-3 flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    Dicas para encontrar voos:
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-2 text-left">
+                    <li>• Tente buscar por datas diferentes (±3 dias)</li>
+                    <li>• Considere aeroportos próximos ao destino</li>
+                    <li>• Verifique se as datas estão corretas</li>
+                    <li>• Experimente buscar voos só ida primeiro</li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={() => navigate("/busca-voos")}
+                  className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 touch-target"
+                >
+                  <Search className="mr-2 h-5 w-5" />
+                  Alterar Busca
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            itinerariosOrdenados.map((itinerario, index) => (
+              <motion.div key={itinerario.id} variants={itemAnimation} transition={{ delay: index * 0.1 }}>
+                <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
+                  <div className="p-4">
                   {/* Header do card com preço */}
                   <div className="flex flex-col items-start mb-6">
                     <div className="flex items-center gap-3 mb-2">
@@ -445,7 +538,7 @@ export default function RoundTripResultsScreen() {
                       <Plane className="h-5 w-5 text-econotrip-blue" />
                       <span className="font-semibold text-econotrip-blue">Voo de Ida</span>
                       <span className="text-sm text-gray-500">
-                        • {new Date(itinerario.vooIda.dataVoo).toLocaleDateString("pt-BR", { 
+                        • {formatDateWithOptions(itinerario.vooIda.dataVoo, { 
                           day: '2-digit', 
                           month: 'short' 
                         })}
@@ -491,7 +584,7 @@ export default function RoundTripResultsScreen() {
                       <Plane className="h-5 w-5 text-econotrip-blue transform rotate-180" />
                       <span className="font-semibold text-econotrip-blue">Voo de Volta</span>
                       <span className="text-sm text-gray-500">
-                        • {new Date(itinerario.vooVolta.dataVoo).toLocaleDateString("pt-BR", { 
+                        • {formatDateWithOptions(itinerario.vooVolta.dataVoo, { 
                           day: '2-digit', 
                           month: 'short' 
                         })}
@@ -553,7 +646,7 @@ export default function RoundTripResultsScreen() {
                 </div>
               </Card>
             </motion.div>
-          ))}
+          )))}
         </motion.div>
       </div>
     </div>

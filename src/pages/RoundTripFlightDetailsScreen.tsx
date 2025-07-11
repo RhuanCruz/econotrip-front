@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import { FlightService } from "@/api/flight/FlightService";
+import { RoundTripFlightDetailsSkeleton } from "@/components/ui-custom/RoundTripFlightDetailsSkeleton";
 
 // Helper to safely extract string from API fields that may be string or object
 function getString(val: unknown) {
@@ -130,7 +131,7 @@ export default function RoundTripFlightDetailsScreen() {
     visible: { opacity: 1, y: 0 }
   };
 
-  if (loading) return <div className="text-center py-20">Carregando detalhes dos voos...</div>;
+  if (loading) return <RoundTripFlightDetailsSkeleton />;
   
   if (!flightDetailsIda && !flightDetailsVolta) {
     return <div className="text-center py-20 text-red-500">Não foi possível carregar os detalhes dos voos.</div>;

@@ -19,7 +19,7 @@ export function Header({
   const { logout } = useAuthStore();
 
   // Determine if we should show back button based on the route
-  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard"].includes(location.pathname);
+  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard", "/meus-radares", "/minha-evolucao"].includes(location.pathname);
   const handleBack = () => {
     navigate(-1);
   };

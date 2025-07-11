@@ -114,10 +114,25 @@ export default function TelaBuscaVoos() {
       const origemCode = formRef.current?.getOrigemBusca?.() || formData.origem;
       const destinoCode = formRef.current?.getDestinoBusca?.() || formData.destino;
       const searchData = { ...formData, origem: origemCode, destino: destinoCode };
-      if (formData.dataVolta) {
-        navigate("/resultados-ida-volta", { state: { searchData } });
+      
+      // Se estiver usando milhas, vai para a tela de programas de milhas
+      if (formData.usarMilhas) {
+        navigate("/programas-milhas", {
+          state: {
+            origem: origemCode,
+            destino: destinoCode,
+            dataIda: formData.dataIda,
+            dataVolta: formData.dataVolta,
+            searchData
+          }
+        });
       } else {
-        navigate("/resultados-voos", { state: { searchData } });
+        // Fluxo normal para busca em dinheiro
+        if (formData.dataVolta) {
+          navigate("/resultados-ida-volta", { state: { searchData } });
+        } else {
+          navigate("/resultados-voos", { state: { searchData } });
+        }
       }
     }, 2000);
   };

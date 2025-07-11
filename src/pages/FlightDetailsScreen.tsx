@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import { FlightService } from "@/api/flight/FlightService";
+import { FlightDetailsSkeleton } from "@/components/ui-custom/FlightDetailsSkeleton";
 
 export default function FlightDetailsScreen() {
   const navigate = useNavigate();
@@ -33,7 +34,15 @@ export default function FlightDetailsScreen() {
     navigate("/checkout");
   };
 
-  function formatDateTime(dateObj: any) {
+  type DateObject = {
+    year?: number;
+    month?: number;
+    day?: number;
+    hour?: number;
+    minute?: number;
+  };
+
+  function formatDateTime(dateObj: string | DateObject | null | undefined): string {
     if (!dateObj) return "";
 
     // Se é uma string, tenta fazer parse direto
@@ -56,7 +65,7 @@ export default function FlightDetailsScreen() {
     return "";
   }
 
-    function formatDate(dateObj: any) {
+    function formatDate(dateObj: string | DateObject | null | undefined): string {
     if (!dateObj) return "";
 
     // Se é uma string, tenta fazer parse direto
@@ -86,7 +95,7 @@ export default function FlightDetailsScreen() {
     visible: { opacity: 1, y: 0 }
   };
 
-  if (loading) return <div className="text-center py-20">Carregando detalhes do voo...</div>;
+  if (loading) return <FlightDetailsSkeleton />;
   if (!flightDetails || !flightDetails.data || !flightDetails.data.itinerary) return <div className="text-center py-20 text-red-500">Não foi possível carregar os detalhes do voo.</div>;
 
   // Extrai dados do novo retorno (GetFlightDetailResponse)

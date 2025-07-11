@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Calendar, CreditCard, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { Input } from "@/components/ui-custom/Input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
 import { UserService } from "@/api/user/UserService";
@@ -18,6 +19,7 @@ export default function RegisterScreen() {
     password: "",
     confirmPassword: "",
   });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,6 +56,16 @@ export default function RegisterScreen() {
         variant: "destructive",
         title: "Senhas não coincidem",
         description: "Por favor, verifique se as senhas estão iguais.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!acceptedTerms) {
+      toast({
+        variant: "destructive",
+        title: "Termos não aceitos",
+        description: "Você precisa aceitar os termos de serviço e política de privacidade.",
       });
       setLoading(false);
       return;
@@ -166,13 +178,46 @@ export default function RegisterScreen() {
             aria-label="Confirme sua senha"
           />
 
+          {/* Checkbox de aceitar termos */}
+          <div className="flex items-start space-x-3 py-4">
+            <Checkbox
+              id="terms"
+              checked={acceptedTerms}
+              onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+              className="mt-1"
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm text-gray-700 leading-relaxed cursor-pointer"
+            >
+              Eu li e aceito os{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/termos-servico")}
+                className="text-econotrip-blue hover:text-econotrip-orange underline font-medium"
+              >
+                termos de serviço
+              </button>{" "}
+              e a{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/politica-privacidade")}
+                className="text-econotrip-blue hover:text-econotrip-orange underline font-medium"
+              >
+                política de privacidade
+              </button>
+              .
+            </label>
+          </div>
+
           <Button
             type="submit"
             variant="primary"
             size="lg"
             icon={CheckCircle}
             loading={loading}
-            className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-8"
+            disabled={!acceptedTerms}
+            className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Criar conta
           </Button>

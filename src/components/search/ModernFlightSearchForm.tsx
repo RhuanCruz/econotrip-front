@@ -72,9 +72,12 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   const origemAbortControllerRef = useRef<AbortController | null>(null);
   const destinoAbortControllerRef = useRef<AbortController | null>(null);
 
+  // Flag para evitar busca durante a troca de origem/destino
+  const isSwappingRef = useRef(false);
+
   // Busca sugestões para origem (com debounce e cancelamento)
   React.useEffect(() => {
-    if (origemSelectBySuggestion.current) {
+    if (origemSelectBySuggestion.current || isSwappingRef.current) {
       origemSelectBySuggestion.current = false;
       return;
     }
@@ -86,7 +89,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
     
     if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
     
-    if (formData.origem.length >= 3) {
+    if (formData.origem && formData.origem.length >= 3) {
       origemDebounceRef.current = setTimeout(() => {
         // Cria novo AbortController para esta requisição
         origemAbortControllerRef.current = new AbortController();
@@ -121,7 +124,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Busca sugestões para destino (com debounce e cancelamento)
   React.useEffect(() => {
-    if (destinoSelectBySuggestion.current) {
+    if (destinoSelectBySuggestion.current || isSwappingRef.current) {
       destinoSelectBySuggestion.current = false;
       return;
     }
@@ -133,7 +136,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
     
     if (destinoDebounceRef.current) clearTimeout(destinoDebounceRef.current);
     
-    if (formData.destino.length >= 3) {
+    if (formData.destino && formData.destino.length >= 3) {
       destinoDebounceRef.current = setTimeout(() => {
         // Cria novo AbortController para esta requisição
         destinoAbortControllerRef.current = new AbortController();
@@ -218,12 +221,12 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                   <input
                     type="text"
                     placeholder="São Paulo, Brasil"
-                    value={formData.origem}
+                    value={formData.origem || ""}
                     onChange={(e) => {
                       onInputChange("origem", e.target.value);
                       setSelectedOrigem(null);
                     }}
-                    onFocus={() => formData.origem.length >= 3 && setShowOrigemDropdown(true)}
+                    onFocus={() => formData.origem && formData.origem.length >= 3 && setShowOrigemDropdown(true)}
                     onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
                     className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
                     disabled={!!selectedOrigem}
@@ -276,7 +279,30 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
             {/* Swap Button */}
             <div className="flex justify-center">
-              <button className="w-10 h-10 bg-econotrip-blue rounded-full flex items-center justify-center text-white shadow-lg">
+              <button 
+                type="button"
+                onClick={() => {
+                  // Ativa flag para evitar buscas durante a troca
+                  isSwappingRef.current = true;
+                  
+                  // Troca os valores de origem e destino
+                  const tempOrigem = formData.origem || "";
+                  const tempDestino = formData.destino || "";
+                  const tempSelectedOrigem = selectedOrigem;
+                  const tempSelectedDestino = selectedDestino;
+                  
+                  onInputChange("origem", tempDestino);
+                  onInputChange("destino", tempOrigem);
+                  setSelectedOrigem(tempSelectedDestino);
+                  setSelectedDestino(tempSelectedOrigem);
+                  
+                  // Desativa a flag após um breve delay para permitir que os useEffect processem
+                  setTimeout(() => {
+                    isSwappingRef.current = false;
+                  }, 100);
+                }}
+                className="w-10 h-10 bg-econotrip-blue rounded-full flex items-center justify-center text-white shadow-lg hover:bg-econotrip-blue/90 transition-colors touch-target"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
@@ -292,12 +318,12 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                   <input
                     type="text"
                     placeholder="Lisboa, Portugal"
-                    value={formData.destino}
+                    value={formData.destino || ""}
                     onChange={(e) => {
                       onInputChange("destino", e.target.value);
                       setSelectedDestino(null);
                     }}
-                    onFocus={() => formData.destino.length >= 3 && setShowDestinoDropdown(true)}
+                    onFocus={() => formData.destino && formData.destino.length >= 3 && setShowDestinoDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
                     className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
                     disabled={!!selectedDestino}
@@ -423,17 +449,15 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
           <div className="bg-white rounded-2xl p-6 shadow-lg space-y-4">
             <h3 className="text-lg font-semibold text-econotrip-blue mb-4">Opções Avançadas</h3>
             <div className="space-y-3">
-              {tripType === 'one-way' && (
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.usarMilhas}
-                    onChange={(e) => onInputChange("usarMilhas", e.target.checked)}
-                    className="w-5 h-5 text-econotrip-orange rounded"
-                  />
-                  <span className="text-gray-700">Usar milhas</span>
-                </label>
-              )}
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.usarMilhas}
+                  onChange={(e) => onInputChange("usarMilhas", e.target.checked)}
+                  className="w-5 h-5 text-econotrip-orange rounded"
+                />
+                <span className="text-gray-700">Usar milhas</span>
+              </label>
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -467,7 +491,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
       <div className="text-center">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2 mx-auto text-econotrip-blue font-medium"
+          className="flex items-center gap-2 mx-auto text-econotrip-blue font-medium touch-target"
         >
           <Settings className="h-4 w-4" />
           {showAdvanced ? 'Ocultar' : 'Mostrar'} opções avançadas

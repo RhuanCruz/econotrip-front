@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { LocationApi } from "@/api/location/location.api";
 import type { Location } from "@/api/location/types";
 import type { CreateRadarBody } from "@/api/radar/types";
-import { AlertCircle, Mail, MessageSquare } from "lucide-react";
+import { AlertCircle, Mail, MessageSquare, ChevronDown } from "lucide-react";
 
 interface NovoRadarModalProps {
   isOpen: boolean;
@@ -33,6 +33,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   // Estados para alerta de preço
   const [valorLimite, setValorLimite] = useState("");
   const [tipoMoeda, setTipoMoeda] = useState<"reais" | "milhas">("reais");
+  const [showMoedaDropdown, setShowMoedaDropdown] = useState(false);
   const [notificarEmail, setNotificarEmail] = useState(true);
   const [notificarTelegram, setNotificarTelegram] = useState(true);
   const [valorLimiteError, setValorLimiteError] = useState("");
@@ -239,7 +240,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
               {!loadingPartida && partidaSuggestions.length > 0 && partidaSuggestions.map((loc) => (
                 <li
                   key={loc.navigation.entityId}
-                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10"
+                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10 text-left"
                   onMouseDown={() => {
                     ignorePartidaEffectRef.current = true;
                     setPartida(`${loc.presentation.suggestionTitle}`);
@@ -252,7 +253,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                 </li>
               ))}
               {!loadingPartida && partidaSuggestions.length === 0 && (
-                <li className="px-4 py-2 text-gray-400 italic">Nenhum resultado</li>
+                <li className="px-4 py-2 text-gray-400 italic text-left">Nenhum resultado</li>
               )}
             </ul>
           )}
@@ -304,7 +305,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
               {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc) => (
                 <li
                   key={loc.navigation.entityId}
-                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10"
+                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10 text-left"
                   onMouseDown={() => {
                     ignoreDestinoEffectRef.current = true;
                     setDestino(`${loc.presentation.suggestionTitle}`);
@@ -317,7 +318,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                 </li>
               ))}
               {!loadingDestino && destinoSuggestions.length === 0 && (
-                <li className="px-4 py-2 text-gray-400 italic">Nenhum resultado</li>
+                <li className="px-4 py-2 text-gray-400 italic text-left">Nenhum resultado</li>
               )}
             </ul>
           )}
@@ -361,14 +362,41 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                   step="0.01"
                 />
               </div>
-              <select
-                value={tipoMoeda}
-                onChange={e => setTipoMoeda(e.target.value as "reais" | "milhas")}
-                className="border rounded-lg px-3 py-2 bg-white min-w-[100px]"
-              >
-                <option value="reais">R$ (Reais)</option>
-                <option value="milhas">Milhas</option>
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowMoedaDropdown(!showMoedaDropdown)}
+                  onBlur={() => setTimeout(() => setShowMoedaDropdown(false), 150)}
+                  className="border rounded-lg px-3 py-2 bg-white min-w-[100px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-econotrip-blue focus:border-transparent flex items-center justify-between"
+                >
+                  <span>{tipoMoeda === "reais" ? "R$ (Reais)" : "Milhas"}</span>
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </button>
+                {showMoedaDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                      onMouseDown={() => {
+                        setTipoMoeda("reais");
+                        setShowMoedaDropdown(false);
+                      }}
+                    >
+                      R$ (Reais)
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                      onMouseDown={() => {
+                        setTipoMoeda("milhas");
+                        setShowMoedaDropdown(false);
+                      }}
+                    >
+                      Milhas
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {valorLimiteError && <p className="text-xs text-red-500 mt-1">{valorLimiteError}</p>}
             {!valorLimiteError && (
@@ -427,6 +455,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setMilhas(false);
       setValorLimite("");
       setTipoMoeda("reais");
+      setShowMoedaDropdown(false);
       setNotificarEmail(true);
       setNotificarTelegram(true);
       setSelectedPartida(null);

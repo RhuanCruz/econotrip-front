@@ -2,7 +2,7 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 
 import { api } from '../client';
-import ISearchFlightResponse, { GetFlightDetailBody, GetFlightDetailResponse, GetHomeOfferResponse, GetTripByMileageResponse, SearchFlightByMileageResponse, SearchFlightOffersBody, SearchFlightOffersResponse } from './types';
+import ISearchFlightResponse, { GetFlightDetailBody, GetFlightDetailResponse, GetHomeOfferResponse, GetTripByMileageResponse, SearchFlightByMileageResponse, SearchFlightOffersBody, SearchFlightOffersResponse, SearchMileageProgramsBody, SearchMileageProgramsResponse } from './types';
 
 const SearchFlightOffersService = async (data: SearchFlightOffersBody): Promise<ISearchFlightResponse> => {
   return api.post<ISearchFlightResponse>('/flights/skyscrapper/search', data)
@@ -34,10 +34,17 @@ const HomeFlightOffersService = async (): Promise<GetHomeOfferResponse> => {
     .catch((err) => { throw new Error(handleApiError(err)) });
 }
 
+const SearchMilesProgramsService = async (data: SearchMileageProgramsBody): Promise<SearchMileageProgramsResponse> => {
+  return api.post<SearchMileageProgramsResponse>('/flights/mileage/programs/search', data)
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) });
+}
+
 export const FlightService = {
   search: SearchFlightOffersService,
   searchByMileage: SearchFlightOffersByMileageService,
   getFlighDetails: GetSearchFlightDetailService,
   getMileageTrips: GetTripsByMileage,
-  getOverview: HomeFlightOffersService
+  getOverview: HomeFlightOffersService,
+  searchMilesPrograms: SearchMilesProgramsService
 }
