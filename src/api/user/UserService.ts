@@ -1,7 +1,7 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 
 import { api } from '../client';
-import { CheckExistenceBody, CheckExistenceResponse, CreateUserBody, ResetPasswordBody, User } from './types';
+import { CheckExistenceBody, CheckExistenceResponse, CreateUserBody, ResetPasswordBody, UpdateUserBody, User } from './types';
 
 const CreateUser = async (data: CreateUserBody): Promise<User> => {
   return api.post('/users', data)
@@ -27,8 +27,14 @@ const ResetPassword = async (data: ResetPasswordBody): Promise<void> => {
     .catch((err) => { throw new Error(handleApiError(err)) })
 }
 
+const UpdateUser = async (token: string, id: number, data: UpdateUserBody): Promise<void> => {
+  await api.patch(`/users/${id}`, data, { headers: { Authorization: `Bearer ${token}`}})
+    .catch((err) => { throw new Error(handleApiError(err)) });
+}
+
 export const UserService = {
   create: CreateUser,
+  update: UpdateUser,
   checkExistence: CheckExistence,
   forgotPassword: ForgotPassword,
   resetPassword: ResetPassword,

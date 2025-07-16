@@ -18,6 +18,7 @@ interface AuthState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string) => void;
   setUser: (user?: User, token?: string) => void;
+  updateUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -39,6 +40,13 @@ export const useAuthStore = create<AuthState>()(
         token: accessToken || null,
         error: null 
       }),
+
+      updateUser: (user: User) => set((state) => ({ 
+        user, 
+        isAuthenticated: true,
+        token: state.token, // Preserve existing token
+        error: null 
+      })),
 
       login: async (email: string, password: string) => {
         const { setLoading, setError, setUser } = get();
