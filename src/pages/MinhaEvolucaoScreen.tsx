@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
@@ -17,12 +16,7 @@ import {
   Globe,
   Plane
 } from "lucide-react";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Tooltip } from "recharts";
 
 export default function MinhaEvolucaoScreen() {
   const [activeTab, setActiveTab] = useState<"pontos" | "conquistas" | "estatisticas">("pontos");
@@ -69,17 +63,6 @@ export default function MinhaEvolucaoScreen() {
   const itemAnimation = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
-  };
-
-  const chartConfig = {
-    pontos: {
-      label: "Pontos",
-      color: "#3B82F6",
-    },
-    viagens: {
-      label: "Viagens",
-      color: "#F59E0B",
-    },
   };
 
   return (
@@ -218,25 +201,46 @@ export default function MinhaEvolucaoScreen() {
                     Evolução de Pontos
                   </h2>
                 </div>
-                <Card className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
-                  <div className="h-64">
-                    <ChartContainer config={chartConfig}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={pontosHistorico}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="mes" stroke="#666" />
-                          <YAxis stroke="#666" />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Line 
-                            type="monotone" 
-                            dataKey="pontos" 
-                            stroke="#3B82F6" 
-                            strokeWidth={3}
-                            dot={{ fill: "#3B82F6", strokeWidth: 2, r: 6 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
+                <Card className="rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0 overflow-hidden relative h-64">
+                  <div className="absolute inset-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={pontosHistorico} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="mes" 
+                          stroke="#666" 
+                          fontSize={12} 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ dy: 5 }}
+                        />
+                        <YAxis 
+                          stroke="#666" 
+                          fontSize={12} 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ dx: -5 }}
+                          width={35}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: '1px solid #e5e7eb', 
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            fontSize: '14px'
+                          }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="pontos" 
+                          stroke="#3B82F6" 
+                          strokeWidth={3}
+                          dot={{ fill: "#3B82F6", strokeWidth: 2, r: 6 }}
+                          activeDot={{ r: 8, stroke: "#3B82F6", strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </Card>
               </motion.div>
@@ -301,44 +305,42 @@ export default function MinhaEvolucaoScreen() {
                     Suas Conquistas
                   </h2>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {conquistas.map((conquista) => (
-                    <Card key={conquista.id} className={`p-6 rounded-3xl shadow-lg border-0 ${
+                    <Card key={conquista.id} className={`p-4 rounded-3xl shadow-lg border-0 ${
                       conquista.conquistado 
                         ? "bg-gradient-to-r from-econotrip-green/10 to-econotrip-green/5 border-l-4 border-l-econotrip-green" 
                         : "bg-white/95 backdrop-blur-sm"
                     }`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
+                      <div className="flex items-start justify-between min-h-[4rem]">
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ${
                             conquista.conquistado 
                               ? "bg-gradient-to-r from-econotrip-green to-econotrip-green/80" 
                               : "bg-gradient-to-r from-gray-400 to-gray-500"
                           }`}>
-                            <conquista.icone className="h-7 w-7 text-white" />
+                            <conquista.icone className="h-6 w-6 text-white" />
                           </div>
-                          <div>
-                            <h3 className={`font-bold text-lg ${
+                          <div className="flex-1 min-w-0">
+                            <h3 className={`font-bold text-base leading-tight ${
                               conquista.conquistado ? "text-econotrip-green" : "text-gray-600"
                             }`}>
                               {conquista.titulo}
                             </h3>
-                            <p className="text-gray-600">{conquista.descricao}</p>
+                            <p className="text-sm text-gray-600 leading-tight mt-1">{conquista.descricao}</p>
                             {conquista.conquistado && conquista.data && (
-                              <p className="text-sm text-gray-500">Conquistado em {conquista.data}</p>
+                              <p className="text-xs text-gray-500 mt-1">Conquistado em {conquista.data}</p>
                             )}
                           </div>
                         </div>
-                        {conquista.conquistado ? (
-                          <Badge className="bg-econotrip-green/10 text-econotrip-green border-econotrip-green/20 rounded-full">
-                            Conquistado
-                          </Badge>
-                        ) : (
-                          <div className="text-right">
-                            <div className="text-sm font-medium text-gray-600">{conquista.progresso}%</div>
-                            <Progress value={conquista.progresso} className="w-20 h-2" />
-                          </div>
-                        )}
+                        <div className="ml-3 flex-shrink-0 self-start">
+                          {!conquista.conquistado && (
+                            <div className="text-right">
+                              <div className="text-xs font-medium text-gray-600 mb-1">{conquista.progresso}%</div>
+                              <Progress value={conquista.progresso} className="w-16 h-2" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </Card>
                   ))}
@@ -362,19 +364,39 @@ export default function MinhaEvolucaoScreen() {
                     Viagens por Mês
                   </h2>
                 </div>
-                <Card className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
-                  <div className="h-64">
-                    <ChartContainer config={chartConfig}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={viagensAno}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="mes" stroke="#666" />
-                          <YAxis stroke="#666" />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar dataKey="viagens" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
+                <Card className="rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0 overflow-hidden relative h-64">
+                  <div className="absolute inset-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={viagensAno} margin={{ top: 30, right: 10, left: 10, bottom: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="mes" 
+                          stroke="#666" 
+                          fontSize={12} 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ dy: 5 }}
+                        />
+                        <YAxis 
+                          stroke="#666" 
+                          fontSize={12} 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ dx: -5 }}
+                          width={35}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            border: '1px solid #e5e7eb', 
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            fontSize: '14px'
+                          }}
+                        />
+                        <Bar dataKey="viagens" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </Card>
               </motion.div>
@@ -396,8 +418,8 @@ export default function MinhaEvolucaoScreen() {
                             data={economiaDistribuicao}
                             cx="50%"
                             cy="50%"
-                            innerRadius={30}
-                            outerRadius={60}
+                            innerRadius={25}
+                            outerRadius={50}
                             dataKey="value"
                           >
                             {economiaDistribuicao.map((entry, index) => (

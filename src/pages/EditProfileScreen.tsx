@@ -4,6 +4,7 @@ import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { toast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
 import { 
   User, Mail, Calendar, Lock, KeyRound, CheckCircle, ArrowLeft
 } from "lucide-react";
@@ -11,15 +12,31 @@ import { AssistButton } from "@/components/ui-custom/AssistButton";
 
 export default function EditProfileScreen() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Form state
+  console.log(user);
+
+  // Helper function to format date for input[type="date"]
+  const formatDateForInput = (dateString: string | null | undefined): string => {
+    if (!dateString) return "";
+    try {
+      // Convert ISO date to YYYY-MM-DD format
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "";
+    }
+  };
+
+  // Form state - initialized with user data from authStore
   const [formData, setFormData] = useState({
-    fullName: "Maria Oliveira",
-    email: "maria@exemplo.com",
-    birthDate: "1958-05-12",
-    cpf: "123.456.789-00",
+    fullName: user?.fullname || "",
+    email: user?.email || "",
+    birthDate: formatDateForInput(user?.birthdate),
+    cpf: user?.cpf || "",
     newPassword: "",
     confirmPassword: ""
   });

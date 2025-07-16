@@ -143,7 +143,7 @@ export default function DashboardScreen() {
             </div>
           </motion.div>
 
-          {/* Última viagem moderna */}
+          {/* Última viagem moderna
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-econotrip-orange" />
@@ -182,7 +182,7 @@ export default function DashboardScreen() {
                 Ver detalhes da viagem
               </Button>
             </Card>
-          </motion.div>
+          </motion.div> */}
 
           {/* Explorar categorias modernas */}
           <motion.div variants={itemAnimation}>

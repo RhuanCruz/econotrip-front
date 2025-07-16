@@ -78,7 +78,7 @@ export default function ProfileScreen() {
       >
         <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 text-center sm:text-left">
           <Avatar className="h-16 w-16 md:h-20 md:w-20 border-4 border-econotrip-orange/20">
-            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Maria" alt="Maria Oliveira" />
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.fullname || 'User'}`} alt={user?.fullname || 'Usuário'} />
             <AvatarFallback className="bg-econotrip-orange/20">
               <UserCircle className="h-8 w-8 md:h-10 md:w-10 text-econotrip-orange" />
             </AvatarFallback>
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
             <DetailItem 
               icon={UserCircle} 
               title="Nome Completo" 
-              value={user.fullname}
+              value={user?.fullname || 'Não informado'}
             />
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-xl">
@@ -122,7 +122,7 @@ export default function ProfileScreen() {
                 </svg>
                 <div className="min-w-0">
                   <p className="font-medium text-econotrip-blue text-sm md:text-base">E-mail</p>
-                  <p className="text-gray-700 text-sm md:text-base break-all">{user.email}</p>
+                  <p className="text-gray-700 text-sm md:text-base break-all">{user?.email || 'Não informado'}</p>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function ProfileScreen() {
             <DetailItem 
               icon={Calendar} 
               title="Data de Nascimento" 
-              value={user.birthdate ? new Date(user.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
+              value={user?.birthdate ? new Date(user.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
             />
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-xl">
@@ -141,7 +141,7 @@ export default function ProfileScreen() {
                 </svg>
                 <div className="min-w-0">
                   <p className="font-medium text-econotrip-blue text-sm md:text-base">CPF</p>
-                  <p className="text-gray-700 text-sm md:text-base">{user.cpf ? user.cpf : 'Não informado'}</p>
+                  <p className="text-gray-700 text-sm md:text-base">{user?.cpf || 'Não informado'}</p>
                 </div>
               </div>
             </div>
