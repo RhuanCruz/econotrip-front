@@ -34,7 +34,7 @@ export function BottomNavigation() {
       isActive: location.pathname === '/meus-radares' || location.pathname === '/radar-ofertas'
     },
     { 
-      name: 'Roteiro', 
+      name: 'Simulador', 
       icon: MapPin, 
       route: '/meu-roteiro', 
       isActive: location.pathname === '/meu-roteiro'

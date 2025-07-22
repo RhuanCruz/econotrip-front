@@ -247,7 +247,7 @@ export default function MeuRoteiroScreen() {
             </motion.div>
             
             <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
-              Meu Roteiro
+              Simualdor de Roteiro e Custo
             </h1>
             <p className="text-lg text-gray-600 text-balance">
               Organize e acompanhe suas aventuras
@@ -533,7 +533,7 @@ export default function MeuRoteiroScreen() {
                 <div className="flex items-center gap-2 mb-4">
                   <Globe className="h-5 w-5 text-econotrip-blue" />
                   <h2 className="text-lg font-semibold text-econotrip-blue">
-                    Suas Aventuras Anteriores
+                    Suas simulações anteriores
                   </h2>
                 </div>
                 

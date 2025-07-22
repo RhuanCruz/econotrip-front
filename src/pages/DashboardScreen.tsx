@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
@@ -21,7 +21,17 @@ import {
   Coins,
   BarChart3,
   Heart,
-  Globe
+  Globe,
+  Wallet,
+  Shield,
+  Sun,
+  Camera,
+  Coffee,
+  Mountain,
+  Landmark,
+  Train,
+  Car,
+  Backpack
 } from "lucide-react";
 import {
   ChartContainer,
@@ -33,10 +43,117 @@ import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 import { useAuthStore } from "@/stores/authStore";
 
+// Array de dicas especiais
+const dicasEspeciais = [
+  {
+    id: 1,
+    titulo: "Melhor época para economizar",
+    descricao: "Viagens entre janeiro e março oferecem os melhores preços",
+    icone: Clock,
+    cor: "econotrip-blue"
+  },
+  {
+    id: 2,
+    titulo: "Viaje com amigos",
+    descricao: "Grupos de 4 ou mais pessoas ganham descontos especiais",
+    icone: Users,
+    cor: "econotrip-orange"
+  },
+  {
+    id: 3,
+    titulo: "Reserve com antecedência",
+    descricao: "Passagens compradas com 6 meses de antecedência são até 40% mais baratas",
+    icone: Calendar,
+    cor: "econotrip-green"
+  },
+  {
+    id: 4,
+    titulo: "Voos noturnos custam menos",
+    descricao: "Voos entre 22h e 6h têm preços mais acessíveis",
+    icone: Clock,
+    cor: "econotrip-blue"
+  },
+  {
+    id: 5,
+    titulo: "Destinos alternativos",
+    descricao: "Aeroportos próximos podem ter passagens até 30% mais baratas",
+    icone: MapPin,
+    cor: "econotrip-orange"
+  },
+  {
+    id: 6,
+    titulo: "Terças e quartas são ideais",
+    descricao: "Viajar no meio da semana oferece os melhores preços",
+    icone: Calendar,
+    cor: "econotrip-green"
+  },
+  {
+    id: 7,
+    titulo: "Programa de milhas",
+    descricao: "Use suas milhas para upgrades ou passagens gratuitas",
+    icone: Gift,
+    cor: "econotrip-blue"
+  },
+  {
+    id: 8,
+    titulo: "Bagagem inteligente",
+    descricao: "Viaje só com bagagem de mão e economize nas taxas",
+    icone: Backpack,
+    cor: "econotrip-orange"
+  },
+  {
+    id: 9,
+    titulo: "Conexões estratégicas",
+    descricao: "Voos com conexão podem ser mais baratos que diretos",
+    icone: Route,
+    cor: "econotrip-green"
+  },
+  {
+    id: 10,
+    titulo: "Temporada baixa",
+    descricao: "Evite feriados e férias escolares para melhores preços",
+    icone: TrendingUp,
+    cor: "econotrip-blue"
+  },
+  {
+    id: 11,
+    titulo: "Seguro viagem",
+    descricao: "Sempre contrate seguro viagem para ter tranquilidade",
+    icone: Shield,
+    cor: "econotrip-orange"
+  },
+  {
+    id: 12,
+    titulo: "Documentos em dia",
+    descricao: "Verifique validade do passaporte com 6 meses de antecedência",
+    icone: Landmark,
+    cor: "econotrip-green"
+  },
+];
+
 export default function DashboardScreen() {
   const navigate = useNavigate();
 
   const { user } = useAuthStore();
+
+  // Estado para a dica selecionada
+  const [dicaSelecionada, setDicaSelecionada] = useState(dicasEspeciais[0]);
+
+  // Selecionar uma dica aleatória quando o componente carregar
+  useEffect(() => {
+    const dicaAleatoria = dicasEspeciais[Math.floor(Math.random() * dicasEspeciais.length)];
+    setDicaSelecionada(dicaAleatoria);
+  }, []);
+
+  // Função para obter as classes de cor baseada na cor da dica
+  const getColorClasses = (cor: string) => {
+    const colorMap: { [key: string]: string } = {
+      'econotrip-blue': 'bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80',
+      'econotrip-orange': 'bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80',
+      'econotrip-green': 'bg-gradient-to-r from-econotrip-green to-econotrip-green/80'
+    };
+    return colorMap[cor] || 'bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80';
+  };
 
   // Dados do programa de fidelidade
   const pontosAtuais = 180;
@@ -94,17 +211,28 @@ export default function DashboardScreen() {
           <motion.div variants={itemAnimation}>
             <div className="bg-gradient-to-r from-econotrip-green/10 to-econotrip-blue/10 rounded-2xl p-4 border border-econotrip-green/20 shadow-sm">
               <div className="flex items-start gap-3 mb-2">
-                <div className="w-10 h-10 bg-gradient-to-r from-econotrip-green to-econotrip-green/80 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Globe className="h-5 w-5 text-white" />
+                <div className={`w-10 h-10 ${getColorClasses(dicaSelecionada.cor)} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  {React.createElement(dicaSelecionada.icone, { className: "h-5 w-5 text-white" })}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-econotrip-blue text-sm">Dica especial</h3>
+                  <h3 className="font-semibold text-econotrip-blue text-sm">{dicaSelecionada.titulo}</h3>
                   <p className="text-xs text-gray-600">Para você hoje</p>
                 </div>
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Janeiro e março são os meses ideais para economizar! Aproveite as promoções de início de ano.
+              <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                {dicaSelecionada.descricao}
               </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const novaDica = dicasEspeciais[Math.floor(Math.random() * dicasEspeciais.length)];
+                  setDicaSelecionada(novaDica);
+                }}
+                className="text-xs bg-white/80 text-gray-600 hover:bg-white border-gray-200 rounded-lg px-3 py-1"
+              >
+                💡 Ver outra dica
+              </Button>
             </div>
           </motion.div>
 
@@ -314,42 +442,6 @@ export default function DashboardScreen() {
                   </div>
                   <p className="text-xl font-bold text-econotrip-blue">3</p>
                   <p className="text-xs text-gray-600">Viagens realizadas</p>
-                </div>
-              </Card>
-            </div>
-          </motion.div>
-
-          {/* Dicas especiais modernas */}
-          <motion.div variants={itemAnimation}>
-            <h2 className="text-base font-semibold text-econotrip-blue mb-3 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Dicas especiais para você
-            </h2>
-            <div className="space-y-3">
-              <Card className="p-3 hover:shadow-md transition-all rounded-xl bg-white/80 backdrop-blur-sm">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Clock className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-econotrip-blue text-sm mb-1">Melhor época para economizar</h4>
-                    <p className="text-xs text-gray-600">
-                      Viagens entre janeiro e março oferecem os melhores preços
-                    </p>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-3 hover:shadow-md transition-all rounded-xl bg-white/80 backdrop-blur-sm">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Users className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-econotrip-blue text-sm mb-1">Viaje com amigos</h4>
-                    <p className="text-xs text-gray-600">
-                      Grupos de 4 ou mais pessoas ganham descontos especiais
-                    </p>
-                  </div>
                 </div>
               </Card>
             </div>
