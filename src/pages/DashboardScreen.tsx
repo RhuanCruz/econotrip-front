@@ -69,7 +69,7 @@ const dicasEspeciais = [
   {
     id: 4,
     titulo: "Voos noturnos custam menos",
-    descricao: "Voos entre 22h e 6h têm preços mais acessíveis",
+    descricao: "Voos entre 23h e 6h têm preços mais acessíveis",
     icone: Clock,
     cor: "econotrip-blue"
   },
