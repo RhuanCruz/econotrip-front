@@ -1,0 +1,192 @@
+/* Estilos de Acessibilidade para EconoTrip */
+
+/* Fontes Grandes */
+html.accessibility-large-fonts {
+  font-size: 18px;
+}
+
+html.accessibility-large-fonts h1 {
+  font-size: 2.5rem !important;
+}
+
+html.accessibility-large-fonts h2 {
+  font-size: 2rem !important;
+}
+
+html.accessibility-large-fonts h3 {
+  font-size: 1.75rem !important;
+}
+
+html.accessibility-large-fonts h4 {
+  font-size: 1.5rem !important;
+}
+
+html.accessibility-large-fonts p,
+html.accessibility-large-fonts span,
+html.accessibility-large-fonts div {
+  font-size: 1.125rem !important;
+}
+
+html.accessibility-large-fonts button {
+  font-size: 1.125rem !important;
+  padding: 0.75rem 1.5rem !important;
+}
+
+html.accessibility-large-fonts input,
+html.accessibility-large-fonts textarea,
+html.accessibility-large-fonts select {
+  font-size: 1.125rem !important;
+  padding: 0.875rem !important;
+}
+
+html.accessibility-large-fonts .text-xs {
+  font-size: 1rem !important;
+}
+
+html.accessibility-large-fonts .text-sm {
+  font-size: 1.125rem !important;
+}
+
+html.accessibility-large-fonts .text-base {
+  font-size: 1.25rem !important;
+}
+
+html.accessibility-large-fonts .text-lg {
+  font-size: 1.375rem !important;
+}
+
+html.accessibility-large-fonts .text-xl {
+  font-size: 1.625rem !important;
+}
+
+html.accessibility-large-fonts .text-2xl {
+  font-size: 2rem !important;
+}
+
+/* Alto Contraste */
+html.accessibility-high-contrast {
+  filter: contrast(150%) saturate(120%);
+}
+
+html.accessibility-high-contrast body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.accessibility-high-contrast .bg-gray-50,
+html.accessibility-high-contrast .bg-gray-100 {
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+html.accessibility-high-contrast .text-gray-600,
+html.accessibility-high-contrast .text-gray-500,
+html.accessibility-high-contrast .text-gray-700 {
+  color: #000000 !important;
+}
+
+html.accessibility-high-contrast .text-white {
+  color: #ffffff !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+html.accessibility-high-contrast .bg-econotrip-blue {
+  background-color: #0052cc !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.accessibility-high-contrast .bg-econotrip-orange {
+  background-color: #ff6600 !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.accessibility-high-contrast .bg-econotrip-green {
+  background-color: #006600 !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.accessibility-high-contrast .text-econotrip-blue {
+  color: #0052cc !important;
+  font-weight: bold !important;
+}
+
+html.accessibility-high-contrast .text-econotrip-orange {
+  color: #ff6600 !important;
+  font-weight: bold !important;
+}
+
+html.accessibility-high-contrast .text-econotrip-green {
+  color: #006600 !important;
+  font-weight: bold !important;
+}
+
+html.accessibility-high-contrast button,
+html.accessibility-high-contrast .button {
+  border: 2px solid #000000 !important;
+  font-weight: bold !important;
+}
+
+html.accessibility-high-contrast input,
+html.accessibility-high-contrast textarea,
+html.accessibility-high-contrast select {
+  border: 2px solid #000000 !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.accessibility-high-contrast .shadow-sm,
+html.accessibility-high-contrast .shadow,
+html.accessibility-high-contrast .shadow-md,
+html.accessibility-high-contrast .shadow-lg {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Leitor de Texto - Destaque visual */
+html.accessibility-text-reader .accessibility-reading {
+  background-color: #ffff99 !important;
+  border: 2px solid #ff6600 !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+}
+
+/* Botões e links mais visíveis em alto contraste */
+html.accessibility-high-contrast a,
+html.accessibility-high-contrast button {
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+
+html.accessibility-high-contrast a:hover,
+html.accessibility-high-contrast button:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* Melhorar foco para navegação por teclado */
+html.accessibility-high-contrast *:focus {
+  outline: 3px solid #ff6600 !important;
+  outline-offset: 2px !important;
+}
+
+/* Cards e containers em alto contraste */
+html.accessibility-high-contrast .bg-white,
+html.accessibility-high-contrast .bg-white\/80,
+html.accessibility-high-contrast .bg-white\/90 {
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+/* Gradientes em alto contraste - simplificar */
+html.accessibility-high-contrast .bg-gradient-to-r,
+html.accessibility-high-contrast .bg-gradient-to-br,
+html.accessibility-high-contrast .bg-gradient-to-l {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+html.accessibility-high-contrast .from-econotrip-blue,
+html.accessibility-high-contrast .from-econotrip-orange,
+html.accessibility-high-contrast .from-econotrip-green {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}

@@ -323,14 +323,13 @@ export default function DashboardScreen() {
             <div className="grid grid-cols-2 gap-3">
               <Card
                 className="p-3 bg-gradient-to-br from-econotrip-green/10 to-econotrip-green/5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
-                onClick={() => navigate("/turismo-sustentavel")}
               >
                 <div className="text-center">
                   <div className="w-10 h-10 bg-gradient-to-r from-econotrip-green to-econotrip-green/80 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Globe className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-econotrip-blue text-xs mb-1">Turismo Sustentável</h4>
-                  <p className="text-xs text-gray-600">Viaje consciente</p>
+                  <h4 className="font-semibold text-econotrip-blue text-xs mb-1">Ofertas por Continentes</h4>
+                  <p className="text-xs text-gray-600">Encontre o mais parecido com você</p>
                 </div>
               </Card>
 

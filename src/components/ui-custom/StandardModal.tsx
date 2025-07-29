@@ -14,6 +14,7 @@ interface StandardModalProps {
   confirmText?: string;
   cancelText?: string;
   showCancel?: boolean;
+  showIcon?: boolean;
   children?: React.ReactNode;
 }
 
@@ -27,6 +28,7 @@ export function StandardModal({
   confirmText = "Confirmar",
   cancelText = "Cancelar",
   showCancel = false,
+  showIcon = true,
   children
 }: StandardModalProps) {
   const getIcon = () => {
@@ -61,9 +63,11 @@ export function StandardModal({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className={`max-w-md rounded-2xl p-6 ${type === 'info' ? 'overflow-visible' : ''}`}>
         <AlertDialogHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            {getIcon()}
-          </div>
+          {showIcon && (
+            <div className="flex justify-center mb-4">
+              {getIcon()}
+            </div>
+          )}
           <AlertDialogTitle className="text-xl font-museomoderno font-bold text-econotrip-blue mb-2">
             {title}
           </AlertDialogTitle>

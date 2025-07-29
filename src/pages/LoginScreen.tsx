@@ -32,7 +32,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isAuthenticated, isLoading, login, error, clearError, token } = useAuthStore();
+  const { isAuthenticated, isLoading, login, error, clearError, token, signInWithGoogle } = useAuthStore();
 
   useEffect(() => {
     if (isAuthenticated && isTokenValid(token)) {
@@ -72,12 +72,7 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = () => {
-    // TODO: Implementar login com Google
-    toast({
-      title: "Login com Google",
-      description: "Funcionalidade em desenvolvimento",
-      duration: 3000,
-    });
+    signInWithGoogle()
   };
 
   return (

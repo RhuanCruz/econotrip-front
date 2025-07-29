@@ -138,13 +138,27 @@ export default function MeusRadaresScreen() {
                 {radar.origin} → {radar.destination}
               </span>
             </div>
-            <div className="text-gray-600 text-sm">
-              Período: {radar.start && radar.end ? `${new Date(radar.start).toLocaleDateString()} até ${new Date(radar.end).toLocaleDateString()}` : "-"}
+            
+            {/* Informações do período */}
+            <div className="text-gray-600 text-sm mb-1">
+              <span className="font-medium">Período:</span> {
+                radar.start && radar.end 
+                  ? `${new Date(radar.start).toLocaleDateString()} até ${new Date(radar.end).toLocaleDateString()}`
+                  : "Qualquer período"
+              }
             </div>
-            <div className="text-xs text-gray-500">
-              {/* Se houver campo de milhas, exiba aqui. Caso contrário, remova ou adapte conforme backend */}
-              {/* {radar.milhas ? "Busca por milhas" : "Busca por dinheiro"} */}
+            
+            {/* Informações do tipo de monitoramento */}
+            <div className="text-gray-600 text-sm mb-1">
+              <span className="font-medium">Tipo:</span> {radar.type === 'AIRMILES' ? 'Milhas' : 'Reais'}
             </div>
+            
+            {/* Informações do alerta de preço */}
+            {radar.value && (
+              <div className="text-econotrip-orange text-sm">
+                <span className="font-medium">Alerta de preço:</span> {radar.value} {radar.type === 'AIRMILES' ? 'milhas' : 'reais'}
+              </div>
+            )}
           </button>
         ))}
       </div>

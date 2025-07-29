@@ -442,29 +442,50 @@ export default function MeuRoteiroScreen() {
                     Atividades Planejadas
                   </h2>
                 </div>
-                <div className="space-y-3">
-                  {roteiroAtual.itinerario_detalhado?.flatMap((dia) =>
-                    dia.atividades?.map((atividade, idx) => (
-                      <Card key={`${dia.dia}-${idx}`} className="p-4 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center">
-                              <Camera className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-econotrip-blue">{atividade.nome_atividade}</h4>
-                              <p className="text-sm text-gray-600">Dia {dia.dia} - {atividade.horario}</p>
-                              <p className="text-xs text-gray-500">{atividade.categoria}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 rounded-full">
-                            {atividade.categoria}
-                          </Badge>
+                <div className="space-y-6">
+                  {roteiroAtual.itinerario_detalhado?.map((dia) => (
+                    <div key={dia.dia} className="space-y-3">
+                      {/* Cabeçalho do dia */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-white font-bold text-lg">{dia.dia}</span>
                         </div>
-                        <div className="mt-2 text-gray-700 text-sm">{atividade.descricao}</div>
-                      </Card>
-                    ))
-                  )}
+                        <div>
+                          <h3 className="font-semibold text-econotrip-blue text-lg">Dia {dia.dia}</h3>
+                          <p className="text-sm text-gray-600">{dia.atividades?.length || 0} atividades planejadas</p>
+                        </div>
+                      </div>
+                      
+                      {/* Atividades do dia */}
+                      <div className="space-y-3 ml-6 border-l-2 border-gray-200 pl-4">
+                        {dia.atividades?.map((atividade, idx) => (
+                          <Card key={`${dia.dia}-${idx}`} className="p-4 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center">
+                                  <Camera className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-econotrip-blue">{atividade.nome_atividade}</h4>
+                                  <p className="text-sm text-gray-600">{atividade.horario}</p>
+                                </div>
+                              </div>
+                              <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 rounded-full">
+                                {atividade.categoria}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 text-gray-700 text-sm">{atividade.descricao}</div>
+                          </Card>
+                        ))}
+                        
+                        {(!dia.atividades || dia.atividades.length === 0) && (
+                          <div className="p-4 text-center text-gray-500 italic">
+                            Nenhuma atividade planejada para este dia
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
 

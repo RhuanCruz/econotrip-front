@@ -29,6 +29,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const [fim, setFim] = useState("");
   const [milhas, setMilhas] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [habilitarDatas, setHabilitarDatas] = useState(false);
+  const [habilitarAlertaPreco, setHabilitarAlertaPreco] = useState(false);
   
   // Estados para alerta de preço
   const [valorLimite, setValorLimite] = useState("");
@@ -209,7 +211,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
               }}
               onFocus={() => partida.length >= 3 && setShowPartidaDropdown(true)}
               onBlur={() => setTimeout(() => setShowPartidaDropdown(false), 150)}
-              className={`w-full border rounded-lg px-3 py-2 pr-10 ${partidaError ? 'border-red-500' : ''}`}
+              className={`w-full border rounded-lg px-3 py-2 pr-10 h-10 ${partidaError ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Cidade de origem"
               disabled={!!selectedPartida}
             />
@@ -274,7 +276,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
               }}
               onFocus={() => destino.length >= 3 && setShowDestinoDropdown(true)}
               onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
-              className={`w-full border rounded-lg px-3 py-2 pr-10 ${destinoError ? 'border-red-500' : ''}`}
+              className={`w-full border rounded-lg px-3 py-2 pr-10 h-10 ${destinoError ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Cidade de destino"
               disabled={!!selectedDestino}
             />
@@ -325,92 +327,176 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
           {destinoError && <p className="text-xs text-red-500 mt-1">{destinoError}</p>}
         </div>
       </div>
+      
+      {/* Tipo de radar - MONEY ou AIRMILES */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Início</label>
-        <input type="date" value={inicio} onChange={e => setInicio(e.target.value)} min={todayStr} className="w-full border rounded-lg px-3 py-2" />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Fim</label>
-        <input type="date" value={fim} onChange={e => setFim(e.target.value)} min={inicio || todayStr} className="w-full border rounded-lg px-3 py-2" />
+        <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Tipo de monitoramento</label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMoedaDropdown(!showMoedaDropdown)}
+            onBlur={() => setTimeout(() => setShowMoedaDropdown(false), 150)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-econotrip-orange/20 focus:border-econotrip-orange flex items-center justify-between text-sm h-10"
+          >
+            <span>{tipoMoeda === "reais" ? "R$ (Reais)" : "Milhas"}</span>
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          </button>
+          {showMoedaDropdown && (
+            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 text-sm"
+                onMouseDown={() => {
+                  setTipoMoeda("reais");
+                  setShowMoedaDropdown(false);
+                }}
+              >
+                R$ (Reais)
+              </button>
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 text-sm border-t border-gray-100"
+                onMouseDown={() => {
+                  setTipoMoeda("milhas");
+                  setShowMoedaDropdown(false);
+                }}
+              >
+                Milhas
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 mt-1">Escolha se deseja monitorar preços em reais ou milhas</p>
       </div>
       
-      {/* Seção de Alerta de Preço */}
-      <div className="border-t pt-4 mt-4 bg-gradient-to-r from-blue-50 to-orange-50 rounded-lg p-4 -mx-2">
-        <div className="flex items-center gap-2 mb-3">
-          <AlertCircle className="h-5 w-5 text-econotrip-orange" />
-          <h3 className="text-lg font-semibold text-econotrip-blue">Alerta de Preço</h3>
-        </div>
-        <p className="text-sm text-gray-600 mb-4">
-          Defina um valor limite e receba notificações quando encontrarmos preços abaixo deste valor.
-        </p>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Valor limite</label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <input
-                  type="number"
-                  value={valorLimite}
-                  onChange={e => {
-                    setValorLimite(e.target.value);
-                    setValorLimiteError("");
-                  }}
-                  className={`w-full border rounded-lg px-3 py-2 bg-white ${valorLimiteError ? 'border-red-500' : ''}`}
-                  placeholder="0,00"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowMoedaDropdown(!showMoedaDropdown)}
-                  onBlur={() => setTimeout(() => setShowMoedaDropdown(false), 150)}
-                  className="border rounded-lg px-3 py-2 bg-white min-w-[100px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-econotrip-blue focus:border-transparent flex items-center justify-between"
-                >
-                  <span>{tipoMoeda === "reais" ? "R$ (Reais)" : "Milhas"}</span>
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                </button>
-                {showMoedaDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
-                      onMouseDown={() => {
-                        setTipoMoeda("reais");
-                        setShowMoedaDropdown(false);
-                      }}
-                    >
-                      R$ (Reais)
-                    </button>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
-                      onMouseDown={() => {
-                        setTipoMoeda("milhas");
-                        setShowMoedaDropdown(false);
-                      }}
-                    >
-                      Milhas
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-            {valorLimiteError && <p className="text-xs text-red-500 mt-1">{valorLimiteError}</p>}
-            {!valorLimiteError && (
-              <p className="text-xs text-gray-500 mt-1">
-                {valorLimite 
-                  ? `Você será notificado quando o preço estiver abaixo de ${valorLimite} ${tipoMoeda === "reais" ? "reais" : "milhas"}`
-                  : "Digite um valor para receber alertas de preço"
-                }
-              </p>
-            )}
-          </div>
-        
-        </div>
+      {/* Checkbox para habilitar período específico */}
+      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+        <input
+          type="checkbox"
+          id="habilitarDatas"
+          checked={habilitarDatas}
+          onChange={(e) => {
+            setHabilitarDatas(e.target.checked);
+            if (!e.target.checked) {
+              setInicio("");
+              setFim("");
+            }
+          }}
+          className="w-4 h-4 text-econotrip-blue bg-gray-100 border-gray-300 rounded focus:ring-econotrip-blue focus:ring-2"
+        />
+        <label htmlFor="habilitarDatas" className="text-sm font-medium text-gray-700 cursor-pointer">
+          Definir período específico para monitoramento
+        </label>
       </div>
+      
+      {habilitarDatas && (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Data de início</label>
+            <input 
+              type="date" 
+              value={inicio} 
+              onChange={e => setInicio(e.target.value)} 
+              min={todayStr} 
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 h-10" 
+            />
+            <p className="text-xs text-gray-500 mt-1">A partir de quando monitorar os preços</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Data de fim</label>
+            <input 
+              type="date" 
+              value={fim} 
+              onChange={e => setFim(e.target.value)} 
+              min={inicio || todayStr} 
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 h-10" 
+            />
+            <p className="text-xs text-gray-500 mt-1">Até quando monitorar os preços</p>
+          </div>
+        </>
+      )}
+      
+      {/* Checkbox para habilitar alerta de preço */}
+      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+        <input
+          type="checkbox"
+          id="habilitarAlertaPreco"
+          checked={habilitarAlertaPreco}
+          onChange={(e) => {
+            setHabilitarAlertaPreco(e.target.checked);
+            if (!e.target.checked) {
+              setValorLimite("");
+              setTipoMoeda("reais");
+              setValorLimiteError("");
+            }
+          }}
+          className="w-4 h-4 text-econotrip-orange bg-gray-100 border-gray-300 rounded focus:ring-econotrip-orange focus:ring-2"
+        />
+        <label htmlFor="habilitarAlertaPreco" className="text-sm font-medium text-gray-700 cursor-pointer">
+          Ativar alerta de preço personalizado
+        </label>
+      </div>
+      
+      {habilitarAlertaPreco && (
+        <>
+          {/* Seção de Alerta de Preço - Design Minimalista */}
+          <div className="border border-gray-200 rounded-lg p-4 bg-white">
+            {/* Cabeçalho */}
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="h-5 w-5 text-econotrip-orange" />
+              <h3 className="text-lg font-semibold text-gray-800">Alerta de Preço</h3>
+            </div>
+            
+            {/* Descrição */}
+            <p className="text-sm text-gray-600 mb-4">
+              Defina um valor limite e receba notificações quando encontrarmos preços abaixo deste valor.
+            </p>
+            
+            {/* Campo de valor */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Valor limite
+              </label>
+              <input
+                type="number"
+                value={valorLimite}
+                onChange={e => {
+                  setValorLimite(e.target.value);
+                  setValorLimiteError("");
+                }}
+                className={`w-full border rounded-lg px-3 py-2 h-10 focus:outline-none focus:ring-2 focus:ring-econotrip-orange/20 focus:border-econotrip-orange ${
+                  valorLimiteError 
+                    ? 'border-red-300 focus:ring-red-200 focus:border-red-400' 
+                    : 'border-gray-300'
+                }`}
+                placeholder="0,00"
+                min="0"
+                step="0.01"
+              />
+              
+              {/* Mensagens de feedback */}
+              {valorLimiteError && (
+                <p className="text-sm text-red-600">{valorLimiteError}</p>
+              )}
+              
+              {!valorLimiteError && valorLimite && (
+                <p className="text-sm text-gray-600">
+                  Você será notificado quando o preço estiver abaixo de{' '}
+                  <span className="font-medium text-econotrip-orange">
+                    {valorLimite} {tipoMoeda === "reais" ? "reais" : "milhas"}
+                  </span>
+                </p>
+              )}
+              
+              {!valorLimiteError && !valorLimite && (
+                <p className="text-sm text-gray-500">
+                  Digite um valor para ativar o alerta de preço
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </form>
   );
 
@@ -424,11 +510,11 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setDestinoError("Selecione uma opção do droplist de destino.");
       valid = false;
     }
-    if (valorLimite && (parseFloat(valorLimite) <= 0 || isNaN(parseFloat(valorLimite)))) {
+    if (habilitarAlertaPreco && valorLimite && (parseFloat(valorLimite) <= 0 || isNaN(parseFloat(valorLimite)))) {
       setValorLimiteError("Digite um valor válido maior que zero.");
       valid = false;
     }
-    if (valorLimite && (!notificarEmail && !notificarTelegram)) {
+    if (habilitarAlertaPreco && valorLimite && (!notificarEmail && !notificarTelegram)) {
       setValorLimiteError("Selecione pelo menos uma forma de notificação.");
       valid = false;
     }
@@ -439,9 +525,9 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       const radarData: CreateRadarBody = {
         origin: selectedPartida.navigation.relevantFlightParams.skyId,
         destination: selectedDestino.navigation.relevantFlightParams.skyId,
-        start: inicio,
-        end: fim,
-        value: parseFloat(valorLimite),
+        start: habilitarDatas ? inicio : undefined,
+        end: habilitarDatas ? fim : undefined,
+        value: habilitarAlertaPreco && valorLimite ? parseFloat(valorLimite) : undefined,
         type: tipoMoeda === 'milhas' ? 'AIRMILES' : 'MONEY',
       };
           
@@ -453,6 +539,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setInicio("");
       setFim("");
       setMilhas(false);
+      setHabilitarDatas(false);
+      setHabilitarAlertaPreco(false);
       setValorLimite("");
       setTipoMoeda("reais");
       setShowMoedaDropdown(false);
@@ -483,6 +571,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       confirmText={loading ? "Criando..." : "Criar Radar"}
       cancelText="Cancelar"
       showCancel
+      showIcon={false}
     />
   );
 }

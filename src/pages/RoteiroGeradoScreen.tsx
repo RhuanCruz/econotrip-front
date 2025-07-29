@@ -18,6 +18,8 @@ export default function RoteiroGeradoScreen() {
 
   // Garante que o hook nunca é chamado condicionalmente
   const roteiro = location.state?.roteiro;
+  const start = location.state?.start;
+  const duracao = location.state?.duration;
   const itinerario_detalhado = roteiro?.itinerario_detalhado || [];
 
   const [eventos, setEventos] = useState(() => itinerario_detalhado.flatMap((dia, idx) => {
@@ -81,63 +83,127 @@ export default function RoteiroGeradoScreen() {
         }));
         novoItinerario.push({ ...dia, atividades: atividadesDoDia });
       }
+      
+      // Debug: verificar os valores recebidos
+      console.log('Start recebido:', start, typeof start);
+      console.log('Duração recebida:', duracao, typeof duracao);
+      
+      // Validação e tratamento das datas
+      let startDate;
+      
+      if (!start || !duracao) {
+        throw new Error('Data de início ou duração não encontrada');
+      }
+      
+      // Tenta criar a data de início
+      startDate = new Date(start);
+      if (isNaN(startDate.getTime())) {
+        // Se falhar, tenta formatar como YYYY-MM-DD
+        const dateStr = start.toString();
+        if (dateStr.includes('/')) {
+          // Formato DD/MM/YYYY para YYYY-MM-DD
+          const [day, month, year] = dateStr.split('/');
+          startDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+        } else {
+          startDate = new Date(dateStr);
+        }
+      }
+      
+      if (isNaN(startDate.getTime())) {
+        throw new Error('Formato de data inválido: ' + start);
+      }
+      
+      // Calcula a data de fim
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + parseInt(duracao) - 1);
+      
       const content = {
         ...roteiro,
         itinerario_detalhado: novoItinerario
       };
       await PlannerService.create(token, {
-        start: resumo_viagem.periodo.split(' a ')[0],
-        end: resumo_viagem.periodo.split(' a ')[1],
+        start: startDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        end: endDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
         destination: resumo_viagem.destino,
         content
       });
       toast({ title: "Roteiro salvo com sucesso!" });
       navigate("/meu-roteiro")
     } catch (e) {
+      console.error('Erro ao salvar roteiro:', e);
       toast({ title: "Erro ao salvar roteiro", description: e.message, variant: "destructive" });
     }
   }
 
-  function formatPeriodo(periodo: string) {
-    // Espera formato: "2025-09-01T00:00:00.000Z a 2025-09-10T00:00:00.000Z"
-    const [inicio, fim] = periodo.split(' a ');
-    const format = (dateStr: string) => {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('pt-BR');
-    };
-    return `${format(inicio)} a ${format(fim)}`;
-  }
+
 
   return (
     <ScreenContainer>
       <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">Seu Roteiro Gerado</h1>
+        {/* Header principal melhorado */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-econotrip-blue mb-2">
+            Viagem para {resumo_viagem.destino}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-gray-600 mb-1">
+            <CalendarDays className="h-5 w-5" />
+            <span className="text-lg font-medium">{resumo_viagem.periodo}</span>
+          </div>
+          <div className="text-sm text-gray-500">
+            {resumo_viagem.duracao_dias} dias • {resumo_viagem.numero_pessoas} {resumo_viagem.numero_pessoas === 1 ? 'pessoa' : 'pessoas'} • Estilo {resumo_viagem.estilo_viagem}
+          </div>
+        </div>
+
+        {/* Card do resumo minimalista */}
         <section className="mb-6">
-          <Card className="p-6 mb-4 bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-sm">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <MapPin className="text-blue-600 h-5 w-5" />
-                <span><b>Origem:</b> {resumo_viagem.origem}</span>
+          <Card className="p-1 mb-4 bg-white border border-gray-100 shadow-sm">
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 py-1">
+                <MapPin className="text-blue-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Origem</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.origem}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="text-pink-600 h-5 w-5" />
-                <span><b>Destino:</b> {resumo_viagem.destino}</span>
+              
+              <div className="flex items-start gap-2 py-1">
+                <MapPin className="text-pink-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Destino</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.destino}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="text-green-600 h-5 w-5" />
-                <span><b>Período:</b> {formatPeriodo(resumo_viagem.periodo)}</span>
+              
+              <div className="flex items-start gap-2 py-1">
+                <CalendarDays className="text-green-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Período</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.periodo}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="text-purple-600 h-5 w-5" />
-                <span><b>Nº Pessoas:</b> {resumo_viagem.numero_pessoas}</span>
+              
+              <div className="flex items-start gap-2 py-1">
+                <Users className="text-purple-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Viajantes</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.numero_pessoas} {resumo_viagem.numero_pessoas === 1 ? 'pessoa' : 'pessoas'}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Briefcase className="text-yellow-600 h-5 w-5" />
-                <span><b>Estilo:</b> {resumo_viagem.estilo_viagem}</span>
+              
+              <div className="flex items-start gap-2 py-1">
+                <Briefcase className="text-yellow-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Estilo</span>
+                  <div className="font-medium text-gray-900 capitalize">{resumo_viagem.estilo_viagem}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="text-gray-600 h-5 w-5" />
-                <span><b>Duração:</b> {resumo_viagem.duracao_dias} dias</span>
+              
+              <div className="flex items-start gap-2 py-1">
+                <CalendarDays className="text-gray-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Duração</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.duracao_dias} dias</div>
+                </div>
               </div>
             </div>
           </Card>
@@ -145,7 +211,7 @@ export default function RoteiroGeradoScreen() {
         <section className="mb-6">
           <Card className="p-4 mb-4">
             <h2 className="text-lg font-semibold mb-2">Custos Estimados</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
               <div className="bg-blue-50 rounded-lg p-3 flex flex-col">
                 <span className="font-medium text-blue-900">Passagens</span>
                 <span className="text-lg font-bold text-blue-700">R$ {custos_estimados.passagens_aereas.valor_total}</span>
@@ -239,7 +305,7 @@ export default function RoteiroGeradoScreen() {
           </div>
         </section>
       </div>
-      <div className="flex justify-end max-w-2xl mx-auto pb-8">
+      <div className="flex justify-end max-w-2xl mx-auto pb-8 mt-6">
         <Button
           size="lg"
           className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"

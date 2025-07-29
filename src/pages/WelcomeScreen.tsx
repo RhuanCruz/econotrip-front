@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
           Bem-vindo(a) ao EconoTrip
         </h1>
         <p className="text-xl text-gray-600 mb-10 font-manrope">
-          Sua próxima viagem econômica começa aqui
+          Econotrip é Planejar e Viajar
         </p>
 
         {/* Main button */}
