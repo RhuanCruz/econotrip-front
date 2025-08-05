@@ -8,7 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { UserService } from "@/api/user/UserService";
 import { UpdateUserBody } from "@/api/user/types";
 import { 
-  User, Mail, Calendar, Lock, KeyRound, CheckCircle, ArrowLeft
+  User, Mail, Calendar, Lock, KeyRound, CheckCircle
 } from "lucide-react";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
 
@@ -130,14 +130,7 @@ export default function EditProfileScreen() {
 
   return (
     <div className="max-w-2xl mx-auto py-6 pb-24">
-      <div className="flex items-center gap-2 mb-6">
-        <button 
-          onClick={handleCancel}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-target"
-          aria-label="Voltar para perfil"
-        >
-          <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
-        </button>
+      <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
           Editar Perfil
         </h1>

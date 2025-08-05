@@ -191,15 +191,12 @@ export default function ResultadosMilhasScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-econotrip-blue">
-                Resultados - {programa?.nome}
+          <div className="bg-econotrip-primary p-4 rounded-2xl text-white mb-4">
+            <div className="text-center mb-3">
+              <h1 className="text-xl font-bold text-white">
+                Programa: {programa?.nome}
               </h1>
             </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-econotrip-blue to-econotrip-orange p-4 rounded-2xl text-white mb-4">
             <div className="flex items-center justify-center gap-2 text-white/90 mb-2">
               <MapPin className="h-4 w-4" />
               <span className="font-medium">
@@ -225,7 +222,7 @@ export default function ResultadosMilhasScreen() {
             className="flex items-center justify-center py-12"
           >
             <div className="text-center">
-              <Loader2 className="h-8 w-8 text-econotrip-orange animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-econotrip-primary animate-spin mx-auto mb-4" />
               <p className="text-gray-600">Carregando voos disponíveis...</p>
             </div>
           </motion.div>
@@ -333,7 +330,7 @@ export default function ResultadosMilhasScreen() {
                         <div className="flex items-center justify-center gap-1 mb-1">
                           <span className="text-xs text-gray-600">+ Taxas</span>
                         </div>
-                        <p className="text-lg font-bold text-econotrip-orange">
+                        <p className="text-lg font-bold text-econotrip-blue-light">
                           {flight.taxesCurrencySymbol} {flight.totalTaxes.toFixed(2)}
                         </p>
                       </div>
@@ -343,7 +340,7 @@ export default function ResultadosMilhasScreen() {
                     <Button
                       variant="primary"
                       onClick={() => handleSelectFlight(flight)}
-                      className="w-full h-12 text-lg"
+                      className="w-full h-12 text-lg bg-econotrip-primary"
                       icon={ArrowRight}
                     >
                       Ver detalhes

@@ -44,6 +44,8 @@ import MeusRadaresScreen from "./pages/MeusRadaresScreen";
 import MilesProgramsScreen from "./pages/MilesProgramsScreen";
 import ResultadosMilhasScreen from "./pages/ResultadosMilhasScreen";
 import MilesFlightDetailsScreen from "./pages/FlightDetails/MilesFlightDetailsScreen";
+import OfertasContinentesScreen from "./pages/OfertasContinentesScreen";
+import VoosPorContinenteScreen from "./pages/VoosPorContinenteScreen";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +109,8 @@ const App = () => {
                 <Route path="/programas-milhas" element={<MilesProgramsScreen />} />
                 <Route path="/resultados-milhas" element={<ResultadosMilhasScreen />} />
                 <Route path="/miles-flight-details" element={<MilesFlightDetailsScreen />} />
+                <Route path="/ofertas-continentes" element={<OfertasContinentesScreen />} />
+                <Route path="/voos-continente/:continenteId" element={<VoosPorContinenteScreen />} />
 
               </Route>
 

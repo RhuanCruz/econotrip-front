@@ -1,25 +1,43 @@
 
-/* Accessibility styles */
-.accessibility-large-fonts {
-  font-size: 18px !important;
+/* Accessibility styles - Large Fonts */
+html.accessibility-large-fonts * {
+  font-size: 1.25em !important;
 }
 
-.accessibility-large-fonts h1 {
+html.accessibility-large-fonts h1 {
+  font-size: 3rem !important;
+}
+
+html.accessibility-large-fonts h2 {
   font-size: 2.5rem !important;
 }
 
-.accessibility-large-fonts h2 {
+html.accessibility-large-fonts h3 {
   font-size: 2rem !important;
 }
 
-.accessibility-large-fonts h3 {
-  font-size: 1.75rem !important;
+html.accessibility-large-fonts .text-xs {
+  font-size: 1rem !important;
 }
 
-.accessibility-large-fonts p, 
-.accessibility-large-fonts span, 
-.accessibility-large-fonts button {
+html.accessibility-large-fonts .text-sm {
   font-size: 1.125rem !important;
+}
+
+html.accessibility-large-fonts .text-base {
+  font-size: 1.25rem !important;
+}
+
+html.accessibility-large-fonts .text-lg {
+  font-size: 1.5rem !important;
+}
+
+html.accessibility-large-fonts .text-xl {
+  font-size: 1.875rem !important;
+}
+
+html.accessibility-large-fonts .text-2xl {
+  font-size: 2.5rem !important;
 }
 
 .accessibility-high-contrast {
@@ -39,10 +57,6 @@
 .accessibility-high-contrast .text-gray-700,
 .accessibility-high-contrast .text-gray-600 {
   color: #ffffff !important;
-}
-
-.accessibility-text-reader {
-  /* Visual indicators for text reader mode */
 }
 
 .accessibility-text-reader *:focus {

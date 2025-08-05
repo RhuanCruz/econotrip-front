@@ -180,13 +180,13 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Trip Type Selector */}
-      <div className="bg-white rounded-2xl p-4 shadow-lg">
+      <div className="bg-white rounded-2xl p-3 shadow-lg">
         <div className="flex bg-gray-100 rounded-xl p-1">
           <button
             onClick={() => setTripType('one-way')}
-            className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
               tripType === 'one-way'
                 ? 'bg-white text-econotrip-blue shadow-sm'
                 : 'text-gray-600'
@@ -196,7 +196,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
           </button>
           <button
             onClick={() => setTripType('round-trip')}
-            className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
               tripType === 'round-trip'
                 ? 'bg-white text-econotrip-blue shadow-sm'
                 : 'text-gray-600'
@@ -210,14 +210,14 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
       {/* Main Search Card */}
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Route Selection */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="space-y-4">
+        <div className="p-4 border-b border-gray-100">
+          <div className="space-y-3">
             {/* From */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">De onde</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">De onde</label>
               <div className="relative">
                 <div className="flex items-center">
-                  <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue pointer-events-none" />
+                  <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-econotrip-blue pointer-events-none" />
                   <input
                     type="text"
                     placeholder="São Paulo, Brasil"
@@ -228,14 +228,14 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                     }}
                     onFocus={() => formData.origem && formData.origem.length >= 3 && setShowOrigemDropdown(true)}
                     onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
-                    className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
+                    className={`w-full pl-10 pr-10 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-base transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
                     disabled={!!selectedOrigem}
                   />
                   {selectedOrigem && (
                     <button
                       type="button"
                       aria-label="Remover seleção de origem"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
                       style={{ zIndex: 30 }}
                       onClick={() => {
                         setSelectedOrigem(null);
@@ -277,8 +277,8 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
               </div>
             </div>
 
-            {/* Swap Button */}
-            <div className="flex justify-center">
+            {/* Swap Button - Integrado */}
+            {/* <div className="flex justify-end -mt-2 mb-1">
               <button 
                 type="button"
                 onClick={() => {
@@ -301,20 +301,21 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                     isSwappingRef.current = false;
                   }, 100);
                 }}
-                className="w-10 h-10 bg-econotrip-blue rounded-full flex items-center justify-center text-white shadow-lg hover:bg-econotrip-blue/90 transition-colors touch-target"
+                className="w-8 h-8 bg-gray-100 hover:bg-econotrip-blue hover:text-white rounded-lg flex items-center justify-center text-gray-600 transition-all duration-200 shadow-sm"
+                title="Inverter origem e destino"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
               </button>
-            </div>
+            </div> */}
 
             {/* To */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Para onde</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Para onde</label>
               <div className="relative">
                 <div className="flex items-center">
-                  <MapPin className="absolute left-4 top-4 h-5 w-5 text-econotrip-orange pointer-events-none" />
+                  <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-econotrip-orange pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Lisboa, Portugal"
@@ -325,14 +326,14 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                     }}
                     onFocus={() => formData.destino && formData.destino.length >= 3 && setShowDestinoDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
-                    className={`w-full pl-12 pr-10 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-lg transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
+                    className={`w-full pl-10 pr-10 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-base transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
                     disabled={!!selectedDestino}
                   />
                   {selectedDestino && (
                     <button
                       type="button"
                       aria-label="Remover seleção de destino"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
                       style={{ zIndex: 30 }}
                       onClick={() => {
                         setSelectedDestino(null);
@@ -377,32 +378,32 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         </div>
 
         {/* Date Selection */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="space-y-4">
+        <div className="p-4 border-b border-gray-100">
+          <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Partida</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Partida</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue" />
+                <Calendar className="absolute left-3 top-3.5 h-5 w-5 text-econotrip-blue" />
                 <input
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
                   value={formData.dataIda}
                   onChange={(e) => onInputChange("dataIda", e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent"
                 />
               </div>
             </div>
             {tripType === 'round-trip' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Retorno</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Retorno</label>
                 <div className="relative">
-                  <Calendar className="absolute left-4 top-4 h-5 w-5 text-econotrip-orange" />
+                  <Calendar className="absolute left-3 top-3.5 h-5 w-5 text-econotrip-orange" />
                   <input
                     type="date"
                     min={formData.dataIda || new Date().toISOString().split('T')[0]}
                     value={formData.dataVolta}
                     onChange={(e) => onInputChange("dataVolta", e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent"
                   />
                 </div>
               </div>
@@ -411,23 +412,23 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         </div>
 
         {/* Passengers & Class */}
-        <div className="p-6">
-          <div className="space-y-4">
+        <div className="p-4">
+          <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Passageiros</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Passageiros</label>
               <div className="relative">
-                <Users className="absolute left-4 top-4 h-5 w-5 text-econotrip-blue" />
-                <div className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl bg-gray-50 text-lg font-medium text-econotrip-blue">
+                <Users className="absolute left-3 top-3.5 h-5 w-5 text-econotrip-blue" />
+                <div className="w-full pl-10 pr-4 py-3.5 border border-gray-200 rounded-xl bg-gray-50 text-base font-medium text-econotrip-blue">
                   {getTotalPassengers()} {getTotalPassengers() === 1 ? 'Passageiro' : 'Passageiros'}
                 </div>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Classe</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Classe</label>
               <select
                 value={formData.classe}
                 onChange={(e) => onInputChange("classe", e.target.value)}
-                className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-lg"
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-base"
                 disabled
               >
                 <option value="economica">Econômica</option>
@@ -446,9 +447,9 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         className="overflow-hidden"
       >
         {showAdvanced && (
-          <div className="bg-white rounded-2xl p-6 shadow-lg space-y-4">
-            <h3 className="text-lg font-semibold text-econotrip-blue mb-4">Opções Avançadas</h3>
-            <div className="space-y-3">
+          <div className="bg-white rounded-2xl p-4 shadow-lg space-y-3">
+            <h3 className="text-lg font-semibold text-econotrip-blue mb-3">Opções Avançadas</h3>
+            <div className="space-y-2.5">
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -499,7 +500,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
       </div>
 
       {/* Search Button */}
-      <div className="pt-4">
+      <div className="pt-1">
         <Button
           onClick={onSearch}
           icon={Search}
@@ -508,7 +509,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         >
           Buscar Voos
         </Button>
-        <p className="text-center text-sm text-gray-500 mt-3">
+        <p className="text-center text-sm text-gray-500 mt-2">
           Encontraremos as melhores opções para você!
         </p>
       </div>

@@ -90,8 +90,14 @@ export default function RadarOfertasScreen() {
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [favoritadas, setFavoritadas] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [radarType, setRadarType] = useState<'AIRMILES' | 'MONEY'>('MONEY');
 
   useEffect(() => {
+    // Se há um novoRadar, usa o tipo dele
+    if (novoRadar && novoRadar.type) {
+      setRadarType(novoRadar.type);
+    }
+    
     if (!token || !radarId) return;
     setLoading(true);
     RadarService.getFlights(token, radarId)
@@ -111,10 +117,15 @@ export default function RadarOfertasScreen() {
           isSustentavel: false,
         }));
         setOfertas(ofertasConvertidas);
+        
+        // Captura o tipo do radar da primeira oferta (todas devem ter o mesmo tipo)
+        if (res.results.length > 0) {
+          setRadarType(res.results[0].type as 'AIRMILES' | 'MONEY');
+        }
       })
       .catch(() => setOfertas([]))
       .finally(() => setLoading(false));
-  }, [token, radarId]);
+  }, [token, radarId, novoRadar]);
 
   // Agrupa ofertas por preço
   const ofertasPorPreco: Record<number, Oferta[]> = {};
@@ -141,6 +152,7 @@ export default function RadarOfertasScreen() {
       state: {
         origem: oferta.origem,
         destino: oferta.destino,
+        dataIda: oferta.dataLimite,
         ofertaId: oferta.id
       }
     });
@@ -155,8 +167,8 @@ export default function RadarOfertasScreen() {
         className="text-center mb-6"
       >
         <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="p-3 bg-econotrip-orange/10 rounded-2xl">
-            <Radar className="h-8 w-8 text-econotrip-orange" />
+          <div className="p-3 bg-econotrip-blue-light/10 rounded-2xl">
+            <Radar className="h-8 w-8 text-econotrip-primary" />
           </div>
           <h1 className="text-2xl font-bold text-econotrip-blue">
             Radar de Ofertas
@@ -207,8 +219,11 @@ export default function RadarOfertasScreen() {
                 {/* Preço */}
                 <div className="mb-4">
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-2xl font-bold text-econotrip-orange">
-                      R$ {preco.toLocaleString()}
+                    <span className="text-2xl font-bold text-econotrip-blue-light">
+                      {radarType === 'AIRMILES' 
+                        ? `${preco.toLocaleString()} milhas`
+                        : `R$ ${preco.toLocaleString()}`
+                      }
                     </span>
                   </div>
                 </div>
@@ -226,7 +241,7 @@ export default function RadarOfertasScreen() {
                 <Button
                   variant="primary"
                   onClick={() => setModalDatas({ preco, datas: grupo.map(o => o.dataLimite) })}
-                  className="w-full h-12 text-lg"
+                  className="w-full h-12 text-lg bg-econotrip-primary"
                 >
                   Mostrar datas disponíveis
                 </Button>
@@ -243,6 +258,7 @@ export default function RadarOfertasScreen() {
           datas={modalDatas.datas}
           origem={ofertas.length > 0 ? ofertas[0].origem : ""}
           destino={ofertas.length > 0 ? ofertas[0].destino : ""}
+          radarType={radarType}
         />
       )}
 
@@ -252,8 +268,8 @@ export default function RadarOfertasScreen() {
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
-          <div className="p-4 bg-econotrip-orange/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <Clock className="h-8 w-8 text-econotrip-orange" />
+          <div className="p-4 bg-econotrip-blue-light/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Clock className="h-8 w-8 text-econotrip-primary" />
           </div>
           <h3 className="text-lg font-medium text-econotrip-blue mb-3">
             Aguarde, estamos processando seu radar

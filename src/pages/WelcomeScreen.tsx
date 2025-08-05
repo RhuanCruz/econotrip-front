@@ -8,7 +8,7 @@ export default function WelcomeScreen() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-econotrip-blue-light/20 to-econotrip-green/20 px-6 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-6 py-12">
       <div className="w-full max-w-md flex flex-col items-center text-center">
         {/* Logo e Ícone */}
         <div className="mb-8 flex flex-col items-center justify-center">
@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
             alt="EconoTrip"
             className="h-20 w-20 mb-4 rounded-2xl shadow-lg"
           />
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
+          <div className="font-museomoderno font-bold text-4xl text-econotrip-primary">
             EconoTrip
           </div>
         </div>
@@ -28,8 +28,8 @@ export default function WelcomeScreen() {
         </div>
 
         {/* Title and subtitle */}
-        <h1 className="text-3xl md:text-4xl font-bold text-econotrip-blue mb-4 font-museomoderno">
-          Bem-vindo(a) ao EconoTrip
+        <h1 className="text-3xl md:text-4xl font-bold text-econotrip-primary mb-4 font-museomoderno">
+          Bem-vindo(a)
         </h1>
         <p className="text-xl text-gray-600 mb-10 font-manrope">
           Econotrip é Planejar e Viajar
@@ -42,7 +42,7 @@ export default function WelcomeScreen() {
             size="lg"
             icon={ArrowRight}
             iconPosition="right"
-            className="w-full bg-gradient-to-r from-econotrip-orange to-econotrip-coral rounded-full h-14 shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-econotrip-primary hover:bg-econotrip-primary/90 rounded-full h-14 shadow-lg hover:shadow-xl transition-all text-white font-semibold"
             onClick={() => navigate("/login")}
           >
             Começar
@@ -52,14 +52,14 @@ export default function WelcomeScreen() {
         {/* Sign up link */}
         <button 
           onClick={() => navigate("/registro")} 
-          className="text-econotrip-blue hover:text-econotrip-orange transition-colors text-lg underline underline-offset-2 touch-target"
+          className="text-econotrip-primary hover:text-econotrip-coral transition-colors text-lg underline underline-offset-2 touch-target font-medium"
         >
           Ainda não tem conta? Criar agora
         </button>
 
         {/* Help button */}
         <button
-          className="fixed bottom-6 right-6 bg-econotrip-blue text-white rounded-full p-4 shadow-lg hover:bg-econotrip-blue/90 transition-colors touch-target"
+          className="fixed bottom-6 right-6 bg-econotrip-primary text-white rounded-full p-4 shadow-lg hover:bg-econotrip-primary/90 transition-colors touch-target"
           aria-label="Ajuda para começar"
           title="Ajuda para começar"
           onClick={() => alert("Assistente de ajuda será aberto aqui.")}

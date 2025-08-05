@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
-import { Plus, Radar, X } from "lucide-react";
+import { Plus, Radar, Trash2 } from "lucide-react";
 import { NovoRadarModal } from "@/components/roteiro/NovoRadarModal";
 import { RadarService } from "@/api/radar/RadarService";
 import { useAuthStore } from "@/stores/authStore";
@@ -79,7 +79,7 @@ export default function MeusRadaresScreen() {
       <div className="max-w-screen-sm mx-auto px-4 py-6 pb-28">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-econotrip-blue flex items-center gap-2">
-            <Radar className="h-7 w-7 text-econotrip-orange" />
+            <Radar className="h-7 w-7 text-econotrip-primary" />
             Meus Radares
           </h1>
           <button
@@ -106,7 +106,7 @@ export default function MeusRadaresScreen() {
     <div className="max-w-screen-sm mx-auto px-4 py-6 pb-28">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-econotrip-blue flex items-center gap-2">
-          <Radar className="h-7 w-7 text-econotrip-orange" />
+          <Radar className="h-7 w-7 text-econotrip-primary" />
           Meus Radares
         </h1>
         <button
@@ -126,14 +126,14 @@ export default function MeusRadaresScreen() {
           >
             {/* Botão de remover no canto superior direito */}
             <span
-              className="absolute top-2 right-2 z-10 h-7 w-7 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition-colors cursor-pointer touch-target"
+              className="absolute top-2 right-2 z-10 h-7 w-7 flex items-center justify-center rounded-full hover:bg-red-100 transition-colors cursor-pointer touch-target"
               onClick={e => { e.stopPropagation(); handleRemoverRadar(radar.id); }}
               title="Remover radar"
             >
-              <X className="h-4 w-4 text-red-600" />
+              <Trash2 className="h-4 w-4 text-red-600" />
             </span>
             <div className="flex items-center gap-2 mb-1">
-              <Radar className="h-5 w-5 text-econotrip-orange" />
+              <Radar className="h-5 w-5 text-econotrip-primary" />
               <span className="font-semibold text-lg text-econotrip-blue">
                 {radar.origin} → {radar.destination}
               </span>
@@ -155,7 +155,7 @@ export default function MeusRadaresScreen() {
             
             {/* Informações do alerta de preço */}
             {radar.value && (
-              <div className="text-econotrip-orange text-sm">
+              <div className="text-econotrip-coral text-sm">
                 <span className="font-medium">Alerta de preço:</span> {radar.value} {radar.type === 'AIRMILES' ? 'milhas' : 'reais'}
               </div>
             )}

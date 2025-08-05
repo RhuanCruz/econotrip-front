@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -63,20 +64,28 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// ECONOTRIP Brand Colors - Nova Paleta
+				// ECONOTRIP Brand Colors - Paleta Oficial
 				econotrip: {
-					// Azul principal da marca - #153D6B
+					// Cor principal - Azul escuro para seriedade (#153D6B)
+					primary: '#153D6B',
 					blue: '#153D6B',
+					
+					// Azul claro secundário (#6CB4F5)
 					'blue-light': '#6CB4F5',
-					// Laranja/Amarelo da marca - #FFC338  
-					orange: '#FFC338',
-					// Verde da marca - #ABD03B
+					
+					// Verde (#ABD03B)
 					green: '#ABD03B',
-					// Vermelho/Coral da marca - #FF6328
+					
+					// Amarelo (#FFC338)
+					yellow: '#FFC338',
+					orange: '#FFC338', // Mantendo compatibilidade
+					
+					// Laranja/Vermelho (#FF6328)
 					coral: '#FF6328',
-					// Neutros
+					red: '#FF6328',
+					
+					// Branco (#FFFFFF)
 					white: '#FFFFFF',
-					black: '#000000',
 				}
 			},
 			fontFamily: {
@@ -112,5 +121,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

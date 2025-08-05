@@ -241,7 +241,7 @@ export default function ResultsScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
@@ -317,7 +317,7 @@ export default function ResultsScreen() {
                   onClick={() => setOrdenacao(opcao.id as "preco" | "duracao")}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl transition-all shadow-md text-base font-medium border-2 touch-target ${
                     ordenacao === opcao.id
-                      ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white border-econotrip-orange shadow-lg"
+                      ? "bg-econotrip-primary text-white border-econotrip-primary shadow-lg"
                       : "bg-white/80 backdrop-blur-sm text-gray-700 border-transparent hover:bg-white/90"
                   }`}
                 >
@@ -381,10 +381,10 @@ export default function ResultsScreen() {
                 
                 <Button
                   onClick={handleNovaBusca}
-                  className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 touch-target"
+                  className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 touch-target flex items-center justify-center gap-2"
                 >
-                  <Search className="mr-2 h-5 w-5" />
-                  Alterar Busca
+                  <Search className="h-5 w-5" />
+                  <span>Alterar Busca</span>
                 </Button>
               </div>
             </motion.div>
@@ -408,7 +408,7 @@ export default function ResultsScreen() {
                       </span>
                     </div>
                     <div className="mt-2 text-left">
-                      <div className="text-3xl font-bold text-econotrip-orange">
+                      <div className="text-3xl font-bold text-econotrip-blue-light">
                         R$ {voo.preco}
                       </div>
                       <div className="text-sm text-gray-600">por pessoa</div>
@@ -430,7 +430,7 @@ export default function ResultsScreen() {
                         <div className="flex flex-col items-center">
                           <div className="flex items-center justify-center w-full mb-2">
                             <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>
-                            <div className="w-12 h-12 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-full flex items-center justify-center mx-2 shadow-lg">
+                            <div className="w-12 h-12 bg-econotrip-primary rounded-full flex items-center justify-center mx-2 shadow-lg">
                               <Plane className="h-6 w-6 text-white" />
                             </div>
                             <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>

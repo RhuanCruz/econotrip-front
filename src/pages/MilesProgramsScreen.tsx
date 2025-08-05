@@ -208,7 +208,7 @@ export default function MilesProgramsScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="bg-gradient-to-r from-econotrip-blue to-econotrip-orange p-4 rounded-2xl text-white mb-4">
+          <div className="bg-econotrip-primary p-4 rounded-2xl text-white mb-4">
             <div className="flex items-center justify-center gap-3 mb-2">
               <Star className="h-6 w-6" />
               <h1 className="text-xl font-bold">Programas de Milhas</h1>
@@ -235,28 +235,28 @@ export default function MilesProgramsScreen() {
         </motion.div>
 
         {/* Filtros */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {categorias.map((categoria) => (
-              <button
-                key={categoria.id}
-                onClick={() => setFiltroCategoria(categoria.id)}
-                className={`px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${
-                  filtroCategoria === categoria.id
-                    ? "border-econotrip-orange bg-econotrip-orange text-white"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-orange"
-                }`}
-              >
-                {categoria.label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+          {/* <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6"
+          >
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {categorias.map((categoria) => (
+                <button
+                  key={categoria.id}
+                  onClick={() => setFiltroCategoria(categoria.id)}
+                  className={`px-4 py-2 rounded-full border-2 transition-all whitespace-nowrap ${
+                    filtroCategoria === categoria.id
+                      ? "border-econotrip-primary bg-econotrip-primary text-white"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-econotrip-primary"
+                  }`}
+                >
+                  {categoria.label}
+                </button>
+              ))}
+            </div>
+          </motion.div> */}
 
         {/* Lista de Programas */}
         {loading ? (
@@ -342,7 +342,7 @@ export default function MilesProgramsScreen() {
                         <div className="flex items-center justify-center gap-1 mb-1">
                           <span className="text-xs text-gray-600">+ Taxas</span>
                         </div>
-                        <p className="text-lg font-bold text-econotrip-orange">
+                        <p className="text-lg font-bold text-econotrip-blue-light">
                           {program.currency === 'USD' ? '$' : 'R$'} {program.custoTaxas.toFixed(2)}
                         </p>
                       </div>
@@ -352,7 +352,7 @@ export default function MilesProgramsScreen() {
                     <Button
                       variant="primary"
                       onClick={() => handleSelectProgram(program)}
-                      className="w-full h-12 text-lg"
+                      className="w-full h-12 text-lg bg-econotrip-primary"
                       icon={ArrowRight}
                     >
                       Ver voos disponíveis

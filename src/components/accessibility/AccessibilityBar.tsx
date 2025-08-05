@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
-import { Glasses, Type, Contrast, Volume2, X, ChevronDown } from "lucide-react";
+import { Glasses, Type, Contrast, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AccessibilitySettings {
   largeFonts: boolean;
   highContrast: boolean;
-  textReader: boolean;
 }
 
 export function AccessibilityBar() {
@@ -16,7 +15,6 @@ export function AccessibilityBar() {
   const [settings, setSettings] = useState<AccessibilitySettings>({
     largeFonts: false,
     highContrast: false,
-    textReader: false,
   });
 
   useEffect(() => {
@@ -48,13 +46,6 @@ export function AccessibilityBar() {
       html.classList.add("accessibility-high-contrast");
     } else {
       html.classList.remove("accessibility-high-contrast");
-    }
-    
-    // Text reader (would integrate with speech synthesis in real app)
-    if (newSettings.textReader) {
-      html.classList.add("accessibility-text-reader");
-    } else {
-      html.classList.remove("accessibility-text-reader");
     }
   };
 
@@ -137,20 +128,25 @@ export function AccessibilityBar() {
                         <p className="text-sm text-gray-600">Aumenta o tamanho do texto</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => updateSetting("largeFonts")}
-                      className={`w-12 h-6 rounded-full transition-all touch-target ${
-                        settings.largeFonts ? "bg-econotrip-green" : "bg-gray-300"
-                      }`}
-                      aria-pressed={settings.largeFonts}
-                      aria-label="Alternar fonte grande"
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-                          settings.largeFonts ? "translate-x-6" : "translate-x-0.5"
-                        }`}
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.largeFonts}
+                        onChange={() => updateSetting("largeFonts")}
+                        className="sr-only"
                       />
-                    </button>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                        settings.largeFonts 
+                          ? "bg-econotrip-green border-econotrip-green" 
+                          : "bg-white border-gray-300 hover:border-gray-400"
+                      }`}>
+                        {settings.largeFonts && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                    </label>
                   </div>
 
                   <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
@@ -161,44 +157,25 @@ export function AccessibilityBar() {
                         <p className="text-sm text-gray-600">Melhora a legibilidade</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => updateSetting("highContrast")}
-                      className={`w-12 h-6 rounded-full transition-all touch-target ${
-                        settings.highContrast ? "bg-econotrip-green" : "bg-gray-300"
-                      }`}
-                      aria-pressed={settings.highContrast}
-                      aria-label="Alternar alto contraste"
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-                          settings.highContrast ? "translate-x-6" : "translate-x-0.5"
-                        }`}
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={settings.highContrast}
+                        onChange={() => updateSetting("highContrast")}
+                        className="sr-only"
                       />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Volume2 className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
-                      <div>
-                        <h3 className="font-medium text-econotrip-blue">Leitor de Texto</h3>
-                        <p className="text-sm text-gray-600">Lê o conteúdo em voz alta</p>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                        settings.highContrast 
+                          ? "bg-econotrip-green border-econotrip-green" 
+                          : "bg-white border-gray-300 hover:border-gray-400"
+                      }`}>
+                        {settings.highContrast && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </div>
-                    </div>
-                    <button
-                      onClick={() => updateSetting("textReader")}
-                      className={`w-12 h-6 rounded-full transition-all touch-target ${
-                        settings.textReader ? "bg-econotrip-green" : "bg-gray-300"
-                      }`}
-                      aria-pressed={settings.textReader}
-                      aria-label="Alternar leitor de texto"
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
-                          settings.textReader ? "translate-x-6" : "translate-x-0.5"
-                        }`}
-                      />
-                    </button>
+                    </label>
                   </div>
                 </div>
 

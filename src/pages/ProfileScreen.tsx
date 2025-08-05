@@ -188,7 +188,7 @@ export default function ProfileScreen() {
         </motion.div>
       </motion.div>
 
-      {/* Travel History Section */}
+      {/* Travel History Section
       <motion.div variants={itemAnimation} className="mb-6 md:mb-8">
         <div className="flex items-center gap-3 mb-4">
           <h2 className="text-lg md:text-xl xl:text-2xl font-museomoderno font-bold text-econotrip-blue">
@@ -199,6 +199,7 @@ export default function ProfileScreen() {
         
         <div className="space-y-3 md:space-y-4">
           {/* First Trip Card */}
+        {/*
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Card className="p-4 md:p-5 rounded-2xl shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -234,7 +235,6 @@ export default function ProfileScreen() {
             </Card>
           </motion.div>
           
-          {/* Second Trip Card */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Card className="p-4 md:p-5 rounded-2xl shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -270,7 +270,7 @@ export default function ProfileScreen() {
             </Card>
           </motion.div>
         </div>
-      </motion.div>
+      </motion.div> */}
 
       {/* Floating Help Button */}
       <div className="fixed bottom-20 md:bottom-24 right-4 md:right-6 z-10">

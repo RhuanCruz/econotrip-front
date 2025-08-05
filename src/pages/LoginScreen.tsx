@@ -76,16 +76,16 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 flex items-center justify-center">
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
+          <div className="font-museomoderno font-bold text-4xl text-econotrip-primary">
             ECONOTRIP
           </div>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-4 text-center font-museomoderno">
+        <h1 className="text-2xl md:text-3xl font-bold text-econotrip-primary mb-4 text-center font-museomoderno">
           Que bom ver você novamente!
         </h1>
         
@@ -93,12 +93,12 @@ export default function LoginScreen() {
           Entre com seus dados para acessar suas viagens e descobrir novas ofertas
         </p>
 
-        <MotivationalHint message="Suas próximas aventuras estão esperando por você!" className="mb-6" />
+        {/* <MotivationalHint message="Suas próximas aventuras estão esperando por você!" className="mb-6" /> */}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="text-lg font-medium text-econotrip-blue">
+              <label className="text-lg font-medium text-econotrip-primary">
                 Seu e-mail
               </label>
               <ContextualTooltip content="Digite o e-mail que você usou para criar sua conta no EconoTrip." />
@@ -116,7 +116,7 @@ export default function LoginScreen() {
 
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="text-lg font-medium text-econotrip-blue">
+              <label className="text-lg font-medium text-econotrip-primary">
                 Sua senha
               </label>
               <ContextualTooltip content="Digite a senha que você criou para proteger sua conta." />
@@ -136,7 +136,7 @@ export default function LoginScreen() {
             <button
               type="button"
               onClick={() => navigate("/recuperar-senha")}
-              className="text-econotrip-blue hover:text-econotrip-orange transition-colors text-lg touch-target"
+              className="text-econotrip-primary hover:text-econotrip-coral transition-colors text-lg touch-target"
               aria-label="Recuperar senha esquecida"
             >
               Esqueceu sua senha?
@@ -149,7 +149,7 @@ export default function LoginScreen() {
             size="lg"
             icon={LogIn}
             loading={isLoading}
-            className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-6"
+            className="w-full bg-econotrip-primary hover:bg-econotrip-primary/90 rounded-full h-14 mt-6 text-white font-semibold"
           >
             Entrar na minha conta
           </Button>
@@ -176,9 +176,9 @@ export default function LoginScreen() {
           <button
             type="button"
             onClick={handleFacebookLogin}
-            className="w-full h-12 border-2 border-blue-200 hover:border-blue-300 bg-white text-blue-600 hover:bg-blue-50 rounded-xl flex items-center justify-center gap-3 transition-colors"
+            className="w-full h-12 border-2 border-gray-200 hover:border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-xl flex items-center justify-center gap-3 transition-colors"
           >
-            <FacebookIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <FacebookIcon className="w-5 h-5 text-gray-600 flex-shrink-0" />
             <span>Continuar com Facebook</span>
           </button>
         </div>
@@ -188,7 +188,7 @@ export default function LoginScreen() {
           <button
             type="button"
             onClick={() => navigate("/registro")}
-            className="text-econotrip-blue hover:text-econotrip-orange transition-colors text-lg underline underline-offset-2 touch-target"
+            className="text-econotrip-primary hover:text-econotrip-coral transition-colors text-lg underline underline-offset-2 touch-target font-medium"
             aria-label="Criar uma nova conta"
           >
             Criar conta gratuita

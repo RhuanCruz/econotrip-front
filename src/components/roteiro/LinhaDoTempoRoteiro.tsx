@@ -21,10 +21,11 @@ interface LinhaDoTempoRoteiroProps {
   objetivo: string;
   eventosExternos?: EventoRoteiro[];
   atividadesDisponiveis?: Array<{ id: string; nome: string; descricao: string; categoria?: string }>;
+  itinerarioDetalhado?: Array<{ dia: number; cidade?: string; atividades?: Array<{ [key: string]: unknown }> }>;
   onEventosChange?: (eventos: EventoRoteiro[]) => void;
 }
 
-export function LinhaDoTempoRoteiro({ objetivo, eventosExternos, atividadesDisponiveis = [], onEventosChange }: LinhaDoTempoRoteiroProps) {
+export function LinhaDoTempoRoteiro({ objetivo, eventosExternos, atividadesDisponiveis = [], itinerarioDetalhado = [], onEventosChange }: LinhaDoTempoRoteiroProps) {
   const [eventos, setEventos] = useState<EventoRoteiro[]>(eventosExternos);
   const [showAddModal, setShowAddModal] = useState<number | null>(null);
   const [newAtividade, setNewAtividade] = useState({
@@ -36,7 +37,26 @@ export function LinhaDoTempoRoteiro({ objetivo, eventosExternos, atividadesDispo
   // Notifica alterações ao pai
   React.useEffect(() => {
     if (onEventosChange) onEventosChange(eventos);
-  }, [eventos]);
+  }, [eventos, onEventosChange]);
+
+  // Função para formatar nome da cidade (pegar apenas nome e país)
+  const formatarNomeCidade = (cidadeCompleta?: string) => {
+    if (!cidadeCompleta) return '';
+    
+    const partes = cidadeCompleta.split(', ');
+    if (partes.length >= 2) {
+      // Retorna apenas nome da cidade e a última parte (região/país)
+      return `${partes[0]}, ${partes[partes.length - 1]}`;
+    }
+    
+    return cidadeCompleta;
+  };
+
+  // Função para obter a cidade de um dia específico
+  const getCidadeDoDia = (dia: number) => {
+    const diaInfo = itinerarioDetalhado.find(d => d.dia === dia);
+    return diaInfo?.cidade;
+  };
 
   const getIconByTipo = (tipo: string) => {
     switch (tipo) {
@@ -136,11 +156,21 @@ export function LinhaDoTempoRoteiro({ objetivo, eventosExternos, atividadesDispo
               className="relative"
             >
               <div className="flex items-center mb-3 gap-2">
-                <h3 className="text-lg font-bold text-econotrip-blue">
-                  Dia {dia}
-                </h3>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-econotrip-blue">
+                    Dia {dia}
+                  </h3>
+                  {getCidadeDoDia(Number(dia)) && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <MapPin className="w-3 h-3 text-econotrip-blue/70" />
+                      <span className="text-sm font-medium text-econotrip-blue/70">
+                        {formatarNomeCidade(getCidadeDoDia(Number(dia)))}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
-                  className="ml-1 w-8 h-8 rounded-full bg-econotrip-blue text-white flex items-center justify-center hover:bg-econotrip-blue/90 transition"
+                  className="w-8 h-8 rounded-full bg-econotrip-blue text-white flex items-center justify-center hover:bg-econotrip-blue/90 transition flex-shrink-0"
                   onClick={() => setShowAddModal(Number(dia))}
                   type="button"
                   aria-label="Adicionar atividade"

@@ -80,7 +80,7 @@ export default function MinhaEvolucaoScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-20 h-20 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
+              className="w-20 h-20 bg-econotrip-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
             >
               <TrendingUp className="w-10 h-10 text-white" />
             </motion.div>

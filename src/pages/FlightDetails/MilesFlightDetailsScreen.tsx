@@ -203,7 +203,7 @@ export default function MilesFlightDetailsScreen() {
               </div>
 
               {/* Custo em milhas */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gradient-to-r from-econotrip-blue/5 to-econotrip-orange/5 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-econotrip-blue-light/10 rounded-lg">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Star className="h-4 w-4 text-econotrip-orange" />
@@ -217,7 +217,7 @@ export default function MilesFlightDetailsScreen() {
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <span className="text-sm text-gray-600">+ Taxas</span>
                   </div>
-                  <p className="text-2xl font-bold text-econotrip-orange">
+                  <p className="text-2xl font-bold text-econotrip-blue-light">
                     {flight.taxesCurrencySymbol} {flight.totalTaxes.toFixed(2)}
                   </p>
                 </div>

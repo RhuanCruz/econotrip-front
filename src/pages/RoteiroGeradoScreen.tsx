@@ -20,14 +20,15 @@ export default function RoteiroGeradoScreen() {
   const roteiro = location.state?.roteiro;
   const start = location.state?.start;
   const duracao = location.state?.duration;
+  const destination: Array<{ city: string; duration: number; }> = location.state?.destination;
   const itinerario_detalhado = roteiro?.itinerario_detalhado || [];
 
   const [eventos, setEventos] = useState(() => itinerario_detalhado.flatMap((dia, idx) => {
     const atividades = dia.atividades
       ? dia.atividades.filter(a => {
-          const cat = a.categoria?.toLowerCase();
-          return cat !== "transporte";
-        })
+        const cat = a.categoria?.toLowerCase();
+        return cat !== "transporte";
+      })
         .map((a, i) => ({
           id: `${dia.dia}-a${i}`,
           dia: dia.dia,
@@ -83,18 +84,18 @@ export default function RoteiroGeradoScreen() {
         }));
         novoItinerario.push({ ...dia, atividades: atividadesDoDia });
       }
-      
+
       // Debug: verificar os valores recebidos
       console.log('Start recebido:', start, typeof start);
       console.log('Duração recebida:', duracao, typeof duracao);
-      
+
       // Validação e tratamento das datas
       let startDate;
-      
+
       if (!start || !duracao) {
         throw new Error('Data de início ou duração não encontrada');
       }
-      
+
       // Tenta criar a data de início
       startDate = new Date(start);
       if (isNaN(startDate.getTime())) {
@@ -108,23 +109,24 @@ export default function RoteiroGeradoScreen() {
           startDate = new Date(dateStr);
         }
       }
-      
+
       if (isNaN(startDate.getTime())) {
         throw new Error('Formato de data inválido: ' + start);
       }
-      
+
       // Calcula a data de fim
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + parseInt(duracao) - 1);
-      
+
       const content = {
         ...roteiro,
         itinerario_detalhado: novoItinerario
       };
+
       await PlannerService.create(token, {
         start: startDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
         end: endDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
-        destination: resumo_viagem.destino,
+        destination: destination.map((dest) => dest.city),
         content
       });
       toast({ title: "Roteiro salvo com sucesso!" });
@@ -143,7 +145,9 @@ export default function RoteiroGeradoScreen() {
         {/* Header principal melhorado */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-econotrip-blue mb-2">
-            Viagem para {resumo_viagem.destino}
+            Viagem para {destination.map(item => item.city.split(',')[0].trim())
+              .join(', ')
+              .replace(/, ([^,]*)$/, ' e $1')}
           </h1>
           <div className="flex items-center justify-center gap-2 text-gray-600 mb-1">
             <CalendarDays className="h-5 w-5" />
@@ -165,7 +169,7 @@ export default function RoteiroGeradoScreen() {
                   <div className="font-medium text-gray-900">{resumo_viagem.origem}</div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 py-1">
                 <MapPin className="text-pink-600 h-4 w-4 mt-1" />
                 <div className="flex-1">
@@ -173,7 +177,7 @@ export default function RoteiroGeradoScreen() {
                   <div className="font-medium text-gray-900">{resumo_viagem.destino}</div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 py-1">
                 <CalendarDays className="text-green-600 h-4 w-4 mt-1" />
                 <div className="flex-1">
@@ -181,7 +185,7 @@ export default function RoteiroGeradoScreen() {
                   <div className="font-medium text-gray-900">{resumo_viagem.periodo}</div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 py-1">
                 <Users className="text-purple-600 h-4 w-4 mt-1" />
                 <div className="flex-1">
@@ -189,7 +193,7 @@ export default function RoteiroGeradoScreen() {
                   <div className="font-medium text-gray-900">{resumo_viagem.numero_pessoas} {resumo_viagem.numero_pessoas === 1 ? 'pessoa' : 'pessoas'}</div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 py-1">
                 <Briefcase className="text-yellow-600 h-4 w-4 mt-1" />
                 <div className="flex-1">
@@ -197,7 +201,7 @@ export default function RoteiroGeradoScreen() {
                   <div className="font-medium text-gray-900 capitalize">{resumo_viagem.estilo_viagem}</div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 py-1">
                 <CalendarDays className="text-gray-600 h-4 w-4 mt-1" />
                 <div className="flex-1">
@@ -250,7 +254,13 @@ export default function RoteiroGeradoScreen() {
         </section>
         <section className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Itinerário Detalhado</h2>
-          <LinhaDoTempoRoteiro objetivo={resumo_viagem.estilo_viagem} eventosExternos={eventos} atividadesDisponiveis={atividadesSugeridas} onEventosChange={handleEventosChange}/>
+          <LinhaDoTempoRoteiro 
+            objetivo={resumo_viagem.estilo_viagem} 
+            eventosExternos={eventos} 
+            atividadesDisponiveis={atividadesSugeridas} 
+            itinerarioDetalhado={itinerario_detalhado}
+            onEventosChange={handleEventosChange} 
+          />
         </section>
         <section className="mb-6">
           {/* Dicas, observações e informações práticas em coluna única */}

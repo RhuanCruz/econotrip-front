@@ -135,7 +135,7 @@ export default function FlightDetailsScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
@@ -197,7 +197,7 @@ export default function FlightDetailsScreen() {
                   </div>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
                     <span className="font-bold text-lg text-white">{destinoCodigo}</span>
                   </div>
                 </div>
@@ -340,7 +340,7 @@ export default function FlightDetailsScreen() {
                         return (
                           <div key={itemIdx} className="mb-4 p-4 bg-white rounded-xl shadow">
                             <div className="mb-3">
-                              <div className="font-bold text-econotrip-orange text-lg">
+                              <div className="font-bold text-econotrip-blue-light text-lg">
                                 {priceValue ? `R$ ${priceValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "Preço indisponível"}
                               </div>
                               <div className="text-sm text-gray-700 mt-1">
@@ -351,11 +351,11 @@ export default function FlightDetailsScreen() {
                                   ⭐ {agent.rating.value}/5 ({agent.rating.count} avaliações)
                                 </div>
                               )}
-                              {agent?.partnerMessages && agent.partnerMessages.length > 0 && (
+                              {/* {agent?.partnerMessages && agent.partnerMessages.length > 0 && (
                                 <div className="text-xs text-blue-600 mt-1">
                                   {agent.partnerMessages[0].text}
                                 </div>
-                              )}
+                              )} */}
                             </div>
                             {pricingItem.uri && (
                               <a

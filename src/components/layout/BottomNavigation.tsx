@@ -63,7 +63,7 @@ export function BottomNavigation() {
               className={cn(
                 "relative flex flex-col items-center justify-center py-3 px-4 min-w-[64px] touch-target transition-all duration-200",
                 item.isActive 
-                  ? "text-econotrip-orange" 
+                  ? "text-econotrip-primary" 
                   : "text-gray-400 hover:text-gray-600"
               )}
               aria-label={`Navegar para ${item.name}`}
@@ -80,14 +80,14 @@ export function BottomNavigation() {
                 <item.icon
                   className={cn(
                     "h-5 w-5 mb-1 transition-colors",
-                    item.isActive ? "text-econotrip-orange drop-shadow-sm" : "text-gray-400"
+                    item.isActive ? "text-econotrip-primary drop-shadow-sm" : "text-gray-400"
                   )}
                   aria-hidden="true"
                 />
               </motion.div>
               <span className={cn(
                 "text-xs font-medium transition-all",
-                item.isActive ? "font-semibold text-econotrip-orange" : "text-gray-500"
+                item.isActive ? "font-semibold text-econotrip-primary" : "text-gray-500"
               )}>
                 {item.name}
               </span>
@@ -95,7 +95,7 @@ export function BottomNavigation() {
               {/* Active indicator dot */}
               {item.isActive && (
                 <motion.div
-                  className="absolute -top-1 w-1 h-1 bg-econotrip-orange rounded-full"
+                  className="absolute -top-1 w-1 h-1 bg-econotrip-primary rounded-full"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2 }}

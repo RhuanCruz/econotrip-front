@@ -162,7 +162,7 @@ export default function DashboardScreen() {
 
   // Dados para gráfico de distribuição de pontos
   const pontosDistribuicao = [
-    { name: "Pontos Atuais", value: pontosAtuais, fill: "#A1C181" },
+    { name: "Pontos Atuais", value: pontosAtuais, fill: "#153D6B" },
     { name: "Para Próximo Nível", value: metaProximoNivel - pontosAtuais, fill: "#E5E5E5" }
   ];
 
@@ -180,7 +180,7 @@ export default function DashboardScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-sm mx-auto px-3 py-4 space-y-4 pb-24">
         <motion.div
           variants={containerAnimation}
@@ -194,7 +194,7 @@ export default function DashboardScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
             >
               <Heart className="w-8 h-8 text-white" />
             </motion.div>
@@ -209,13 +209,13 @@ export default function DashboardScreen() {
 
           {/* Dica motivacional moderna */}
           <motion.div variants={itemAnimation}>
-            <div className="bg-gradient-to-r from-econotrip-green/10 to-econotrip-blue/10 rounded-2xl p-4 border border-econotrip-green/20 shadow-sm">
+            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200 shadow-sm">
               <div className="flex items-start gap-3 mb-2">
-                <div className={`w-10 h-10 ${getColorClasses(dicaSelecionada.cor)} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                <div className="w-10 h-10 bg-econotrip-primary rounded-xl flex items-center justify-center flex-shrink-0">
                   {React.createElement(dicaSelecionada.icone, { className: "h-5 w-5 text-white" })}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-econotrip-blue text-sm">{dicaSelecionada.titulo}</h3>
+                  <h3 className="font-semibold text-econotrip-primary text-sm">{dicaSelecionada.titulo}</h3>
                   <p className="text-xs text-gray-600">Para você hoje</p>
                 </div>
               </div>
@@ -238,34 +238,34 @@ export default function DashboardScreen() {
 
           {/* Ações principais modernas */}
           <motion.div variants={itemAnimation}>
-            <h2 className="text-base font-semibold text-econotrip-blue mb-3 flex items-center gap-2">
+            <h2 className="text-base font-semibold text-econotrip-primary mb-3 flex items-center gap-2">
               <Plane className="h-4 w-4" />
               O que você quer fazer hoje?
             </h2>
             <div className="grid grid-cols-2 gap-3">
               <Card
-                className="p-4 bg-gradient-to-br from-econotrip-blue/10 to-econotrip-blue/5 border-l-4 border-l-econotrip-blue rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="p-4 bg-white border-l-4 border-l-econotrip-primary rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
                 onClick={() => navigate("/busca-voos")}
               >
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <div className="w-12 h-12 bg-econotrip-primary rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
                     <Search className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="font-semibold text-econotrip-blue mb-1 text-sm">Buscar Voos</h3>
+                  <h3 className="font-semibold text-econotrip-primary mb-1 text-sm">Buscar Voos</h3>
                   <p className="text-xs text-gray-600">Encontre as melhores passagens</p>
                 </div>
               </Card>
 
               <Card
-                className="p-4 bg-gradient-to-br from-econotrip-orange/10 to-econotrip-orange/5 border-l-4 border-l-econotrip-orange rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="p-4 bg-white border-l-4 border-l-econotrip-coral rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
                 onClick={() => navigate("/meu-roteiro")}
               >
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
+                  <div className="w-12 h-12 bg-econotrip-coral rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
                     <Route className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="font-semibold text-econotrip-blue mb-1 text-sm">Meu Roteiro</h3>
-                  <p className="text-xs text-gray-600">Planeje sua viagem</p>
+                  <h3 className="font-semibold text-econotrip-primary mb-1 text-sm">Simulador</h3>
+                  <p className="text-xs text-gray-600">Simule sua próxima viagem</p>
                 </div>
               </Card>
             </div>
@@ -315,33 +315,34 @@ export default function DashboardScreen() {
           {/* Explorar categorias modernas */}
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
-              <Globe className="h-4 w-4 text-econotrip-green" />
-              <h2 className="text-base font-semibold text-econotrip-blue">
+              <Globe className="h-4 w-4 text-econotrip-primary" />
+              <h2 className="text-base font-semibold text-econotrip-primary">
                 Explore novas aventuras
               </h2>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Card
-                className="p-3 bg-gradient-to-br from-econotrip-green/10 to-econotrip-green/5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate("/ofertas-continentes")}
               >
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-r from-econotrip-green to-econotrip-green/80 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <div className="w-10 h-10 bg-econotrip-blue-light rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Globe className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-econotrip-blue text-xs mb-1">Ofertas por Continentes</h4>
+                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Ofertas por Continentes</h4>
                   <p className="text-xs text-gray-600">Encontre o mais parecido com você</p>
                 </div>
               </Card>
 
               <Card
-                className="p-3 bg-gradient-to-br from-econotrip-blue/10 to-econotrip-blue/5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
                 onClick={() => navigate("/meus-radares")}
               >
                 <div className="text-center">
-                  <div className="w-10 h-10 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <div className="w-10 h-10 bg-econotrip-blue-light rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-econotrip-blue text-xs mb-1">Radar de Ofertas</h4>
+                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Radar de Ofertas</h4>
                   <p className="text-xs text-gray-600">Não perca promoções</p>
                 </div>
               </Card>
@@ -351,21 +352,21 @@ export default function DashboardScreen() {
           {/* Programa de fidelidade moderno */}
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
-              <Gift className="h-4 w-4 text-econotrip-green" />
-              <h2 className="text-base font-semibold text-econotrip-blue">
+              <Gift className="h-4 w-4 text-econotrip-primary" />
+              <h2 className="text-base font-semibold text-econotrip-primary">
                 Programa Milhas Sênior
               </h2>
               <ContextualTooltip content="Com cada viagem você ganha pontos que podem ser trocados por descontos em passagens futuras!" />
             </div>
-            <Card className="p-4 bg-gradient-to-r from-econotrip-green/10 to-econotrip-green/5 border-l-4 border-l-econotrip-green rounded-2xl shadow-sm">
+            <Card className="p-4 bg-white border-l-4 border-l-econotrip-primary rounded-2xl shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-gradient-to-r from-econotrip-green to-econotrip-green/80 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                    <div className="w-12 h-12 bg-econotrip-primary rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
                       <Coins className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-2xl font-bold text-econotrip-green">{pontosAtuais}</span>
+                      <span className="text-2xl font-bold text-econotrip-primary">{pontosAtuais}</span>
                       <span className="text-base text-gray-600 ml-2">pontos</span>
                     </div>
                   </div>
@@ -405,12 +406,12 @@ export default function DashboardScreen() {
                   variant="secondary"
                   size="sm"
                   onClick={() => navigate("/minha-evolucao")}
-                  className="bg-white/80 text-econotrip-green border-econotrip-green/20 rounded-xl hover:bg-white text-sm w-full sm:w-auto"
+                  className="bg-white/80 text-econotrip-primary border-econotrip-primary/20 rounded-xl hover:bg-white text-sm w-full sm:w-auto"
                 >
                   Ver evolução completa
                 </Button>
                 <div className="text-sm text-gray-600 font-medium">
-                  Nível atual: <span className="text-econotrip-green">Prata</span>
+                  Nível atual: <span className="text-econotrip-primary">Prata</span>
                 </div>
               </div>
             </Card>
@@ -419,27 +420,27 @@ export default function DashboardScreen() {
           {/* Conquistas modernas */}
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-base font-semibold text-econotrip-blue flex items-center gap-2">
+              <h2 className="text-base font-semibold text-econotrip-primary flex items-center gap-2">
                 <Award className="h-4 w-4" />
                 Suas conquistas
               </h2>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Card className="p-3 bg-gradient-to-br from-econotrip-green/10 to-econotrip-green/5 rounded-xl shadow-sm">
+              <Card className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-econotrip-green to-econotrip-green/80 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
+                  <div className="w-12 h-12 bg-econotrip-green rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
                     <Award className="h-6 w-6 text-white" />
                   </div>
-                  <p className="text-xl font-bold text-econotrip-green">R$ 240</p>
+                  <p className="text-xl font-bold text-econotrip-primary">R$ 240</p>
                   <p className="text-xs text-gray-600">Economia este ano</p>
                 </div>
               </Card>
-              <Card className="p-3 bg-gradient-to-br from-econotrip-blue/10 to-econotrip-blue/5 rounded-xl shadow-sm">
+              <Card className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
+                  <div className="w-12 h-12 bg-econotrip-green rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm">
                     <Plane className="h-6 w-6 text-white" />
                   </div>
-                  <p className="text-xl font-bold text-econotrip-blue">3</p>
+                  <p className="text-xl font-bold text-econotrip-primary">3</p>
                   <p className="text-xs text-gray-600">Viagens realizadas</p>
                 </div>
               </Card>

@@ -39,3 +39,19 @@ export type GetRadarFlightsResponse = {
       __v: number;
   }>;
 };
+
+export interface RadarResult {
+  _id: string;
+  origin: string;
+  destination: string;
+  continent: string;
+  type: string;
+  date: string;
+  value: number;
+  createdAt: string;
+  __v: number;
+}
+
+export interface ListResultsByContinentResponse {
+  results: RadarResult[];
+}
