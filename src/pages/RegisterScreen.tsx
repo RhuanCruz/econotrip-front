@@ -316,10 +316,12 @@ export default function RegisterScreen() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="mb-8 flex items-center justify-center">
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
-            ECONOTRIP
-          </div>
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <img 
+            src="/lovable-uploads/econotrip_logo.png" 
+            alt="EconoTrip"
+            className="rounded-2xl"
+          />
         </div>
 
         <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-8 text-center font-museomoderno">
@@ -461,7 +463,7 @@ export default function RegisterScreen() {
               id="terms"
               checked={acceptedTerms}
               onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-              className="mt-1"
+              className="mt-1 border-econotrip-primary data-[state=checked]:bg-econotrip-primary data-[state=checked]:border-econotrip-primary"
             />
             <label
               htmlFor="terms"
@@ -471,7 +473,7 @@ export default function RegisterScreen() {
               <button
                 type="button"
                 onClick={() => navigate("/termos-servico")}
-                className="text-econotrip-blue hover:text-econotrip-orange underline font-medium"
+                className="text-econotrip-blue hover:text-econotrip-blue underline font-medium"
               >
                 termos de serviço
               </button>{" "}
@@ -479,7 +481,7 @@ export default function RegisterScreen() {
               <button
                 type="button"
                 onClick={() => navigate("/politica-privacidade")}
-                className="text-econotrip-blue hover:text-econotrip-orange underline font-medium"
+                className="text-econotrip-blue hover:text-econotrip-blue underline font-medium"
               >
                 política de privacidade
               </button>
@@ -494,7 +496,7 @@ export default function RegisterScreen() {
             icon={CheckCircle}
             loading={loading}
             disabled={!isFormValid()}
-            className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-econotrip-primary rounded-full h-14 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Criar conta
           </Button>

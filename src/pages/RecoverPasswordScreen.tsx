@@ -40,10 +40,12 @@ export default function RecoverPasswordScreen() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="mb-8 flex items-center justify-center">
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
-            ECONOTRIP
-          </div>
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <img 
+            src="/lovable-uploads/econotrip_logo.png" 
+            alt="EconoTrip"
+            className="rounded-2xl"
+          />
         </div>
 
         <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-4 text-center font-museomoderno">
@@ -84,7 +86,7 @@ export default function RecoverPasswordScreen() {
               size="lg"
               icon={Send}
               loading={loading}
-              className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-8"
+              className="w-full bg-econotrip-primary rounded-full h-14 mt-8"
             >
               Enviar Instruções
             </Button>

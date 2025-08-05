@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             type={inputType}
             className={cn(
-              "flex h-11 sm:h-12 w-full rounded-xl border border-econotrip-blue/20 bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-econotrip-orange focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
+              "flex h-11 sm:h-12 w-full rounded-xl border border-econotrip-blue/20 bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-econotrip-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
               Icon && "pl-10 sm:pl-12",
               isPasswordField && "pr-12",
               error && "border-red-500 focus-visible:ring-red-500",

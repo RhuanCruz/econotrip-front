@@ -13,13 +13,10 @@ export default function WelcomeScreen() {
         {/* Logo e Ícone */}
         <div className="mb-8 flex flex-col items-center justify-center">
           <img 
-            src="/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png" 
+            src="/lovable-uploads/econotrip_logo.png" 
             alt="EconoTrip"
-            className="h-20 w-20 mb-4 rounded-2xl shadow-lg"
+            className="mb-4 rounded-2xl"
           />
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-primary">
-            EconoTrip
-          </div>
         </div>
 
         {/* Plane emoji */}
