@@ -38,6 +38,18 @@ export const generatePlanner = async (token: string, data: GeneratePlannerBody):
   return response.data;
 }
 
+const getPlannerById = async (id: string, token: string): Promise<Planner> => {
+  return api.get<Planner>(`/planners/${id}`, { headers: { Authorization: `Bearer ${token}`}})
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
+const deletePlannerById = async (id: string, token: string): Promise<void> => {
+  return api.delete(`/planners/${id}`, { headers: { Authorization: `Bearer ${token}`}})
+    .then(() => {})
+    .catch((err) => { throw new Error(handleApiError(err)) })
+}
+
 export const PlannerService = {
   create: createPlanner,
   getCurrent: getCurrentPlanner,
@@ -45,4 +57,6 @@ export const PlannerService = {
   cancelCurrent: cancelCurrentPlanner,
   finishCurrent: finishCurrentPlanner,
   generate: generatePlanner,
+  getById: getPlannerById,
+  deleteById: deletePlannerById,
 }

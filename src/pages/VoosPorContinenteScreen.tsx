@@ -66,11 +66,17 @@ const continentMapping: ContinentMapping = {
 };
 
 export default function VoosPorContinenteScreen() {
+  const [filtroOrigem, setFiltroOrigem] = useState("");
+  const [filtroDestino, setFiltroDestino] = useState("");
   const { continenteId } = useParams<{ continenteId: string }>();
   const navigate = useNavigate();
   const [voos, setVoos] = useState<RadarResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Opções únicas extraídas dos voos (após voos ser declarado)
+  const origensUnicas = Array.from(new Set(voos.map(v => v.origin))).sort();
+  const destinosUnicas = Array.from(new Set(voos.map(v => v.destination))).sort();
 
   const { token } = useAuthStore();
 
@@ -182,6 +188,37 @@ export default function VoosPorContinenteScreen() {
                   </div>
                 </div>
               </div>
+              {/* Filtros de origem e destino */}
+              <div className="flex flex-col sm:flex-row gap-4 items-center mb-2">
+                <div className="flex flex-col w-full sm:w-1/2">
+                  <label htmlFor="filtro-origem" className="text-sm text-gray-700 mb-1">Filtrar por Origem</label>
+                  <select
+                    id="filtro-origem"
+                    value={filtroOrigem}
+                    onChange={e => setFiltroOrigem(e.target.value)}
+                    className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
+                  >
+                    <option value="">Todas</option>
+                    {origensUnicas.map(origem => (
+                      <option key={origem} value={origem}>{origem}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col w-full sm:w-1/2">
+                  <label htmlFor="filtro-destino" className="text-sm text-gray-700 mb-1">Filtrar por Destino</label>
+                  <select
+                    id="filtro-destino"
+                    value={filtroDestino}
+                    onChange={e => setFiltroDestino(e.target.value)}
+                    className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
+                  >
+                    <option value="">Todos</option>
+                    {destinosUnicas.map(destino => (
+                      <option key={destino} value={destino}>{destino}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </motion.div>
 
             {/* Loading State */}
@@ -213,76 +250,82 @@ export default function VoosPorContinenteScreen() {
             {/* Lista de Voos */}
             {!loading && !error && (
               <motion.div variants={itemAnimation}>
-                {!voos || voos.length === 0 ? (
-                  <Card className="p-6 text-center">
-                    <Plane className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <h3 className="font-semibold text-gray-800 mb-2">
-                      Nenhuma oferta encontrada
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Não há ofertas disponíveis para {continente.nome} no momento.
-                    </p>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="mb-4">
-                      <h2 className="text-lg font-semibold text-gray-800">
-                        {voos.length} {voos.length === 1 ? 'oferta encontrada' : 'ofertas encontradas'}
-                      </h2>
-                    </div>
-
-                    {voos.map((voo) => (
-                      <motion.div
-                        key={voo._id}
-                        variants={itemAnimation}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Card className="p-1 hover:shadow-lg transition-all cursor-pointer">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <MapPin className="h-4 w-4 text-econotrip-blue" />
-                                <span className="font-medium text-gray-800">
-                                  {voo.origin} → {voo.destination}
-                                </span>
+                {(() => {
+                  const voosFiltrados = voos.filter(
+                    (voo) =>
+                      (!filtroOrigem || voo.origin.toLowerCase().includes(filtroOrigem.toLowerCase())) &&
+                      (!filtroDestino || voo.destination.toLowerCase().includes(filtroDestino.toLowerCase()))
+                  );
+                  if (!voosFiltrados || voosFiltrados.length === 0) {
+                    return (
+                      <Card className="p-6 text-center">
+                        <Plane className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                        <h3 className="font-semibold text-gray-800 mb-2">
+                          Nenhuma oferta encontrada
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Não há ofertas disponíveis para {continente.nome} no momento.
+                        </p>
+                      </Card>
+                    );
+                  }
+                  return (
+                    <div className="space-y-4">
+                      <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-gray-800">
+                          {voosFiltrados.length} {voosFiltrados.length === 1 ? 'oferta encontrada' : 'ofertas encontradas'}
+                        </h2>
+                      </div>
+                      {voosFiltrados.map((voo) => (
+                        <motion.div
+                          key={voo._id}
+                          variants={itemAnimation}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Card className="p-1 hover:shadow-lg transition-all cursor-pointer">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <MapPin className="h-4 w-4 text-econotrip-blue" />
+                                  <span className="font-medium text-gray-800">
+                                    {voo.origin} → {voo.destination}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-sm text-gray-600">
+                                  <Calendar className="h-4 w-4" />
+                                  <span>{formatarData(voo.date)}</span>
+                                </div>
                               </div>
-
-                              <div className="flex items-center gap-1 text-sm text-gray-600">
-                                <Calendar className="h-4 w-4" />
-                                <span>{formatarData(voo.date)}</span>
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-econotrip-green">
+                                  {formatarPreco(voo.value)}
+                                </div>
+                                <div className="text-xs text-gray-500">por pessoa</div>
                               </div>
                             </div>
-
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-econotrip-green">
-                                {formatarPreco(voo.value)}
-                              </div>
-                              <div className="text-xs text-gray-500">por pessoa</div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-center pt-3 border-t border-gray-100">
-                            <button
-                              onClick={() => navigate('/busca-voos', {
-                                state: {
-                                  searchParams: {
-                                    origem: voo.origin,
-                                    destino: voo.destination,
-                                    dataIda: new Date(voo.date).toISOString().split('T')[0],
+                            <div className="flex items-center justify-center pt-3 border-t border-gray-100">
+                              <button
+                                onClick={() => navigate('/busca-voos', {
+                                  state: {
+                                    searchParams: {
+                                      origem: voo.origin,
+                                      destino: voo.destination,
+                                      dataIda: new Date(voo.date).toISOString().split('T')[0],
+                                    }
                                   }
-                                }
-                              })}
-                              className="bg-econotrip-blue hover:bg-econotrip-blue/90 text-white px-8 py-2 rounded-lg text-sm font-medium transition-colors w-48"
-                            >
-                              Ver Detalhes
-                            </button>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                                })}
+                                className="bg-econotrip-blue hover:bg-econotrip-blue/90 text-white px-8 py-2 rounded-lg text-sm font-medium transition-colors w-48"
+                              >
+                                Ver Detalhes
+                              </button>
+                            </div>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </motion.div>
             )}
 

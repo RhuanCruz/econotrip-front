@@ -11,6 +11,7 @@ import { HumanSupportButton } from "./components/support/HumanSupportButton";
 import { AccessibilityBar } from "./components/accessibility/AccessibilityBar";
 
 import TelaBoasVindas from "./pages/TelaBoasVindas";
+import MeuRoteiroDetalhesScreen from "./pages/MeuRoteiroDetalhesScreen";
 import TelaBuscaVoos from "./pages/TelaBuscaVoos";
 import ResultsScreen from "./pages/ResultsScreen";
 import RoundTripResultsScreen from "./pages/RoundTripResultsScreen";
@@ -100,6 +101,7 @@ const App = () => {
                 <Route path="/viagens-sustentaveis" element={<SustainableTravel />} />
                 <Route path="/roteiros-personalizados" element={<RoteirosPersonalizadosScreen />} />
                 <Route path="/meu-roteiro" element={<MeuRoteiroScreen />} />
+                <Route path="/meu-roteiro/:id" element={<MeuRoteiroDetalhesScreen />} />
                 <Route path="/radar-ofertas" element={<RadarOfertasScreen />} />
                 <Route path="/avaliacao" element={<AvaliacaoScreen />} />
                 <Route path="/turismo-sustentavel" element={<TurismoSustentavelScreen />} />
