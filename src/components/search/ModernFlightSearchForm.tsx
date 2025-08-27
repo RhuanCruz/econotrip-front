@@ -3,7 +3,7 @@ import { Search, MapPin, Calendar, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { motion } from "framer-motion";
 import { LocationApi } from "@/api/location/location.api";
-import type { Location } from "@/api/location/types";
+import type { StandardLocation } from "@/api/location/types";
 
 interface FormData {
   origem: string;
@@ -45,16 +45,16 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 }: ModernFlightSearchFormProps, ref) {
   const [tripType, setTripType] = React.useState<'one-way' | 'round-trip'>('one-way');
   const [showAdvanced, setShowAdvanced] = React.useState(false);
-  const [origemSuggestions, setOrigemSuggestions] = React.useState<Location[]>([]);
-  const [destinoSuggestions, setDestinoSuggestions] = React.useState<Location[]>([]);
+  const [origemSuggestions, setOrigemSuggestions] = React.useState<StandardLocation[]>([]);
+  const [destinoSuggestions, setDestinoSuggestions] = React.useState<StandardLocation[]>([]);
   const [loadingOrigem, setLoadingOrigem] = React.useState(false);
   const [loadingDestino, setLoadingDestino] = React.useState(false);
   const [showOrigemDropdown, setShowOrigemDropdown] = React.useState(false);
   const [showDestinoDropdown, setShowDestinoDropdown] = React.useState(false);
 
   // Adiciona estados para armazenar o Location selecionado
-  const [selectedOrigem, setSelectedOrigem] = React.useState<Location | null>(null);
-  const [selectedDestino, setSelectedDestino] = React.useState<Location | null>(null);
+  const [selectedOrigem, setSelectedOrigem] = React.useState<StandardLocation | null>(null);
+  const [selectedDestino, setSelectedDestino] = React.useState<StandardLocation | null>(null);
 
   // Refs para ignorar busca ao selecionar do droplist
   const ignoreNextOrigemEffectRef = useRef(false);
@@ -95,13 +95,12 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         origemAbortControllerRef.current = new AbortController();
         
         setLoadingOrigem(true);
-        LocationApi.listLocations(formData.origem, origemAbortControllerRef.current.signal)
+        LocationApi.listLocationsGoogle(formData.origem, origemAbortControllerRef.current.signal)
           .then((res) => {
-            setOrigemSuggestions(res.data);
+            setOrigemSuggestions(res.locations);
             setShowOrigemDropdown(true);
           })
           .catch((error) => {
-            // Só mostra erro se não foi cancelada
             if (error.name !== 'AbortError') {
               console.error('Erro ao buscar origem:', error);
             }
@@ -142,13 +141,12 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         destinoAbortControllerRef.current = new AbortController();
         
         setLoadingDestino(true);
-        LocationApi.listLocations(formData.destino, destinoAbortControllerRef.current.signal)
+        LocationApi.listLocationsGoogle(formData.destino, destinoAbortControllerRef.current.signal)
           .then((res) => {
-            setDestinoSuggestions(res.data);
+            setDestinoSuggestions(res.locations);
             setShowDestinoDropdown(true);
           })
           .catch((error) => {
-            // Só mostra erro se não foi cancelada
             if (error.name !== 'AbortError') {
               console.error('Erro ao buscar destino:', error);
             }
@@ -175,8 +173,8 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Exporta o valor correto para busca
   useImperativeHandle(ref, () => ({
-    getOrigemBusca: () => selectedOrigem?.navigation?.relevantFlightParams?.skyId || selectedOrigem?.presentation?.suggestionTitle || formData.origem,
-    getDestinoBusca: () => selectedDestino?.navigation?.relevantFlightParams?.skyId || selectedDestino?.presentation?.suggestionTitle || formData.destino,
+  getOrigemBusca: () => selectedOrigem?.code || formData.origem,
+  getDestinoBusca: () => selectedDestino?.code || formData.destino,
   }));
 
   return (
@@ -257,16 +255,16 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                     )}
                     {!loadingOrigem && origemSuggestions.length > 0 && origemSuggestions.map((loc) => (
                       <li
-                        key={loc.navigation.entityId}
+                        key={loc.code}
                         className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10"
                         onMouseDown={() => {
                           origemSelectBySuggestion.current = true;
-                          onInputChange("origem", loc.presentation.suggestionTitle);
+                          onInputChange("origem", loc.name);
                           setSelectedOrigem(loc);
                           setShowOrigemDropdown(false);
                         }}
                       >
-                        <span className="font-semibold text-econotrip-blue">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
+                        <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
                       </li>
                     ))}
                     {!loadingOrigem && origemSuggestions.length === 0 && (
@@ -355,16 +353,16 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                     )}
                     {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc) => (
                       <li
-                        key={loc.navigation.entityId}
+                        key={loc.code}
                         className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10"
                         onMouseDown={() => {
                           destinoSelectBySuggestion.current = true;
-                          onInputChange("destino", loc.presentation.suggestionTitle);
+                          onInputChange("destino", loc.name);
                           setSelectedDestino(loc);
                           setShowDestinoDropdown(false);
                         }}
                       >
-                        <span className="font-semibold text-econotrip-orange">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
+                        <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
                       </li>
                     ))}
                     {!loadingDestino && destinoSuggestions.length === 0 && (

@@ -1,8 +1,13 @@
 import { api } from '../client';
-import IListLocationResponse, { ISearchCitiesResponse } from './types';
+import IListLocationResponse, { ISearchCitiesResponse, StandardLocationResponse } from './types';
 
-const listLocations = async (keyword: string, signal?: AbortSignal): Promise<IListLocationResponse> => {
-  return api.post<IListLocationResponse>('/locations/list', { keyword }, { signal })
+const listLocations = async (keyword: string, signal?: AbortSignal): Promise<StandardLocationResponse> => {
+  return api.post<StandardLocationResponse>('/locations/list', { keyword }, { signal })
+    .then((res) => res.data)
+}
+
+const listLocationsGoogle = async (keyword: string, signal?: AbortSignal): Promise<StandardLocationResponse> => {
+  return api.post<StandardLocationResponse>('/locations/list-google', { keyword }, { signal })
     .then((res) => res.data)
 }
 
@@ -13,5 +18,6 @@ const searchCities = async (cityName: string, signal?: AbortSignal): Promise<ISe
 
 export const LocationApi = {
   listLocations,
+  listLocationsGoogle,
   searchCities,
 }

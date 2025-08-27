@@ -55,4 +55,21 @@ export interface ISearchCitiesResponse {
   geonames: GeoNameItem[];
 }
 
+export interface StandardLocation {
+  type: string;
+  name: string;
+  code?: string;
+  city?: string;
+  country?: string;
+  region?: string;
+  geoId?: string;
+  source: string;
+}
+
+export interface StandardLocationResponse {
+  locations: StandardLocation[];
+  status: boolean;
+  message?: string;
+}
+
 export default IListLocationResponse;

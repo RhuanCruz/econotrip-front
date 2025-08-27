@@ -3,7 +3,7 @@ import { StandardModal } from "@/components/ui-custom/StandardModal";
 import { RadarService } from "@/api/radar/RadarService";
 import { useAuthStore } from "@/stores/authStore";
 import { LocationApi } from "@/api/location/location.api";
-import type { Location } from "@/api/location/types";
+import type { StandardLocation } from "@/api/location/types";
 import type { CreateRadarBody } from "@/api/radar/types";
 import { AlertCircle, Mail, MessageSquare, ChevronDown } from "lucide-react";
 
@@ -43,12 +43,12 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const { token } = useAuthStore();
 
   // Autocomplete states
-  const [partidaSuggestions, setPartidaSuggestions] = useState<Location[]>([]);
-  const [destinoSuggestions, setDestinoSuggestions] = useState<Location[]>([]);
+  const [partidaSuggestions, setPartidaSuggestions] = useState<StandardLocation[]>([]);
+  const [destinoSuggestions, setDestinoSuggestions] = useState<StandardLocation[]>([]);
   const [showPartidaDropdown, setShowPartidaDropdown] = useState(false);
   const [showDestinoDropdown, setShowDestinoDropdown] = useState(false);
-  const [selectedPartida, setSelectedPartida] = useState<Location | null>(null);
-  const [selectedDestino, setSelectedDestino] = useState<Location | null>(null);
+  const [selectedPartida, setSelectedPartida] = useState<StandardLocation | null>(null);
+  const [selectedDestino, setSelectedDestino] = useState<StandardLocation | null>(null);
   // Mensagens de erro para seleção obrigatória
   const [partidaError, setPartidaError] = useState("");
   const [destinoError, setDestinoError] = useState("");
@@ -85,16 +85,14 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         const controller = new AbortController();
         partidaAbortControllerRef.current = controller;
         
-        LocationApi.listLocations(partida, controller.signal)
+        LocationApi.listLocationsGoogle(partida, controller.signal)
           .then((res) => {
-            // Verificar se a requisição não foi cancelada
             if (!controller.signal.aborted) {
-              setPartidaSuggestions(res.data);
+              setPartidaSuggestions(res.locations);
               setShowPartidaDropdown(true);
             }
           })
           .catch((error) => {
-            // Ignorar erros de cancelamento
             if (error.name !== 'AbortError') {
               console.error('Erro ao buscar sugestões de partida:', error);
               setPartidaSuggestions([]);
@@ -102,7 +100,6 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
             }
           })
           .finally(() => {
-            // Só atualizar loading se não foi cancelada
             if (!controller.signal.aborted) {
               setLoadingPartida(false);
             }
@@ -142,16 +139,14 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         const controller = new AbortController();
         destinoAbortControllerRef.current = controller;
         
-        LocationApi.listLocations(destino, controller.signal)
+        LocationApi.listLocationsGoogle(destino, controller.signal)
           .then((res) => {
-            // Verificar se a requisição não foi cancelada
             if (!controller.signal.aborted) {
-              setDestinoSuggestions(res.data);
+              setDestinoSuggestions(res.locations);
               setShowDestinoDropdown(true);
             }
           })
           .catch((error) => {
-            // Ignorar erros de cancelamento
             if (error.name !== 'AbortError') {
               console.error('Erro ao buscar sugestões de destino:', error);
               setDestinoSuggestions([]);
@@ -159,7 +154,6 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
             }
           })
           .finally(() => {
-            // Só atualizar loading se não foi cancelada
             if (!controller.signal.aborted) {
               setLoadingDestino(false);
             }
@@ -239,19 +233,19 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                   Procurando...
                 </li>
               )}
-              {!loadingPartida && partidaSuggestions.length > 0 && partidaSuggestions.map((loc) => (
+              {!loadingPartida && partidaSuggestions.length > 0 && partidaSuggestions.map((loc, idx) => (
                 <li
-                  key={loc.navigation.entityId}
+                  key={loc.code || idx}
                   className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10 text-left"
                   onMouseDown={() => {
                     ignorePartidaEffectRef.current = true;
-                    setPartida(`${loc.presentation.suggestionTitle}`);
+                    setPartida(loc.name);
                     setSelectedPartida(loc);
                     setShowPartidaDropdown(false);
                     setPartidaError("");
                   }}
                 >
-                  <span className="font-semibold text-econotrip-blue">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
+                  <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
                 </li>
               ))}
               {!loadingPartida && partidaSuggestions.length === 0 && (
@@ -304,19 +298,19 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                   Procurando...
                 </li>
               )}
-              {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc) => (
+              {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc, idx) => (
                 <li
-                  key={loc.navigation.entityId}
+                  key={loc.code || idx}
                   className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10 text-left"
                   onMouseDown={() => {
                     ignoreDestinoEffectRef.current = true;
-                    setDestino(`${loc.presentation.suggestionTitle}`);
+                    setDestino(loc.name);
                     setSelectedDestino(loc);
                     setShowDestinoDropdown(false);
                     setDestinoError("");
                   }}
                 >
-                  <span className="font-semibold text-econotrip-orange">{loc.navigation.relevantFlightParams.skyId}</span> - {loc.presentation.suggestionTitle}
+                  <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
                 </li>
               ))}
               {!loadingDestino && destinoSuggestions.length === 0 && (
@@ -519,20 +513,20 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       valid = false;
     }
     if (!token || !valid) return;
-    
+
     setLoading(true);
     try {
       const radarData: CreateRadarBody = {
-        origin: selectedPartida.navigation.relevantFlightParams.skyId,
-        destination: selectedDestino.navigation.relevantFlightParams.skyId,
+        origin: selectedPartida.code,
+        destination: selectedDestino.code,
         start: habilitarDatas ? inicio : undefined,
         end: habilitarDatas ? fim : undefined,
         value: habilitarAlertaPreco && valorLimite ? parseFloat(valorLimite) : undefined,
         type: tipoMoeda === 'milhas' ? 'AIRMILES' : 'MONEY',
       };
-          
+
       await RadarService.create(token, radarData);
-      
+
       // Limpar formulário
       setPartida("");
       setDestino("");
@@ -551,7 +545,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setPartidaError("");
       setDestinoError("");
       setValorLimiteError("");
-      
+
       onCreate({ partida, destino, inicio, fim, milhas });
     } catch (e) {
       // Trate erro se necessário
