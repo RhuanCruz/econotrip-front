@@ -32,10 +32,19 @@ const UpdateUser = async (token: string, id: number, data: UpdateUserBody): Prom
     .catch((err) => { throw new Error(handleApiError(err)) });
 }
 
+const PushSubscription = async (token: string, subscription: unknown): Promise<void> => {
+  await api.post('/users/push-subscription', { subscription }, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then((res) => res.data)
+    .catch((err) => { throw new Error(handleApiError(err)) });
+}
+
 export const UserService = {
   create: CreateUser,
   update: UpdateUser,
   checkExistence: CheckExistence,
   forgotPassword: ForgotPassword,
   resetPassword: ResetPassword,
+  pushSubscription: PushSubscription,
 }

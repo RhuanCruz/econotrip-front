@@ -10,6 +10,7 @@ import { ContextualTooltip } from "@/components/ui-custom/ContextualTooltip";
 import { MotivationalHint } from "@/components/ui-custom/MotivationalHint";
 import { useAuthStore } from "@/stores/authStore";
 import { isTokenValid } from "@/utils/tokenUtils";
+import { UserService } from "@/api/user/UserService";
 
 // Componentes de ícones customizados para redes sociais
 const FacebookIcon = ({ className }: { className?: string }) => (
@@ -35,12 +36,59 @@ export default function LoginScreen() {
   const { isAuthenticated, isLoading, login, error, clearError, token, signInWithGoogle } = useAuthStore();
 
   useEffect(() => {
+    async function registerPush() {
+      if (!('serviceWorker' in navigator)) {
+        console.warn('Service Worker não suportado neste navegador.');
+        return;
+      }
+      if (!('PushManager' in window)) {
+        console.warn('PushManager não está disponível neste navegador/contexto. Certifique-se de estar em HTTPS ou localhost.');
+        return;
+      }
+      try {
+        const registration = await navigator.serviceWorker.register('/service-worker.js');
+        await navigator.serviceWorker.ready;
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          // Substitua pelo seu VAPID public key
+          const vapidPublicKey = 'BKUVUZ43uF-dI4QpeyTyk8vdB3ZQ_pTJdh8QbjwkfaJmiLqHr5CIJATo1jumbVtNW091IZsEEpf-RdfN9Qoa5E0';
+          const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+          });
+          // Envie para o backend
+          if (token && subscription) {
+            UserService.pushSubscription(token, subscription);
+          }
+        } else {
+          console.warn('Permissão de notificação não concedida pelo usuário.');
+        }
+      } catch (err) {
+        console.warn('Erro ao registrar push notification:', err);
+      }
+    }
+
+    function urlBase64ToUint8Array(base64String: string) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
     if (isAuthenticated && isTokenValid(token)) {
       toast({
         title: "Login realizado com sucesso!",
         description: "Você será redirecionado para a página inicial.",
         duration: 4000,
       });
+      registerPush();
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate, token]);

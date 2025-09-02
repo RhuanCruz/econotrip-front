@@ -1,38 +1,38 @@
 /* Estilos de Acessibilidade para EconoTrip */
 
-/* Fontes Grandes - Sistema Escalonado */
+/* Fontes Grandes - Sistema Escalonado com aumentos significativos */
 html.accessibility-large-fonts {
-  font-size: 16px;
+  font-size: 20px;
 }
 
-/* Títulos com aumento moderado */
+/* Títulos com aumento significativo */
 html.accessibility-large-fonts h1 {
-  font-size: 2.25rem !important;
+  font-size: 3rem !important;
   line-height: 1.2 !important;
   margin-bottom: 1rem !important;
 }
 
 html.accessibility-large-fonts h2 {
-  font-size: 1.875rem !important;
+  font-size: 2.5rem !important;
   line-height: 1.3 !important;
   margin-bottom: 0.875rem !important;
 }
 
 html.accessibility-large-fonts h3 {
-  font-size: 1.5rem !important;
+  font-size: 2rem !important;
   line-height: 1.4 !important;
   margin-bottom: 0.75rem !important;
 }
 
 html.accessibility-large-fonts h4 {
-  font-size: 1.25rem !important;
+  font-size: 1.75rem !important;
   line-height: 1.4 !important;
   margin-bottom: 0.5rem !important;
 }
 
-/* Texto base com melhor legibilidade */
+/* Texto base com melhor legibilidade - aumento significativo */
 html.accessibility-large-fonts p {
-  font-size: 1.125rem !important;
+  font-size: 1.5rem !important;
   line-height: 1.6 !important;
   margin-bottom: 0.75rem !important;
 }
@@ -46,57 +46,57 @@ html.accessibility-large-fonts div {
   line-height: 1.5 !important;
 }
 
-/* Botões com padding ajustado */
+/* Botões com padding ajustado e fonte maior */
 html.accessibility-large-fonts button {
-  font-size: 1.125rem !important;
-  padding: 0.875rem 1.75rem !important;
+  font-size: 1.5rem !important;
+  padding: 1rem 2rem !important;
   line-height: 1.4 !important;
-  min-height: 48px !important;
+  min-height: 52px !important;
 }
 
 html.accessibility-large-fonts .touch-target {
-  min-height: 48px !important;
-  min-width: 48px !important;
+  min-height: 52px !important;
+  min-width: 52px !important;
 }
 
-/* Inputs com espaçamento adequado */
+/* Inputs com espaçamento adequado e fonte maior */
 html.accessibility-large-fonts input,
 html.accessibility-large-fonts textarea,
 html.accessibility-large-fonts select {
-  font-size: 1.125rem !important;
-  padding: 1rem !important;
+  font-size: 1.5rem !important;
+  padding: 1.25rem !important;
   line-height: 1.4 !important;
-  min-height: 48px !important;
+  min-height: 52px !important;
 }
 
-/* Classes Tailwind com escala progressiva */
+/* Classes Tailwind com escala progressiva e aumentos significativos */
 html.accessibility-large-fonts .text-xs {
-  font-size: 0.875rem !important;
+  font-size: 1.125rem !important;
   line-height: 1.4 !important;
 }
 
 html.accessibility-large-fonts .text-sm {
-  font-size: 1rem !important;
+  font-size: 1.25rem !important;
   line-height: 1.5 !important;
 }
 
 html.accessibility-large-fonts .text-base {
-  font-size: 1.125rem !important;
+  font-size: 1.5rem !important;
   line-height: 1.6 !important;
 }
 
 html.accessibility-large-fonts .text-lg {
-  font-size: 1.25rem !important;
+  font-size: 1.75rem !important;
   line-height: 1.6 !important;
 }
 
 html.accessibility-large-fonts .text-xl {
-  font-size: 1.5rem !important;
+  font-size: 2rem !important;
   line-height: 1.5 !important;
 }
 
 html.accessibility-large-fonts .text-2xl {
-  font-size: 1.875rem !important;
+  font-size: 2.5rem !important;
   line-height: 1.3 !important;
 }
 
