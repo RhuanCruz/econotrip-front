@@ -33,10 +33,7 @@ export default function SupportScreen() {
   };
 
   const handleChatSupport = () => {
-    toast({
-      title: "Chat de suporte",
-      description: "Em um app real, isso abriria o chat com suporte.",
-    });
+    window.open("https://wa.me/5511999999999", "_blank");
   };
 
   const toggleVoiceMode = () => {
@@ -105,75 +102,6 @@ export default function SupportScreen() {
         <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue">
           Central de Ajuda
         </h1>
-      </motion.div>
-
-      {/* FAQ Section */}
-      <motion.div className="mb-8" variants={itemAnimation}>
-        <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
-          Perguntas Frequentes
-        </h2>
-        <Accordion type="single" collapsible className="w-full">
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-1" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Como alterar minha reserva?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Para alterar sua reserva, acesse a seção "Meus Voos" no menu principal e 
-                  selecione a reserva que deseja modificar. Você pode alterar a data, horário 
-                  ou até mesmo o assento, dependendo das regras da tarifa escolhida.
-                  Lembre-se que algumas alterações podem ter custos adicionais.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-2" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Como usar meus pontos de fidelidade?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Os pontos do Programa Milhas Sênior podem ser usados na hora da compra de sua 
-                  passagem. Ao selecionar seu voo, na tela de pagamento você encontrará a opção 
-                  "Usar meus pontos". Você também pode acessar todas as vantagens disponíveis 
-                  na aba "Fidelidade" em seu perfil.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-3" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Quais formas de pagamento são aceitas?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Aceitamos diversos meios de pagamento para sua comodidade: cartões de 
-                  crédito das principais bandeiras (parcelamento em até 12x), cartões de débito, 
-                  transferência bancária (Pix) e boleto bancário (para pagamentos à vista). 
-                  Os pontos do programa de fidelidade também podem ser utilizados como forma 
-                  de pagamento ou desconto.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-        </Accordion>
       </motion.div>
 
       {/* Direct Support Section */}

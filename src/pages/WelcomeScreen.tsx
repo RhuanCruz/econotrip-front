@@ -12,8 +12,8 @@ export default function WelcomeScreen() {
       <div className="w-full max-w-md flex flex-col items-center text-center">
         {/* Logo e Ícone */}
         <div className="mb-8 flex flex-col items-center justify-center">
-          <img 
-            src="/lovable-uploads/econotrip_logo.png" 
+          <img
+            src="/lovable-uploads/econotrip_logo.png"
             alt="EconoTrip"
             className="mb-4 rounded-2xl"
           />
@@ -26,7 +26,13 @@ export default function WelcomeScreen() {
         <p className="text-xl text-gray-600 mb-10 font-manrope">
           Econotrip é Planejar e Viajar
         </p>
-
+        <div className="mb-6" aria-hidden="true">
+          <img
+            src="/lovable-uploads/welcome_illustration.png"
+            alt="Ilustração de boas-vindas"
+            className="w-60 h-60 object-contain mx-auto drop-shadow-lg rounded-2xl"
+          />
+        </div>
         {/* Main button */}
         <div className="w-full mb-6">
           <Button
@@ -42,8 +48,8 @@ export default function WelcomeScreen() {
         </div>
 
         {/* Sign up link */}
-        <button 
-          onClick={() => navigate("/registro")} 
+        <button
+          onClick={() => navigate("/registro")}
           className="text-econotrip-primary hover:text-econotrip-coral transition-colors text-lg underline underline-offset-2 touch-target font-medium"
         >
           Ainda não tem conta? Criar agora

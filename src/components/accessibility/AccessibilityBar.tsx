@@ -227,12 +227,9 @@ export function AccessibilityBar() {
               className="w-full max-w-md"
               onClick={(e) => e.stopPropagation()}
             >
-              <Card className="p-6 rounded-t-2xl shadow-2xl bg-white">
+              <Card className="p-6 rounded-t-2xl shadow-2xl bg-white max-h-[70vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-econotrip-green/10 rounded-lg">
-                      <Glasses className="h-6 w-6 text-econotrip-green" aria-hidden="true" />
-                    </div>
                     <h2 id="accessibility-title" className="text-xl font-semibold text-econotrip-blue">
                       Acessibilidade
                     </h2>
@@ -247,63 +244,43 @@ export function AccessibilityBar() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                  <button
+                    onClick={() => updateSetting("largeFonts")}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-transparent ${
+                      settings.largeFonts
+                        ? 'border-econotrip-green bg-econotrip-green/5'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                    aria-pressed={settings.largeFonts}
+                    aria-label={settings.largeFonts ? 'Desativar fonte grande' : 'Ativar fonte grande'}
+                  >
                     <div className="flex items-center gap-3">
                       <Type className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
-                      <div>
-                        <h3 className="font-medium text-econotrip-blue">Fonte Grande</h3>
-                        <p className="text-sm text-gray-600">Aumenta o tamanho do texto</p>
-                      </div>
+                      <div className="text-left">
+                          <h3 className={`font-medium ${settings.largeFonts ? 'text-econotrip-green' : 'text-econotrip-blue'}`}>Fonte Grande</h3>
+                          <p className="text-sm text-gray-600">Aumenta o tamanho do texto</p>
+                        </div>
                     </div>
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={settings.largeFonts}
-                        onChange={() => updateSetting("largeFonts")}
-                        className="sr-only"
-                      />
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                        settings.largeFonts 
-                          ? "bg-econotrip-green border-econotrip-green" 
-                          : "bg-white border-gray-300 hover:border-gray-400"
-                      }`}>
-                        {settings.largeFonts && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </label>
-                  </div>
+                  </button>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                  <button
+                    onClick={() => updateSetting("highContrast")}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-transparent ${
+                      settings.highContrast
+                        ? 'border-econotrip-green bg-econotrip-green/5'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                    aria-pressed={settings.highContrast}
+                    aria-label={settings.highContrast ? 'Desativar alto contraste' : 'Ativar alto contraste'}
+                  >
                     <div className="flex items-center gap-3">
                       <Contrast className="h-5 w-5 text-econotrip-blue" aria-hidden="true" />
-                      <div>
-                        <h3 className="font-medium text-econotrip-blue">Alto Contraste</h3>
+                      <div className="text-left">
+                        <h3 className={`font-medium ${settings.highContrast ? 'text-econotrip-green' : 'text-econotrip-blue'}`}>Alto Contraste</h3>
                         <p className="text-sm text-gray-600">Melhora a legibilidade</p>
                       </div>
                     </div>
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={settings.highContrast}
-                        onChange={() => updateSetting("highContrast")}
-                        className="sr-only"
-                      />
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                        settings.highContrast 
-                          ? "bg-econotrip-green border-econotrip-green" 
-                          : "bg-white border-gray-300 hover:border-gray-400"
-                      }`}>
-                        {settings.highContrast && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </label>
-                  </div>
+                  </button>
 
                   <button
                     onClick={() => {
@@ -322,7 +299,7 @@ export function AccessibilityBar() {
                         stopSpeech();
                       }
                     }}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-transparent ${
                       settings.voiceReading
                         ? 'border-econotrip-green bg-econotrip-green/5'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'

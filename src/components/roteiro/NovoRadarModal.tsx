@@ -273,7 +273,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   }, [isOpen]);
 
   const formContent = (
-    <form className="flex flex-col gap-4 mt-2 px-2">
+    <form className="flex flex-col gap-4 mt-2 px-2 max-h-[70vh] overflow-y-auto">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Partida</label>
         <div className="relative">

@@ -32,7 +32,6 @@ export default function NovaViagemScreen() {
     partida: "",
     inicio: "",
     pessoas: 1,
-    estilo: "",
   });
 
   // Estado para destinos (começa com um destino principal)
@@ -223,7 +222,7 @@ export default function NovaViagemScreen() {
     ));
   };
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
 
@@ -277,7 +276,7 @@ export default function NovaViagemScreen() {
       start: form.inicio,
       duration: duracaoTotal,
       amountPeople: Number(form.pessoas),
-      tripStyle: form.estilo,
+      tripStyle: "medio",
       origin: form.partida,
       destination: destinosPreenchidos.map(destino => ({
         city: destino.cidade,
@@ -550,21 +549,7 @@ export default function NovaViagemScreen() {
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Estilo de Viagem</label>
-            <select
-              name="estilo"
-              value={form.estilo}
-              onChange={handleChange}
-              required
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-econotrip-blue"
-            >
-              <option value="">Selecione</option>
-              <option value="economico">Econômico</option>
-              <option value="medio">Médio</option>
-              <option value="luxo">Luxo</option>
-            </select>
-          </div>
+
           <Button
             type="submit"
             icon={Plus}
