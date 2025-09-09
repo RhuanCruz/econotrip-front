@@ -19,11 +19,6 @@ export default function WelcomeScreen() {
           />
         </div>
 
-        {/* Plane emoji */}
-        <div className="text-7xl mb-6" aria-hidden="true">
-          ✈️
-        </div>
-
         {/* Title and subtitle */}
         <h1 className="text-3xl md:text-4xl font-bold text-econotrip-primary mb-4 font-museomoderno">
           Bem-vindo(a)

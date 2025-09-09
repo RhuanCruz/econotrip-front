@@ -59,6 +59,7 @@ export interface StandardLocation {
   type: string;
   name: string;
   code?: string;
+  cityCode?: string;
   city?: string;
   country?: string;
   region?: string;

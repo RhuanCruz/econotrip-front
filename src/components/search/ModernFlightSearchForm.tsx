@@ -52,9 +52,9 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
   const [showOrigemDropdown, setShowOrigemDropdown] = React.useState(false);
   const [showDestinoDropdown, setShowDestinoDropdown] = React.useState(false);
 
-  // Adiciona estados para armazenar o Location selecionado
-  const [selectedOrigem, setSelectedOrigem] = React.useState<StandardLocation | null>(null);
-  const [selectedDestino, setSelectedDestino] = React.useState<StandardLocation | null>(null);
+  // Adiciona estados para armazenar o Location selecionado (agora suporta múltiplas seleções)
+  const [selectedOrigem, setSelectedOrigem] = React.useState<StandardLocation[]>([]);
+  const [selectedDestino, setSelectedDestino] = React.useState<StandardLocation[]>([]);
 
   // Refs para ignorar busca ao selecionar do droplist
   const ignoreNextOrigemEffectRef = useRef(false);
@@ -74,6 +74,78 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Flag para evitar busca durante a troca de origem/destino
   const isSwappingRef = useRef(false);
+
+  // Função para agrupar localizações por cidade/código
+  const groupLocationsByCity = (locations: StandardLocation[]) => {
+    const groups: { [key: string]: StandardLocation[] } = {};
+    
+    locations.forEach(location => {
+      const groupKey = location.cityCode || location.city || location.code || location.name;
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(location);
+    });
+    
+    return groups;
+  };
+
+  // Função para verificar se uma localização está selecionada
+  const isLocationSelected = (location: StandardLocation, selectedLocations: StandardLocation[]) => {
+    return selectedLocations.some(selected => selected.code === location.code);
+  };
+
+  // Função para verificar se todas as localizações de uma cidade estão selecionadas
+  const isAllCitySelected = (cityLocations: StandardLocation[], selectedLocations: StandardLocation[]) => {
+    return cityLocations.every(location => isLocationSelected(location, selectedLocations));
+  };
+
+  // Função para alternar seleção de uma localização individual
+  const toggleLocationSelection = (location: StandardLocation, selectedLocations: StandardLocation[], setSelected: React.Dispatch<React.SetStateAction<StandardLocation[]>>) => {
+    if (isLocationSelected(location, selectedLocations)) {
+      setSelected(selectedLocations.filter(selected => selected.code !== location.code));
+    } else {
+      setSelected([...selectedLocations, location]);
+    }
+  };
+
+  // Função para alternar seleção de todas as localizações de uma cidade
+  const toggleCitySelection = (cityLocations: StandardLocation[], selectedLocations: StandardLocation[], setSelected: React.Dispatch<React.SetStateAction<StandardLocation[]>>) => {
+    const isAllSelected = isAllCitySelected(cityLocations, selectedLocations);
+    
+    if (isAllSelected) {
+      // Remove todas as localizações desta cidade
+      const otherLocations = selectedLocations.filter(selected => 
+        !cityLocations.some(cityLoc => cityLoc.code === selected.code)
+      );
+      setSelected(otherLocations);
+    } else {
+      // Adiciona todas as localizações desta cidade que não estão selecionadas
+      const newSelections = cityLocations.filter(cityLoc => 
+        !isLocationSelected(cityLoc, selectedLocations)
+      );
+      setSelected([...selectedLocations, ...newSelections]);
+    }
+  };
+
+  // Função para obter o texto de exibição das seleções
+  const getSelectedDisplayText = (selectedLocations: StandardLocation[]) => {
+    if (selectedLocations.length === 0) return "";
+    if (selectedLocations.length === 1) return selectedLocations[0].name;
+    
+    // Group by cityCode and show city names
+    const cities = Array.from(new Set(selectedLocations.map(loc => loc.cityCode || loc.city || loc.name)));
+    if (cities.length === 1) {
+      // Use the city name for display, not the cityCode
+      const cityName = selectedLocations[0].city || selectedLocations[0].cityCode || selectedLocations[0].name;
+      return `${cityName} (qualquer)`;
+    }
+    return cities.map(cityKey => {
+      // Find a location with this cityKey to get the display name
+      const loc = selectedLocations.find(l => (l.cityCode || l.city || l.name) === cityKey);
+      return loc?.city || cityKey;
+    }).join(', ');
+  };
 
   // Busca sugestões para origem (com debounce e cancelamento)
   React.useEffect(() => {
@@ -95,7 +167,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         origemAbortControllerRef.current = new AbortController();
         
         setLoadingOrigem(true);
-        LocationApi.listLocationsGoogle(formData.origem, origemAbortControllerRef.current.signal)
+        LocationApi.listLocations(formData.origem, origemAbortControllerRef.current.signal)
           .then((res) => {
             setOrigemSuggestions(res.locations);
             setShowOrigemDropdown(true);
@@ -141,7 +213,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
         destinoAbortControllerRef.current = new AbortController();
         
         setLoadingDestino(true);
-        LocationApi.listLocationsGoogle(formData.destino, destinoAbortControllerRef.current.signal)
+        LocationApi.listLocations(formData.destino, destinoAbortControllerRef.current.signal)
           .then((res) => {
             setDestinoSuggestions(res.locations);
             setShowDestinoDropdown(true);
@@ -173,8 +245,18 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Exporta o valor correto para busca
   useImperativeHandle(ref, () => ({
-  getOrigemBusca: () => selectedOrigem?.code || formData.origem,
-  getDestinoBusca: () => selectedDestino?.code || formData.destino,
+    getOrigemBusca: () => {
+      if (selectedOrigem.length > 0) {
+        return selectedOrigem.map(loc => loc.code).join(',');
+      }
+      return formData.origem;
+    },
+    getDestinoBusca: () => {
+      if (selectedDestino.length > 0) {
+        return selectedDestino.map(loc => loc.code).join(',');
+      }
+      return formData.destino;
+    },
   }));
 
   return (
@@ -219,24 +301,24 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                   <input
                     type="text"
                     placeholder="São Paulo, Brasil"
-                    value={formData.origem || ""}
+                    value={selectedOrigem.length > 0 ? getSelectedDisplayText(selectedOrigem) : (formData.origem || "")}
                     onChange={(e) => {
                       onInputChange("origem", e.target.value);
-                      setSelectedOrigem(null);
+                      setSelectedOrigem([]);
                     }}
                     onFocus={() => formData.origem && formData.origem.length >= 3 && setShowOrigemDropdown(true)}
                     onBlur={() => setTimeout(() => setShowOrigemDropdown(false), 150)}
                     className={`w-full pl-10 pr-10 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-blue focus:border-transparent text-base transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
-                    disabled={!!selectedOrigem}
+                    disabled={selectedOrigem.length > 0}
                   />
-                  {selectedOrigem && (
+                  {selectedOrigem.length > 0 && (
                     <button
                       type="button"
                       aria-label="Remover seleção de origem"
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
                       style={{ zIndex: 30 }}
                       onClick={() => {
-                        setSelectedOrigem(null);
+                        setSelectedOrigem([]);
                         onInputChange("origem", "");
                         setOrigemSuggestions([]);
                       }}
@@ -253,20 +335,53 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                         Procurando...
                       </li>
                     )}
-                    {!loadingOrigem && origemSuggestions.length > 0 && origemSuggestions.map((loc) => (
-                      <li
-                        key={loc.code}
-                        className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10"
-                        onMouseDown={() => {
-                          origemSelectBySuggestion.current = true;
-                          onInputChange("origem", loc.name);
-                          setSelectedOrigem(loc);
-                          setShowOrigemDropdown(false);
-                        }}
-                      >
-                        <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
-                      </li>
-                    ))}
+                    {!loadingOrigem && origemSuggestions.length > 0 && (() => {
+                      const groupedLocations = groupLocationsByCity(origemSuggestions);
+                      return Object.entries(groupedLocations).map(([cityKey, cityLocations]) => (
+                        <li key={cityKey} className="border-b border-gray-100 last:border-b-0">
+                          {cityLocations.length > 1 && (
+                            <div 
+                              className="px-4 py-2 bg-gray-50 font-medium text-econotrip-blue cursor-pointer hover:bg-econotrip-blue/10 flex items-center justify-between"
+                              onMouseDown={() => {
+                                origemSelectBySuggestion.current = true;
+                                toggleCitySelection(cityLocations, selectedOrigem, setSelectedOrigem);
+                                onInputChange("origem", getSelectedDisplayText([...selectedOrigem, ...cityLocations.filter(loc => !isLocationSelected(loc, selectedOrigem))]));
+                                setShowOrigemDropdown(false);
+                              }}
+                            >
+                              <span>{cityLocations[0].city} (qualquer)</span>
+                              <span className="text-xs">
+                                {isAllCitySelected(cityLocations, selectedOrigem) ? '✓ Todos' : 'Selecionar todos'}
+                              </span>
+                            </div>
+                          )}
+                          {cityLocations.map((loc) => (
+                            <div
+                              key={loc.code}
+                              className={`px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10 flex items-center justify-between ${
+                                cityLocations.length > 1 ? 'pl-8' : ''
+                              } ${isLocationSelected(loc, selectedOrigem) ? 'bg-econotrip-blue/5' : ''}`}
+                              onMouseDown={() => {
+                                origemSelectBySuggestion.current = true;
+                                toggleLocationSelection(loc, selectedOrigem, setSelectedOrigem);
+                                const newSelected = isLocationSelected(loc, selectedOrigem) 
+                                  ? selectedOrigem.filter(selected => selected.code !== loc.code)
+                                  : [...selectedOrigem, loc];
+                                onInputChange("origem", getSelectedDisplayText(newSelected));
+                                setShowOrigemDropdown(false);
+                              }}
+                            >
+                              <span>
+                                <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
+                              </span>
+                              {isLocationSelected(loc, selectedOrigem) && (
+                                <span className="text-econotrip-blue">✓</span>
+                              )}
+                            </div>
+                          ))}
+                        </li>
+                      ));
+                    })()}
                     {!loadingOrigem && origemSuggestions.length === 0 && (
                       <li className="px-4 py-2 text-gray-400 italic text-center">Nenhum resultado</li>
                     )}
@@ -317,24 +432,24 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                   <input
                     type="text"
                     placeholder="Lisboa, Portugal"
-                    value={formData.destino || ""}
+                    value={selectedDestino.length > 0 ? getSelectedDisplayText(selectedDestino) : (formData.destino || "")}
                     onChange={(e) => {
                       onInputChange("destino", e.target.value);
-                      setSelectedDestino(null);
+                      setSelectedDestino([]);
                     }}
                     onFocus={() => formData.destino && formData.destino.length >= 3 && setShowDestinoDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
                     className={`w-full pl-10 pr-10 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-econotrip-orange focus:border-transparent text-base transition disabled:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed`}
-                    disabled={!!selectedDestino}
+                    disabled={selectedDestino.length > 0}
                   />
-                  {selectedDestino && (
+                  {selectedDestino.length > 0 && (
                     <button
                       type="button"
                       aria-label="Remover seleção de destino"
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none bg-white rounded-full p-1 shadow"
                       style={{ zIndex: 30 }}
                       onClick={() => {
-                        setSelectedDestino(null);
+                        setSelectedDestino([]);
                         onInputChange("destino", "");
                         setDestinoSuggestions([]);
                       }}
@@ -351,20 +466,53 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                         Procurando...
                       </li>
                     )}
-                    {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc) => (
-                      <li
-                        key={loc.code}
-                        className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10"
-                        onMouseDown={() => {
-                          destinoSelectBySuggestion.current = true;
-                          onInputChange("destino", loc.name);
-                          setSelectedDestino(loc);
-                          setShowDestinoDropdown(false);
-                        }}
-                      >
-                        <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
-                      </li>
-                    ))}
+                    {!loadingDestino && destinoSuggestions.length > 0 && (() => {
+                      const groupedLocations = groupLocationsByCity(destinoSuggestions);
+                      return Object.entries(groupedLocations).map(([cityKey, cityLocations]) => (
+                        <li key={cityKey} className="border-b border-gray-100 last:border-b-0">
+                          {cityLocations.length > 1 && (
+                            <div 
+                              className="px-4 py-2 bg-gray-50 font-medium text-econotrip-orange cursor-pointer hover:bg-econotrip-orange/10 flex items-center justify-between"
+                              onMouseDown={() => {
+                                destinoSelectBySuggestion.current = true;
+                                toggleCitySelection(cityLocations, selectedDestino, setSelectedDestino);
+                                onInputChange("destino", getSelectedDisplayText([...selectedDestino, ...cityLocations.filter(loc => !isLocationSelected(loc, selectedDestino))]));
+                                setShowDestinoDropdown(false);
+                              }}
+                            >
+                              <span>{cityLocations[0].city} (qualquer)</span>
+                              <span className="text-xs">
+                                {isAllCitySelected(cityLocations, selectedDestino) ? '✓ Todos' : 'Selecionar todos'}
+                              </span>
+                            </div>
+                          )}
+                          {cityLocations.map((loc) => (
+                            <div
+                              key={loc.code}
+                              className={`px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10 flex items-center justify-between ${
+                                cityLocations.length > 1 ? 'pl-8' : ''
+                              } ${isLocationSelected(loc, selectedDestino) ? 'bg-econotrip-orange/5' : ''}`}
+                              onMouseDown={() => {
+                                destinoSelectBySuggestion.current = true;
+                                toggleLocationSelection(loc, selectedDestino, setSelectedDestino);
+                                const newSelected = isLocationSelected(loc, selectedDestino) 
+                                  ? selectedDestino.filter(selected => selected.code !== loc.code)
+                                  : [...selectedDestino, loc];
+                                onInputChange("destino", getSelectedDisplayText(newSelected));
+                                setShowDestinoDropdown(false);
+                              }}
+                            >
+                              <span>
+                                <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
+                              </span>
+                              {isLocationSelected(loc, selectedDestino) && (
+                                <span className="text-econotrip-orange">✓</span>
+                              )}
+                            </div>
+                          ))}
+                        </li>
+                      ));
+                    })()}
                     {!loadingDestino && destinoSuggestions.length === 0 && (
                       <li className="px-4 py-2 text-gray-400 italic text-center">Nenhum resultado</li>
                     )}
@@ -421,7 +569,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                 </div>
               </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Classe</label>
               <select
                 value={formData.classe}
@@ -433,7 +581,7 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
                 <option value="executiva">Executiva</option>
                 <option value="primeira">Primeira</option>
               </select>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

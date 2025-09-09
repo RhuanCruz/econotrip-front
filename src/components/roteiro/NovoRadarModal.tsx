@@ -47,8 +47,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const [destinoSuggestions, setDestinoSuggestions] = useState<StandardLocation[]>([]);
   const [showPartidaDropdown, setShowPartidaDropdown] = useState(false);
   const [showDestinoDropdown, setShowDestinoDropdown] = useState(false);
-  const [selectedPartida, setSelectedPartida] = useState<StandardLocation | null>(null);
-  const [selectedDestino, setSelectedDestino] = useState<StandardLocation | null>(null);
+  const [selectedPartida, setSelectedPartida] = useState<StandardLocation[]>([]);
+  const [selectedDestino, setSelectedDestino] = useState<StandardLocation[]>([]);
   // Mensagens de erro para seleção obrigatória
   const [partidaError, setPartidaError] = useState("");
   const [destinoError, setDestinoError] = useState("");
@@ -64,6 +64,89 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   // Refs para AbortController para cancelar requisições
   const partidaAbortControllerRef = useRef<AbortController | null>(null);
   const destinoAbortControllerRef = useRef<AbortController | null>(null);
+
+  // Função para agrupar localizações por cidade/código
+  const groupLocationsByCity = (locations: StandardLocation[]) => {
+    const groups: { [key: string]: StandardLocation[] } = {};
+    
+    locations.forEach(location => {
+      const groupKey = location.cityCode || location.city || location.code || location.name;
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(location);
+    });
+    
+    return groups;
+  };
+
+  // Função para verificar se uma localização está selecionada
+  const isLocationSelected = (location: StandardLocation, selectedLocations: StandardLocation[]) => {
+    return selectedLocations.some(selected => selected.code === location.code);
+  };
+
+  // Função para verificar se todas as localizações de uma cidade estão selecionadas
+  const isAllCitySelected = (cityLocations: StandardLocation[], selectedLocations: StandardLocation[]) => {
+    return cityLocations.every(location => isLocationSelected(location, selectedLocations));
+  };
+
+  // Função para alternar seleção de uma localização individual (só uma OU todas)
+  const toggleLocationSelection = (location: StandardLocation, selectedLocations: StandardLocation[], setSelected: React.Dispatch<React.SetStateAction<StandardLocation[]>>) => {
+    const cityKey = location.cityCode || location.city || location.code || location.name;
+    
+    if (isLocationSelected(location, selectedLocations)) {
+      // Remove a localização selecionada
+      setSelected(selectedLocations.filter(selected => selected.code !== location.code));
+    } else {
+      // Remove todas as outras localizações desta cidade e adiciona apenas esta
+      const otherCityLocations = selectedLocations.filter(selected => {
+        const selectedCityKey = selected.cityCode || selected.city || selected.code || selected.name;
+        return selectedCityKey !== cityKey;
+      });
+      setSelected([...otherCityLocations, location]);
+    }
+  };
+
+  // Função para alternar seleção de todas as localizações de uma cidade
+  const toggleCitySelection = (cityLocations: StandardLocation[], selectedLocations: StandardLocation[], setSelected: React.Dispatch<React.SetStateAction<StandardLocation[]>>) => {
+    const isAllSelected = isAllCitySelected(cityLocations, selectedLocations);
+    const cityKey = cityLocations[0]?.cityCode || cityLocations[0]?.city || cityLocations[0]?.code || cityLocations[0]?.name;
+    
+    if (isAllSelected) {
+      // Remove todas as localizações desta cidade
+      const otherLocations = selectedLocations.filter(selected => {
+        const selectedCityKey = selected.cityCode || selected.city || selected.code || selected.name;
+        return selectedCityKey !== cityKey;
+      });
+      setSelected(otherLocations);
+    } else {
+      // Remove qualquer seleção individual desta cidade e adiciona todas
+      const otherCityLocations = selectedLocations.filter(selected => {
+        const selectedCityKey = selected.cityCode || selected.city || selected.code || selected.name;
+        return selectedCityKey !== cityKey;
+      });
+      setSelected([...otherCityLocations, ...cityLocations]);
+    }
+  };
+
+  // Função para obter o texto de exibição das seleções
+  const getSelectedDisplayText = (selectedLocations: StandardLocation[]) => {
+    if (selectedLocations.length === 0) return "";
+    if (selectedLocations.length === 1) return selectedLocations[0].name;
+    
+    // Group by cityCode and show city names
+    const cities = Array.from(new Set(selectedLocations.map(loc => loc.cityCode || loc.city || loc.name)));
+    if (cities.length === 1) {
+      // Use the city name for display, not the cityCode
+      const cityName = selectedLocations[0].city || selectedLocations[0].cityCode || selectedLocations[0].name;
+      return `${cityName} (qualquer)`;
+    }
+    return cities.map(cityKey => {
+      // Find a location with this cityKey to get the display name
+      const loc = selectedLocations.find(l => (l.cityCode || l.city || l.name) === cityKey);
+      return loc?.city || cityKey;
+    }).join(', ');
+  };
 
   // Debounce para busca de sugestões com cancelamento de requisições
   React.useEffect(() => {
@@ -85,7 +168,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         const controller = new AbortController();
         partidaAbortControllerRef.current = controller;
         
-        LocationApi.listLocationsGoogle(partida, controller.signal)
+        LocationApi.listLocations(partida, controller.signal)
           .then((res) => {
             if (!controller.signal.aborted) {
               setPartidaSuggestions(res.locations);
@@ -139,7 +222,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         const controller = new AbortController();
         destinoAbortControllerRef.current = controller;
         
-        LocationApi.listLocationsGoogle(destino, controller.signal)
+        LocationApi.listLocations(destino, controller.signal)
           .then((res) => {
             if (!controller.signal.aborted) {
               setDestinoSuggestions(res.locations);
@@ -197,25 +280,25 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
           <div className="flex items-center">
             <input
               type="text"
-              value={partida}
+              value={selectedPartida.length > 0 ? getSelectedDisplayText(selectedPartida) : partida}
               onChange={e => {
                 setPartida(e.target.value);
-                setSelectedPartida(null);
+                setSelectedPartida([]);
                 setPartidaError("");
               }}
               onFocus={() => partida.length >= 3 && setShowPartidaDropdown(true)}
               onBlur={() => setTimeout(() => setShowPartidaDropdown(false), 150)}
               className={`w-full border rounded-lg px-3 py-2 pr-10 h-10 ${partidaError ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Cidade de origem"
-              disabled={!!selectedPartida}
+              disabled={selectedPartida.length > 0}
             />
-            {selectedPartida && (
+            {selectedPartida.length > 0 && (
               <button
                 type="button"
                 aria-label="Remover seleção de partida"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none"
                 onClick={() => {
-                  setSelectedPartida(null);
+                  setSelectedPartida([]);
                   setPartida("");
                   setPartidaSuggestions([]);
                   setPartidaError("");
@@ -233,21 +316,55 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                   Procurando...
                 </li>
               )}
-              {!loadingPartida && partidaSuggestions.length > 0 && partidaSuggestions.map((loc, idx) => (
-                <li
-                  key={loc.code || idx}
-                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10 text-left"
-                  onMouseDown={() => {
-                    ignorePartidaEffectRef.current = true;
-                    setPartida(loc.name);
-                    setSelectedPartida(loc);
-                    setShowPartidaDropdown(false);
-                    setPartidaError("");
-                  }}
-                >
-                  <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
-                </li>
-              ))}
+              {!loadingPartida && partidaSuggestions.length > 0 && (() => {
+                const groupedLocations = groupLocationsByCity(partidaSuggestions);
+                return Object.entries(groupedLocations).map(([cityKey, cityLocations]) => (
+                  <li key={cityKey} className="border-b border-gray-100 last:border-b-0">
+                    {cityLocations.length > 1 && (
+                      <div 
+                        className="px-4 py-2 bg-gray-50 font-medium text-econotrip-blue cursor-pointer hover:bg-econotrip-blue/10 flex items-center justify-between"
+                        onMouseDown={() => {
+                          ignorePartidaEffectRef.current = true;
+                          toggleCitySelection(cityLocations, selectedPartida, setSelectedPartida);
+                          setPartida(getSelectedDisplayText([...selectedPartida, ...cityLocations.filter(loc => !isLocationSelected(loc, selectedPartida))]));
+                          setShowPartidaDropdown(false);
+                          setPartidaError("");
+                        }}
+                      >
+                        <span>{cityLocations[0].city} (qualquer)</span>
+                        <span className="text-xs">
+                          {isAllCitySelected(cityLocations, selectedPartida) ? '✓ Todos' : 'Selecionar todos'}
+                        </span>
+                      </div>
+                    )}
+                    {cityLocations.map((loc) => (
+                      <div
+                        key={loc.code}
+                        className={`px-4 py-2 cursor-pointer hover:bg-econotrip-blue/10 flex items-center justify-between text-left ${
+                          cityLocations.length > 1 ? 'pl-8' : ''
+                        } ${isLocationSelected(loc, selectedPartida) ? 'bg-econotrip-blue/5' : ''}`}
+                        onMouseDown={() => {
+                          ignorePartidaEffectRef.current = true;
+                          toggleLocationSelection(loc, selectedPartida, setSelectedPartida);
+                          const newSelected = isLocationSelected(loc, selectedPartida) 
+                            ? selectedPartida.filter(selected => selected.code !== loc.code)
+                            : [...selectedPartida, loc];
+                          setPartida(getSelectedDisplayText(newSelected));
+                          setShowPartidaDropdown(false);
+                          setPartidaError("");
+                        }}
+                      >
+                        <span>
+                          <span className="font-semibold text-econotrip-blue">{loc.code}</span> - {loc.name}
+                        </span>
+                        {isLocationSelected(loc, selectedPartida) && (
+                          <span className="text-econotrip-blue">✓</span>
+                        )}
+                      </div>
+                    ))}
+                  </li>
+                ));
+              })()}
               {!loadingPartida && partidaSuggestions.length === 0 && (
                 <li className="px-4 py-2 text-gray-400 italic text-left">Nenhum resultado</li>
               )}
@@ -262,25 +379,25 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
           <div className="flex items-center">
             <input
               type="text"
-              value={destino}
+              value={selectedDestino.length > 0 ? getSelectedDisplayText(selectedDestino) : destino}
               onChange={e => {
                 setDestino(e.target.value);
-                setSelectedDestino(null);
+                setSelectedDestino([]);
                 setDestinoError("");
               }}
               onFocus={() => destino.length >= 3 && setShowDestinoDropdown(true)}
               onBlur={() => setTimeout(() => setShowDestinoDropdown(false), 150)}
               className={`w-full border rounded-lg px-3 py-2 pr-10 h-10 ${destinoError ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Cidade de destino"
-              disabled={!!selectedDestino}
+              disabled={selectedDestino.length > 0}
             />
-            {selectedDestino && (
+            {selectedDestino.length > 0 && (
               <button
                 type="button"
                 aria-label="Remover seleção de destino"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 focus:outline-none"
                 onClick={() => {
-                  setSelectedDestino(null);
+                  setSelectedDestino([]);
                   setDestino("");
                   setDestinoSuggestions([]);
                   setDestinoError("");
@@ -298,21 +415,55 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
                   Procurando...
                 </li>
               )}
-              {!loadingDestino && destinoSuggestions.length > 0 && destinoSuggestions.map((loc, idx) => (
-                <li
-                  key={loc.code || idx}
-                  className="px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10 text-left"
-                  onMouseDown={() => {
-                    ignoreDestinoEffectRef.current = true;
-                    setDestino(loc.name);
-                    setSelectedDestino(loc);
-                    setShowDestinoDropdown(false);
-                    setDestinoError("");
-                  }}
-                >
-                  <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
-                </li>
-              ))}
+              {!loadingDestino && destinoSuggestions.length > 0 && (() => {
+                const groupedLocations = groupLocationsByCity(destinoSuggestions);
+                return Object.entries(groupedLocations).map(([cityKey, cityLocations]) => (
+                  <li key={cityKey} className="border-b border-gray-100 last:border-b-0">
+                    {cityLocations.length > 1 && (
+                      <div 
+                        className="px-4 py-2 bg-gray-50 font-medium text-econotrip-orange cursor-pointer hover:bg-econotrip-orange/10 flex items-center justify-between"
+                        onMouseDown={() => {
+                          ignoreDestinoEffectRef.current = true;
+                          toggleCitySelection(cityLocations, selectedDestino, setSelectedDestino);
+                          setDestino(getSelectedDisplayText([...selectedDestino, ...cityLocations.filter(loc => !isLocationSelected(loc, selectedDestino))]));
+                          setShowDestinoDropdown(false);
+                          setDestinoError("");
+                        }}
+                      >
+                        <span>{cityLocations[0].city} (qualquer)</span>
+                        <span className="text-xs">
+                          {isAllCitySelected(cityLocations, selectedDestino) ? '✓ Todos' : 'Selecionar todos'}
+                        </span>
+                      </div>
+                    )}
+                    {cityLocations.map((loc) => (
+                      <div
+                        key={loc.code}
+                        className={`px-4 py-2 cursor-pointer hover:bg-econotrip-orange/10 flex items-center justify-between text-left ${
+                          cityLocations.length > 1 ? 'pl-8' : ''
+                        } ${isLocationSelected(loc, selectedDestino) ? 'bg-econotrip-orange/5' : ''}`}
+                        onMouseDown={() => {
+                          ignoreDestinoEffectRef.current = true;
+                          toggleLocationSelection(loc, selectedDestino, setSelectedDestino);
+                          const newSelected = isLocationSelected(loc, selectedDestino) 
+                            ? selectedDestino.filter(selected => selected.code !== loc.code)
+                            : [...selectedDestino, loc];
+                          setDestino(getSelectedDisplayText(newSelected));
+                          setShowDestinoDropdown(false);
+                          setDestinoError("");
+                        }}
+                      >
+                        <span>
+                          <span className="font-semibold text-econotrip-orange">{loc.code}</span> - {loc.name}
+                        </span>
+                        {isLocationSelected(loc, selectedDestino) && (
+                          <span className="text-econotrip-orange">✓</span>
+                        )}
+                      </div>
+                    ))}
+                  </li>
+                ));
+              })()}
               {!loadingDestino && destinoSuggestions.length === 0 && (
                 <li className="px-4 py-2 text-gray-400 italic text-left">Nenhum resultado</li>
               )}
@@ -496,11 +647,11 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
 
   const handleConfirm = async () => {
     let valid = true;
-    if (!selectedPartida) {
+    if (selectedPartida.length === 0) {
       setPartidaError("Selecione uma opção do droplist de partida.");
       valid = false;
     }
-    if (!selectedDestino) {
+    if (selectedDestino.length === 0) {
       setDestinoError("Selecione uma opção do droplist de destino.");
       valid = false;
     }
@@ -517,8 +668,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
     setLoading(true);
     try {
       const radarData: CreateRadarBody = {
-        origin: selectedPartida.code,
-        destination: selectedDestino.code,
+        origin: selectedPartida.map(loc => loc.code).filter(Boolean).join(','),
+        destination: selectedDestino.map(loc => loc.code).filter(Boolean).join(','),
         start: habilitarDatas ? inicio : undefined,
         end: habilitarDatas ? fim : undefined,
         value: habilitarAlertaPreco && valorLimite ? parseFloat(valorLimite) : undefined,
@@ -540,8 +691,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setShowMoedaDropdown(false);
       setNotificarEmail(true);
       setNotificarTelegram(true);
-      setSelectedPartida(null);
-      setSelectedDestino(null);
+      setSelectedPartida([]);
+      setSelectedDestino([]);
       setPartidaError("");
       setDestinoError("");
       setValorLimiteError("");

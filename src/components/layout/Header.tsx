@@ -82,10 +82,10 @@ export function Header({
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configurações</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/fidelidade")} className="hover:bg-econotrip-orange/10">
+                {/* <DropdownMenuItem onClick={() => navigate("/fidelidade")} className="hover:bg-econotrip-orange/10">
                   <div className="mr-2 h-4 w-4 text-econotrip-green">★</div>
                   <span>Programa de Fidelidade</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={() => navigate("/suporte")} className="hover:bg-econotrip-orange/10">
                   <div className="mr-2 h-4 w-4">?</div>
                   <span>Suporte</span>

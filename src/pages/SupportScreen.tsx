@@ -40,13 +40,24 @@ export default function SupportScreen() {
   };
 
   const toggleVoiceMode = () => {
-    setVoiceMode(!voiceMode);
-    toast({
-      title: voiceMode ? "Modo de leitura desativado" : "Modo de leitura ativado",
-      description: voiceMode 
-        ? "A leitura em voz alta foi desativada" 
-        : "O conteúdo será lido em voz alta para você",
-    });
+    if (!('speechSynthesis' in window)) {
+      console.warn('Speech synthesis not supported');
+      return;
+    }
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance('Você pode ativar o modo de leitura clicando no botão flutuante no canto inferior esquerdo e escutar um resumo da página');
+    utterance.lang = 'pt-BR';
+    utterance.rate = 0.8;
+    utterance.pitch = 1;
+    
+    utterance.onstart = () => setVoiceMode(true);
+    utterance.onend = () => setVoiceMode(false);
+    utterance.onerror = () => setVoiceMode(false);
+    
+    window.speechSynthesis.speak(utterance);
   };
 
   const handleBackToHome = () => {
@@ -171,35 +182,6 @@ export default function SupportScreen() {
           Atendimento Direto
         </h2>
         <div className="space-y-4">
-          <motion.div 
-            whileHover={{ scale: 1.03 }} 
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <Card className="p-6 rounded-2xl shadow-md bg-[#5FB4E8]/20 border-[#5FB4E8]">
-              <div className="flex flex-col items-center text-center">
-                <Phone className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" aria-label="Ícone de telefone" />
-                <h3 className="text-xl font-bold text-econotrip-blue mb-2">Fale com um atendente</h3>
-                <p className="mb-4 text-lg">Atendimento por telefone das 8h às 20h</p>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    icon={Phone}
-                    onClick={handleCallSupport}
-                    className="w-full touch-target h-14"
-                    aria-label="Ligar para suporte técnico"
-                  >
-                    Ligar para 0800 123 456
-                  </Button>
-                </motion.div>
-              </div>
-            </Card>
-          </motion.div>
-
           <motion.div 
             whileHover={{ scale: 1.03 }} 
             whileTap={{ scale: 0.98 }}
