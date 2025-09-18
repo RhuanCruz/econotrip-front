@@ -314,12 +314,6 @@ export default function DashboardScreen() {
 
           {/* Explorar categorias modernas */}
           <motion.div variants={itemAnimation}>
-            <div className="flex items-center gap-2 mb-3">
-              <Globe className="h-4 w-4 text-econotrip-primary" />
-              <h2 className="text-base font-semibold text-econotrip-primary">
-                Explore novas aventuras
-              </h2>
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <Card
                 className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"

@@ -58,7 +58,7 @@ export default function SupportScreen() {
   };
 
   const handleBackToHome = () => {
-    navigate("/busca-voos");
+    navigate("/dashboard");
   };
 
   // Animation variants

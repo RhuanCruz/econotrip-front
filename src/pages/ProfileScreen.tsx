@@ -150,7 +150,7 @@ export default function ProfileScreen() {
       </motion.div>
 
       {/* Loyalty Program Section */}
-      <motion.div variants={itemAnimation}>
+      {/* <motion.div variants={itemAnimation}>
         <motion.div
           whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
           className="mb-6 md:mb-8"
@@ -186,7 +186,7 @@ export default function ProfileScreen() {
             </motion.div>
           </Card>
         </motion.div>
-      </motion.div>
+      </motion.div> */}
 
       {/* Travel History Section
       <motion.div variants={itemAnimation} className="mb-6 md:mb-8">
