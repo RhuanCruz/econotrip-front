@@ -38,13 +38,7 @@ export function BottomNavigation() {
       icon: MapPin, 
       route: '/meu-roteiro', 
       isActive: location.pathname === '/meu-roteiro'
-    },
-    { 
-      name: 'Evolução', 
-      icon: TrendingUp, 
-      route: '/minha-evolucao', 
-      isActive: location.pathname === '/minha-evolucao'
-    },
+    }
   ];
 
   return (

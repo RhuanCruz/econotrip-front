@@ -344,7 +344,7 @@ export default function DashboardScreen() {
           </motion.div>
 
           {/* Programa de fidelidade moderno */}
-          <motion.div variants={itemAnimation}>
+          {/* <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
               <Gift className="h-4 w-4 text-econotrip-primary" />
               <h2 className="text-base font-semibold text-econotrip-primary">
@@ -411,7 +411,6 @@ export default function DashboardScreen() {
             </Card>
           </motion.div>
 
-          {/* Conquistas modernas */}
           <motion.div variants={itemAnimation}>
             <div className="flex items-center gap-2 mb-3">
               <h2 className="text-base font-semibold text-econotrip-primary flex items-center gap-2">
@@ -439,8 +438,8 @@ export default function DashboardScreen() {
                 </div>
               </Card>
             </div>
-          </motion.div>
-        </motion.div>
+          </motion.div>*/}
+        </motion.div> 
       </div>
     </div>
   );

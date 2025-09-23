@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from "react";
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { Capacitor } from '@capacitor/core';
 import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
 import { Glasses, Type, Contrast, X, ChevronDown, Volume2 } from "lucide-react";
@@ -34,56 +36,102 @@ export function AccessibilityBar() {
     }
   }, []);
 
-  // Speech synthesis functions
-  const speakText = (text: string, shouldDeactivateAfter = false) => {
-    if (!('speechSynthesis' in window)) {
-      console.warn('Speech synthesis not supported');
-      return;
-    }
+  // Speech synthesis functions (Web + Capacitor TTS)
+  const isNativePlatform = Capacitor.isNativePlatform();
 
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 0.8;
-    utterance.pitch = 1;
-    
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      if (shouldDeactivateAfter) {
-        // Deactivate voice reading mode after speech ends
-        const newSettings = { ...settings, voiceReading: false };
-        setSettings(newSettings);
-        applySettings(newSettings);
-        try {
-          localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
-        } catch (error) {
-          console.log("Erro ao salvar configurações:", error);
+  const speakText = async (text: string, shouldDeactivateAfter = false) => {
+    setIsSpeaking(true);
+    if (isNativePlatform) {
+      // Mobile (Android/iOS)
+      try {
+        await TextToSpeech.speak({
+          text,
+          lang: 'pt-BR',
+          rate: 0.8,
+          pitch: 1,
+          volume: 1,
+          category: 'ambient',
+        });
+        setIsSpeaking(false);
+        if (shouldDeactivateAfter) {
+          // Desativa voiceReading após leitura
+          const newSettings = { ...settings, voiceReading: false };
+          setSettings(newSettings);
+          applySettings(newSettings);
+          try {
+            localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
+          } catch (error) {
+            console.log("Erro ao salvar configurações:", error);
+          }
+        }
+      } catch (error) {
+        setIsSpeaking(false);
+        if (shouldDeactivateAfter) {
+          const newSettings = { ...settings, voiceReading: false };
+          setSettings(newSettings);
+          applySettings(newSettings);
+          try {
+            localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
+          } catch (error) {
+            console.log("Erro ao salvar configurações:", error);
+          }
         }
       }
-    };
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      if (shouldDeactivateAfter) {
-        // Deactivate voice reading mode on error too
-        const newSettings = { ...settings, voiceReading: false };
-        setSettings(newSettings);
-        applySettings(newSettings);
-        try {
-          localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
-        } catch (error) {
-          console.log("Erro ao salvar configurações:", error);
-        }
+    } else {
+      // Web
+      if (!('speechSynthesis' in window)) {
+        setIsSpeaking(false);
+        return;
       }
-    };
-    
-    window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.cancel();
+      const utterance = new window.SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        if (shouldDeactivateAfter) {
+          // Desativa voiceReading após leitura
+          const newSettings = { ...settings, voiceReading: false };
+          setSettings(newSettings);
+          applySettings(newSettings);
+          try {
+            localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
+          } catch (error) {
+            console.log("Erro ao salvar configurações:", error);
+          }
+        }
+      };
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        if (shouldDeactivateAfter) {
+          const newSettings = { ...settings, voiceReading: false };
+          setSettings(newSettings);
+          applySettings(newSettings);
+          try {
+            localStorage.setItem("econotrip_accessibility", JSON.stringify(newSettings));
+          } catch (error) {
+            console.log("Erro ao salvar configurações:", error);
+          }
+        }
+      };
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
-  const stopSpeech = () => {
-    window.speechSynthesis.cancel();
+  const stopSpeech = async () => {
+    if (isNativePlatform) {
+      try {
+        await TextToSpeech.stop();
+      } catch {
+        console.log('Failed to stop speech')
+      }
+    } else {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
     setIsSpeaking(false);
   };
 
