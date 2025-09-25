@@ -112,7 +112,7 @@ export default function TelaBuscaVoos() {
       const origemCode = formRef.current?.getOrigemBusca?.() || formData.origem;
       const destinoCode = formRef.current?.getDestinoBusca?.() || formData.destino;
       const searchData = { ...formData, origem: origemCode, destino: destinoCode };
-      
+
       // Se estiver usando milhas, vai para a tela de programas de milhas
       if (formData.usarMilhas) {
         navigate("/programas-milhas", {
@@ -139,16 +139,16 @@ export default function TelaBuscaVoos() {
     const state = location.state as LocationState | undefined;
     const destinoSugerido = state?.destinoSugerido;
     const searchParams = state?.searchParams;
-    
+
     if (destinoSugerido) {
       setFormData(prev => ({ ...prev, destino: destinoSugerido }));
     }
-    
+
     // Se recebeu parâmetros de busca completos, executa a busca diretamente
     if (searchParams && searchParams.origem && searchParams.destino && searchParams.dataIda) {
       // Limpa o estado do location para evitar reutilização ao voltar
       window.history.replaceState({}, '', window.location.pathname);
-      
+
       // Cria os dados de busca com os parâmetros recebidos
       const searchData = {
         origem: searchParams.origem,
@@ -170,34 +170,62 @@ export default function TelaBuscaVoos() {
       setModalConfig({
         type: "info",
         title: "Buscando suas opções de viagem",
-        description: "Aguarde um momento enquanto encontramos as melhores passagens para você!"
+        description: "Aguarde um momento enquanto encontramos as melhores passagens para você! Os valores apresentados estão sujeitos a alterações sem aviso prévio."
       });
-      setShowModal(true);
 
-      setTimeout(() => {
-        setShowModal(false);
-        // Se estiver usando milhas, vai para a tela de programas de milhas
-        if (searchData.usarMilhas) {
-          navigate("/programas-milhas", {
-            state: {
-              origem: searchData.origem,
-              destino: searchData.destino,
-              dataIda: searchData.dataIda,
-              dataVolta: searchData.dataVolta,
-              searchData
-            }
-          });
-        } else {
-          // Fluxo normal para busca em dinheiro
-          if (searchData.dataVolta) {
-            navigate("/resultados-ida-volta", { state: { searchData } });
-          } else {
-            navigate("/resultados-voos", { state: { searchData } });
-          }
-        }
-      }, 2000);
+      setShowModal(true);
     }
   }, [location.state, navigate]);
+
+  const handleCloseButton = async () => {
+    const state = location.state as LocationState | undefined;
+    const searchParams = state?.searchParams;
+
+    if (searchParams && searchParams.origem && searchParams.destino && searchParams.dataIda) {
+      // Limpa o estado do location para evitar reutilização ao voltar
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Cria os dados de busca com os parâmetros recebidos
+      const searchData = {
+        origem: searchParams.origem,
+        destino: searchParams.destino,
+        dataIda: searchParams.dataIda,
+        dataVolta: searchParams.dataVolta || "",
+        passageiros: searchParams.passageiros || { adults: 1, children: 0, infants: 0 },
+        classe: searchParams.classe || "economica",
+        usarMilhas: searchParams.usarMilhas || false,
+        filtros: searchParams.filtros || { melhorPreco: true, acessibilidade: false, sustentavel: false, voosDiretos: false },
+        orcamento: searchParams.orcamento || "",
+        somenteDireto: searchParams.somenteDireto || false,
+        voosSustentaveis: searchParams.voosSustentaveis || false,
+        tarifasFlexiveis: searchParams.tarifasFlexiveis || false,
+        acessibilidade: searchParams.acessibilidade || false,
+      };
+
+      // Se estiver usando milhas, vai para a tela de programas de milhas
+      if (searchData.usarMilhas) {
+        navigate("/programas-milhas", {
+          state: {
+            origem: searchData.origem,
+            destino: searchData.destino,
+            dataIda: searchData.dataIda,
+            dataVolta: searchData.dataVolta,
+            searchData
+          }
+        });
+      } else {
+        // Fluxo normal para busca em dinheiro
+        if (searchData.dataVolta) {
+          navigate("/resultados-ida-volta", { state: { searchData } });
+        } else {
+          navigate("/resultados-voos", { state: { searchData } });
+        }
+      }
+
+    }
+
+    setShowModal(false);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
@@ -217,7 +245,7 @@ export default function TelaBuscaVoos() {
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -226,7 +254,7 @@ export default function TelaBuscaVoos() {
             >
               Buscar Voos
             </motion.h1>
-            
+
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -276,7 +304,7 @@ export default function TelaBuscaVoos() {
 
         <StandardModal
           isOpen={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={handleCloseButton}
           type={modalConfig.type}
           title={modalConfig.title}
           description={modalConfig.description}

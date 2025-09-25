@@ -351,11 +351,9 @@ export default function FlightDetailsScreen() {
                                   ⭐ {agent.rating.value}/5 ({agent.rating.count} avaliações)
                                 </div>
                               )}
-                              {/* {agent?.partnerMessages && agent.partnerMessages.length > 0 && (
-                                <div className="text-xs text-blue-600 mt-1">
-                                  {agent.partnerMessages[0].text}
-                                </div>
-                              )} */}
+                              <div className="text-xs text-yellow-700 bg-yellow-100 rounded px-2 py-1 mt-2">
+                                Atenção: a responsabilidade pela entrega do serviço é da agência.
+                              </div>
                             </div>
                             {pricingItem.uri && (
                               <a
