@@ -34,17 +34,11 @@ export function BottomNavigation() {
       isActive: location.pathname === '/meus-radares' || location.pathname === '/radar-ofertas'
     },
     { 
-      name: 'Roteiro', 
+      name: 'Simulador', 
       icon: MapPin, 
       route: '/meu-roteiro', 
       isActive: location.pathname === '/meu-roteiro'
-    },
-    { 
-      name: 'Evolução', 
-      icon: TrendingUp, 
-      route: '/minha-evolucao', 
-      isActive: location.pathname === '/minha-evolucao'
-    },
+    }
   ];
 
   return (
@@ -56,16 +50,6 @@ export function BottomNavigation() {
     >
       <div className="max-w-screen-sm mx-auto px-2">
         <div className="flex justify-around items-center relative">
-          {/* Background indicator */}
-          <motion.div
-            className="absolute top-3 h-12 w-16 bg-econotrip-orange/10 rounded-2xl"
-            animate={{
-              x: navigationItems.findIndex(item => item.isActive) * 
-                 (typeof window !== 'undefined' ? window.innerWidth / 4 - 32 : 88)
-            }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          />
-          
           {navigationItems.map((item, index) => (
             <motion.button
               key={item.name}
@@ -73,7 +57,7 @@ export function BottomNavigation() {
               className={cn(
                 "relative flex flex-col items-center justify-center py-3 px-4 min-w-[64px] touch-target transition-all duration-200",
                 item.isActive 
-                  ? "text-econotrip-orange" 
+                  ? "text-econotrip-primary" 
                   : "text-gray-400 hover:text-gray-600"
               )}
               aria-label={`Navegar para ${item.name}`}
@@ -90,14 +74,14 @@ export function BottomNavigation() {
                 <item.icon
                   className={cn(
                     "h-5 w-5 mb-1 transition-colors",
-                    item.isActive ? "text-econotrip-orange drop-shadow-sm" : "text-gray-400"
+                    item.isActive ? "text-econotrip-primary drop-shadow-sm" : "text-gray-400"
                   )}
                   aria-hidden="true"
                 />
               </motion.div>
               <span className={cn(
                 "text-xs font-medium transition-all",
-                item.isActive ? "font-semibold text-econotrip-orange" : "text-gray-500"
+                item.isActive ? "font-semibold text-econotrip-primary" : "text-gray-500"
               )}>
                 {item.name}
               </span>
@@ -105,7 +89,7 @@ export function BottomNavigation() {
               {/* Active indicator dot */}
               {item.isActive && (
                 <motion.div
-                  className="absolute -top-1 w-1 h-1 bg-econotrip-orange rounded-full"
+                  className="absolute -top-1 w-1 h-1 bg-econotrip-primary rounded-full"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2 }}

@@ -1,87 +1,213 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScreenContainer } from "../components/layout/ScreenContainer";
 import { Button } from "../components/ui/button";
 import { LinhaDoTempoRoteiro } from "../components/roteiro/LinhaDoTempoRoteiro";
 import { Card } from "../components/ui-custom/Card";
 import { CalendarDays, MapPin, Users, Briefcase, PiggyBank, Timer, Info, BookOpen, Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { PlannerService } from "../api/planner/PlannerService";
+import { useToast } from "../hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function RoteiroGeradoScreen() {
   const location = useLocation();
-  console.log(location.state?.roteiro)
-  
-  if (!location.state?.roteiro) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { token } = useAuthStore();
+
+  // Garante que o hook nunca é chamado condicionalmente
+  const roteiro = location.state?.roteiro;
+  const start = location.state?.start;
+  const duracao = location.state?.duration;
+  const destination: Array<{ city: string; duration: number; }> = location.state?.destination;
+  const itinerario_detalhado = roteiro?.itinerario_detalhado || [];
+
+  const [eventos, setEventos] = useState(() => itinerario_detalhado.flatMap((dia, idx) => {
+    const atividades = dia.atividades
+      ? dia.atividades.filter(a => {
+        const cat = a.categoria?.toLowerCase();
+        return cat !== "transporte";
+      })
+        .map((a, i) => ({
+          id: `${dia.dia}-a${i}`,
+          dia: dia.dia,
+          horario: a.horario,
+          titulo: a.nome_atividade,
+          descricao: a.descricao,
+          tipo: a.categoria?.toLowerCase() === "refeição" || a.categoria?.toLowerCase() === "refeicao" ? "refeicao" : "passeio",
+          concluido: false,
+          lembrete: false,
+          categoria: a.categoria
+        }))
+      : [];
+    return atividades;
+  }));
+
+  if (!roteiro) {
     return <div>Roteiro não encontrado. Volte e gere um roteiro.</div>;
   }
 
-  const roteiro = location.state?.roteiro;
-  const { resumo_viagem, custos_estimados, itinerario_detalhado, resumo_financeiro, dicas_economia, dicas_otimizacao_tempo, observacoes_importantes, informacoes_praticas } = roteiro;
+  const { resumo_viagem, custos_estimados, resumo_financeiro, dicas_economia, dicas_otimizacao_tempo, observacoes_importantes, informacoes_praticas } = roteiro;
 
-  // Adapta o itinerario_detalhado para o formato de eventos do componente LinhaDoTempoRoteiro
-  const eventos = itinerario_detalhado.flatMap((dia, idx) => {
-    const atividades = dia.atividades.map((a, i) => ({
-      id: `${dia.dia}-a${i}`,
-      dia: dia.dia,
-      horario: a.horario,
-      titulo: a.nome_atividade,
-      descricao: a.descricao,
-      tipo: "passeio",
-      concluido: false,
-      lembrete: false,
-    }));
-    const refeicoes = dia.refeicoes.map((r, i) => ({
-      id: `${dia.dia}-r${i}`,
-      dia: dia.dia,
-      horario: "",
-      titulo: r.tipo_refeicao,
-      descricao: `${r.local_sugerido} (R$ ${r.custo_estimado_por_pessoa})`,
-      tipo: "passeio",
-      concluido: false,
-      lembrete: false,
-    }));
-    return [...atividades, ...refeicoes];
-  });
-
-  function formatPeriodo(periodo: string) {
-    // Espera formato: "2025-09-01T00:00:00.000Z a 2025-09-10T00:00:00.000Z"
-    const [inicio, fim] = periodo.split(' a ');
-    const format = (dateStr: string) => {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('pt-BR');
-    };
-    return `${format(inicio)} a ${format(fim)}`;
+  // Atualiza eventos ao editar/adicionar/remover no componente filho
+  function handleEventosChange(novosEventos) {
+    setEventos(novosEventos);
   }
+
+  // Extrai todas as atividades sugeridas da API (de todos os dias), incluindo categoria e filtrando acomodações, transporte e refeições
+  const atividadesSugeridas = itinerario_detalhado.flatMap((dia) =>
+    dia.atividades
+      .filter(a => {
+        const cat = a.categoria?.toLowerCase();
+        return cat !== "acomodação" && cat !== "acomodacao" && cat !== "transporte" && cat !== "refeição" && cat !== "refeicao";
+      })
+      .map((a, i) => ({
+        id: `${dia.dia}-a${i}`,
+        nome: a.nome_atividade,
+        descricao: a.descricao,
+        categoria: a.categoria
+      }))
+  );
+
+  // Função para salvar o planner
+  async function handleSalvar() {
+    try {
+      // Monta novo itinerario_detalhado a partir dos eventos
+      const novoItinerario = [];
+      for (const dia of itinerario_detalhado) {
+        const atividadesDoDia = eventos.filter(ev => ev.dia === dia.dia).map(ev => ({
+          horario: ev.horario,
+          nome_atividade: ev.titulo,
+          descricao: ev.descricao,
+          categoria: ev.categoria || "passeio"
+        }));
+        novoItinerario.push({ ...dia, atividades: atividadesDoDia });
+      }
+
+      // Debug: verificar os valores recebidos
+      console.log('Start recebido:', start, typeof start);
+      console.log('Duração recebida:', duracao, typeof duracao);
+
+      // Validação e tratamento das datas
+      let startDate;
+
+      if (!start || !duracao) {
+        throw new Error('Data de início ou duração não encontrada');
+      }
+
+      // Tenta criar a data de início
+      startDate = new Date(start);
+      if (isNaN(startDate.getTime())) {
+        // Se falhar, tenta formatar como YYYY-MM-DD
+        const dateStr = start.toString();
+        if (dateStr.includes('/')) {
+          // Formato DD/MM/YYYY para YYYY-MM-DD
+          const [day, month, year] = dateStr.split('/');
+          startDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+        } else {
+          startDate = new Date(dateStr);
+        }
+      }
+
+      if (isNaN(startDate.getTime())) {
+        throw new Error('Formato de data inválido: ' + start);
+      }
+
+      // Calcula a data de fim
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + parseInt(duracao) - 1);
+
+      const content = {
+        ...roteiro,
+        itinerario_detalhado: novoItinerario
+      };
+
+      await PlannerService.create(token, {
+        start: startDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        end: endDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        destination: destination.map((dest) => dest.city),
+        content
+      });
+      toast({ title: "Roteiro salvo com sucesso!" });
+      navigate("/meu-roteiro")
+    } catch (e) {
+      console.error('Erro ao salvar roteiro:', e);
+      toast({ title: "Erro ao salvar roteiro", description: e.message, variant: "destructive" });
+    }
+  }
+
+
 
   return (
     <ScreenContainer>
       <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">Seu Roteiro Gerado</h1>
+        {/* Header principal melhorado */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-econotrip-blue mb-2">
+            Viagem para {destination.map(item => item.city.split(',')[0].trim())
+              .join(', ')
+              .replace(/, ([^,]*)$/, ' e $1')}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-gray-600 mb-1">
+            <CalendarDays className="h-5 w-5" />
+            <span className="text-lg font-medium">{resumo_viagem.periodo}</span>
+          </div>
+          <div className="text-sm text-gray-500">
+            {resumo_viagem.duracao_dias} dias • {resumo_viagem.numero_pessoas} {resumo_viagem.numero_pessoas === 1 ? 'pessoa' : 'pessoas'} • Estilo {resumo_viagem.estilo_viagem}
+          </div>
+        </div>
+
+        {/* Card do resumo minimalista */}
         <section className="mb-6">
-          <Card className="p-6 mb-4 bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-sm">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <MapPin className="text-blue-600 h-5 w-5" />
-                <span><b>Origem:</b> {resumo_viagem.origem}</span>
+          <Card className="p-1 mb-4 bg-white border border-gray-100 shadow-sm">
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 py-1">
+                <MapPin className="text-blue-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Origem</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.origem}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="text-pink-600 h-5 w-5" />
-                <span><b>Destino:</b> {resumo_viagem.destino}</span>
+
+              <div className="flex items-start gap-2 py-1">
+                <MapPin className="text-pink-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Destino</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.destino}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="text-green-600 h-5 w-5" />
-                <span><b>Período:</b> {formatPeriodo(resumo_viagem.periodo)}</span>
+
+              <div className="flex items-start gap-2 py-1">
+                <CalendarDays className="text-green-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Período</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.periodo}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="text-purple-600 h-5 w-5" />
-                <span><b>Nº Pessoas:</b> {resumo_viagem.numero_pessoas}</span>
+
+              <div className="flex items-start gap-2 py-1">
+                <Users className="text-purple-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Viajantes</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.numero_pessoas} {resumo_viagem.numero_pessoas === 1 ? 'pessoa' : 'pessoas'}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Briefcase className="text-yellow-600 h-5 w-5" />
-                <span><b>Estilo:</b> {resumo_viagem.estilo_viagem}</span>
+
+              <div className="flex items-start gap-2 py-1">
+                <Briefcase className="text-yellow-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Estilo</span>
+                  <div className="font-medium text-gray-900 capitalize">{resumo_viagem.estilo_viagem}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="text-gray-600 h-5 w-5" />
-                <span><b>Duração:</b> {resumo_viagem.duracao_dias} dias</span>
+
+              <div className="flex items-start gap-2 py-1">
+                <CalendarDays className="text-gray-600 h-4 w-4 mt-1" />
+                <div className="flex-1">
+                  <span className="text-sm text-gray-500">Duração</span>
+                  <div className="font-medium text-gray-900">{resumo_viagem.duracao_dias} dias</div>
+                </div>
               </div>
             </div>
           </Card>
@@ -89,7 +215,7 @@ export default function RoteiroGeradoScreen() {
         <section className="mb-6">
           <Card className="p-4 mb-4">
             <h2 className="text-lg font-semibold mb-2">Custos Estimados</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
               <div className="bg-blue-50 rounded-lg p-3 flex flex-col">
                 <span className="font-medium text-blue-900">Passagens</span>
                 <span className="text-lg font-bold text-blue-700">R$ {custos_estimados.passagens_aereas.valor_total}</span>
@@ -128,7 +254,13 @@ export default function RoteiroGeradoScreen() {
         </section>
         <section className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Itinerário Detalhado</h2>
-          <LinhaDoTempoRoteiro objetivo={resumo_viagem.estilo_viagem} eventosExternos={eventos}/>
+          <LinhaDoTempoRoteiro 
+            objetivo={resumo_viagem.estilo_viagem} 
+            eventosExternos={eventos} 
+            atividadesDisponiveis={atividadesSugeridas} 
+            itinerarioDetalhado={itinerario_detalhado}
+            onEventosChange={handleEventosChange} 
+          />
         </section>
         <section className="mb-6">
           {/* Dicas, observações e informações práticas em coluna única */}
@@ -183,10 +315,11 @@ export default function RoteiroGeradoScreen() {
           </div>
         </section>
       </div>
-      <div className="flex justify-end max-w-2xl mx-auto pb-8">
+      <div className="flex justify-end max-w-2xl mx-auto pb-8 mt-6">
         <Button
           size="lg"
           className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
+          onClick={handleSalvar}
         >
           <Plus className="h-6 w-6" />
           Salvar

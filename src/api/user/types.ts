@@ -15,10 +15,26 @@ export type CreateUserBody = {
   password: string;
 };
 
+export type UpdateUserBody = {
+  email?: string;
+  fullname?: string;
+  phone?: string;
+  cpf?: string;
+  birthdate?: string;
+  password?: string;
+  confirmPassword?: string;
+};
+
 export type CheckExistenceBody = {
   email: string;
 }
 
 export type CheckExistenceResponse= {
   exists: boolean;
+}
+
+export type ResetPasswordBody = {
+  token: string;
+  password: string;
+  confirmPassword: string;
 }

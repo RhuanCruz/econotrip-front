@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+# PrimeVoyage App
 
-## Project info
+## Funcionalidades
 
-**URL**: https://lovable.dev/projects/33ab972a-81d2-4d27-ac79-5606ae9f5277
+- Simulação de roteiros de viagem inteligentes
+- Busca e comparação de voos por continente, origem e destino
+- Radar de ofertas (dinheiro e milhas)
+- Histórico de simulações e gerenciamento de viagens
+- Perfil do usuário e notificações push
+- Acessibilidade: modo leitura, fonte grande, alto contraste
+- Cadastro, login, recuperação de senha
 
-## How can I edit this code?
+## Execução do projeto
 
-There are several ways of editing your application.
+### Pré-requisitos
 
-**Use Lovable**
+- Node.js 18+
+- npm 9+
+- Android Studio (para build mobile)
+- Vite, React, TypeScript, Tailwind CSS
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/33ab972a-81d2-4d27-ac79-5606ae9f5277) and start prompting.
+### Variáveis de ambiente
 
-Changes made via Lovable will be committed automatically to this repo.
+Crie um arquivo `.env.local` na raiz do projeto com:
 
-**Use your preferred IDE**
+```
+VITE_API_URL=https://<sua-api>
+VITE_PUSH_PUBLIC_KEY=<sua-vapid-public-key>
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Rodando localmente (Web)
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Acesse: [http://localhost:8080](http://localhost:8080)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build para produção (Web)
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Build para Android (PWA/Capacitor)
 
-## What technologies are used for this project?
+1. Instale o Capacitor:
+   ```sh
+   npm install @capacitor/core @capacitor/cli
+   npx cap init
+   ```
+2. Adicione a plataforma Android:
+   ```sh
+   npx cap add android
+   ```
+3. Sincronize e abra no Android Studio:
+   ```sh
+   npm run build
+   npx cap sync android
+   npx cap open android
+   ```
 
-This project is built with:
+## Observações
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Para notificações push, configure o service worker e a VAPID public key.
+- O app é responsivo e pode ser instalado como PWA.
+- Para builds nativos, siga as instruções do Capacitor.
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/33ab972a-81d2-4d27-ac79-5606ae9f5277) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---

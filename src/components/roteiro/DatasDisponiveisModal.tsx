@@ -9,19 +9,25 @@ interface DatasDisponiveisModalProps {
   datas: string[];
   origem: string;
   destino: string;
+  radarType?: 'AIRMILES' | 'MONEY';
 }
 
-export function DatasDisponiveisModal({ isOpen, onClose, preco, datas, origem, destino }: DatasDisponiveisModalProps) {
+export function DatasDisponiveisModal({ isOpen, onClose, preco, datas, origem, destino, radarType = 'MONEY' }: DatasDisponiveisModalProps) {
   const navigate = useNavigate();
 
   const handleIrParaBusca = (data: string) => {
     onClose();
+    // Ensure date is in YYYY-MM-DD format
+    const dateFormatted = new Date(data).toISOString().split('T')[0];
     navigate("/busca-voos", {
       state: {
-        origem,
-        destino,
-        data,
-        preco
+        searchParams:{
+          origem,
+          destino,
+          dataIda: dateFormatted,
+          usarMilhas: radarType === 'AIRMILES',
+          preco
+        }
       }
     });
   };
@@ -32,7 +38,10 @@ export function DatasDisponiveisModal({ isOpen, onClose, preco, datas, origem, d
       onClose={onClose}
       onConfirm={onClose}
       type="info"
-      title={`Datas disponíveis para R$ ${preco.toLocaleString()}`}
+      title={`Datas disponíveis para ${radarType === 'AIRMILES' 
+        ? `${preco.toLocaleString()} milhas`
+        : `R$ ${preco.toLocaleString()}`
+      }`}
       description={""}
       confirmText="Fechar"
       showCancel={false}

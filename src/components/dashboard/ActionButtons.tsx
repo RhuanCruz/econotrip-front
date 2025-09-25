@@ -46,7 +46,7 @@ export function ActionButtons() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate(action.route)}
-            className="cursor-pointer"
+            className="cursor-pointer touch-target"
           >
             <Card className={`p-4 bg-gradient-to-r ${action.color} text-white shadow-lg border-0 rounded-2xl`}>
               <div className="flex items-center gap-4">

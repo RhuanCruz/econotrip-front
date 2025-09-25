@@ -12,7 +12,7 @@ export type Planner = {
 export type CreatePlannerBody = {
   start: string;
   end: string;
-  destination: string;
+  destination: string[];
   content: object;
 };
 
@@ -22,7 +22,7 @@ export type GeneratePlannerBody = {
   amountPeople?: number;
   tripStyle?: string;
   origin: string;
-  destination: string;
+  destination: string | { city: string; duration: number; }[];
 };
 
 export type ListPlannerResponse = {
@@ -110,6 +110,7 @@ interface OtherExpenses {
 interface DailyItinerary {
   dia: number;
   data: string;
+  cidade: string;
   tema_do_dia: string;
   atividades: Activity[];
   refeicoes: Meal[];
@@ -183,4 +184,8 @@ interface PracticalInfo {
   idioma_local: string;
   moeda_local: string;
   voltagem: string;
+}
+
+export type IListPlannerFilterBody = {
+  history: boolean;
 }

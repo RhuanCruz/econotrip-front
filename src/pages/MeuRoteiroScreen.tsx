@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui-custom/Card";
 import { Button } from "@/components/ui-custom/Button";
 import { Badge } from "@/components/ui/badge";
@@ -16,20 +16,111 @@ import {
   Star,
   Navigation,
   Plane,
-  Globe
+  Globe,
+  PiggyBank,
+  X,
+  ChevronDown,
+  Timer,
+  Info,
+  BookOpen
 } from "lucide-react";
+import { PlannerService } from "../api/planner/PlannerService";
+import { useAuthStore } from "@/stores/authStore";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { StandardModal } from "@/components/ui-custom/StandardModal";
 
 export default function MeuRoteiroScreen() {
-  const [activeTab, setActiveTab] = useState<"atual" | "historico">("atual");
+  const [historicoViagens, setHistoricoViagens] = useState([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [errorHistorico, setErrorHistorico] = useState(null);
 
-  // Simulação: roteiroAtual nulo para exibir estado vazio
-  const roteiroAtual = null;
+  const navigate = useNavigate();
+  const { token } = useAuthStore();
+  const { toast } = useToast();
 
-  const viagensAnteriores = [
-    { id: 1, destino: "Paris, França", data: "Dez 2023", avaliacao: 5 },
-    { id: 2, destino: "Roma, Itália", data: "Set 2023", avaliacao: 4.5 },
-    { id: 3, destino: "Barcelona, Espanha", data: "Jun 2023", avaliacao: 4.8 },
-  ];
+
+  // Buscar histórico de simulações ao montar
+  useEffect(() => {
+    async function fetchHistoricoViagens() {
+      if (!token) return;
+      setLoadingHistorico(true);
+      setErrorHistorico(null);
+      try {
+        const response = await PlannerService.list(token);
+        const viagensOrdenadas = (response.records || []).sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setHistoricoViagens(viagensOrdenadas);
+      } catch (error) {
+        setErrorHistorico("Erro ao carregar simulações");
+        console.error("Erro ao buscar histórico:", error);
+      } finally {
+        setLoadingHistorico(false);
+      }
+    }
+    fetchHistoricoViagens();
+  }, [token]);
+
+  // Formatar data para exibição
+  const formatarData = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', { 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+    const formatarDataCurta = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', { 
+        day: '2-digit',
+        month: '2-digit', 
+        year: '2-digit' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Calcular avaliação fictícia baseada no ID (para fins de demonstração)
+  const calcularAvaliacao = (id) => {
+    const avaliacoes = [4.2, 4.5, 4.8, 5.0, 4.7, 4.3, 4.9];
+    return avaliacoes[id % avaliacoes.length];
+  };
+
+  // Função para formatar nome da cidade (pegar apenas nome e região)
+  const formatarNomeCidade = (cidadeCompleta) => {
+    if (!cidadeCompleta) return '';
+    
+    const partes = cidadeCompleta.split(', ');
+    if (partes.length >= 2) {
+      // Retorna apenas nome da cidade e a última parte (região/país)
+      return `${partes[0]}, ${partes[partes.length - 1]}`;
+    }
+    
+    return cidadeCompleta;
+  };
+
+  // Função para formatar destinos do histórico (array ou string)
+  const formatarDestinosHistorico = (destination) => {
+    if (!destination) return '';
+    
+    // Se for array, formatar cada destino e juntar com " • "
+    if (Array.isArray(destination)) {
+      return destination.map(dest => formatarNomeCidade(dest)).join(' • ');
+    }
+    
+    // Se for string, formatar normalmente
+    return formatarNomeCidade(destination);
+  };
+
+  // ...nenhuma lógica de checklist, viagem atual ou modais...
 
   const containerAnimation = {
     hidden: { opacity: 0 },
@@ -53,245 +144,127 @@ export default function MeuRoteiroScreen() {
           animate="visible"
           className="space-y-6"
         >
-          {/* Header moderno */}
+          {/* Header */}
           <motion.div variants={itemAnimation} className="text-center py-4">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-20 h-20 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
+              className="w-20 h-20 bg-econotrip-primary rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
             >
               <Navigation className="w-10 h-10 text-white" />
             </motion.div>
-            
-            <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
-              Meu Roteiro
+            <h1 className="text-3xl font-museomoderno font-bold text-econotrip-blue mb-2">
+              Minhas Simulações
             </h1>
             <p className="text-lg text-gray-600 text-balance">
-              Organize e acompanhe suas aventuras
+              Veja todas as simulações de roteiros que você já realizou.
             </p>
           </motion.div>
 
-          {/* Tabs modernos */}
+          {/* Lista de Simulações */}
           <motion.div variants={itemAnimation}>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
-              <div className="flex">
-                <button
-                  onClick={() => setActiveTab("atual")}
-                  className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                    activeTab === "atual"
-                      ? "bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 text-white shadow-lg"
-                      : "text-gray-600 hover:text-econotrip-blue"
-                  }`}
-                >
-                  Viagem Atual
-                </button>
-                <button
-                  onClick={() => setActiveTab("historico")}
-                  className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-                    activeTab === "historico"
-                      ? "bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 text-white shadow-lg"
-                      : "text-gray-600 hover:text-econotrip-blue"
-                  }`}
-                >
-                  Histórico
-                </button>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-econotrip-blue" />
+                <h2 className="text-lg font-semibold text-econotrip-blue">
+                  Suas Simulações
+                </h2>
               </div>
-            </div>
-          </motion.div>
-
-          {/* Estado vazio: sem viagem atual */}
-          {activeTab === "atual" && !roteiroAtual && (
-            <motion.div
-              variants={itemAnimation}
-              className="flex flex-col items-center justify-center py-16"
-            >
-              <h2 className="text-xl font-bold text-econotrip-blue mb-2">Nenhuma viagem atual</h2>
-              <p className="text-gray-600 mb-6 text-center">Você ainda não criou um roteiro. Que tal planejar sua próxima aventura?</p>
-              <Button
-                icon={Plus}
-                size="lg"
-                className="w-full bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
-                onClick={() => window.location.href = '/nova-viagem'}
+              <button
+                onClick={() => navigate("/nova-viagem")}
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-econotrip-blue text-white hover:bg-econotrip-blue/90 shadow focus:outline-none"
+                aria-label="Nova Simulação"
               >
-                Criar Nova Viagem
-              </Button>
-              <p className="text-center text-sm text-gray-500 mt-3">
-                Encontre o roteiro perfeito para sua próxima jornada!
-              </p>
-            </motion.div>
-          )}
+                <Plus className="h-6 w-6" />
+              </button>
+            </div>
 
-          {activeTab === "atual" && roteiroAtual && (
-            <motion.div
-              variants={containerAnimation}
-              initial="hidden"
-              animate="visible"
-              className="space-y-6"
-            >
-              {/* Informações da viagem atual */}
-              <motion.div variants={itemAnimation}>
-                <Card className="p-6 bg-gradient-to-r from-econotrip-blue/10 to-econotrip-orange/10 rounded-3xl shadow-lg border-0">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
-                        <MapPin className="h-8 w-8 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-econotrip-blue text-xl">{roteiroAtual.destino}</h3>
-                        <p className="text-gray-600">{roteiroAtual.dataInicio} - {roteiroAtual.dataFim}</p>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-econotrip-orange">{roteiroAtual.progresso}%</div>
-                      <div className="text-sm text-gray-600">Concluído</div>
-                    </div>
-                  </div>
-                  
-                  <Progress 
-                    value={roteiroAtual.progresso} 
-                    className="h-3 mb-4 bg-gray-200 rounded-full" 
-                  />
-                  
-                  <p className="text-gray-700 text-center">
-                    Sua viagem está quase pronta! Faltam poucos preparativos.
+            {loadingHistorico && (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-econotrip-blue border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-3 text-gray-600">Carregando simulações...</span>
+              </div>
+            )}
+
+            {errorHistorico && (
+              <Card className="p-6 rounded-2xl shadow-lg bg-red-50 border-0">
+                <div className="text-center">
+                  <p className="text-red-600 mb-4">{errorHistorico}</p>
+                  <Button
+                    onClick={() => window.location.reload()}
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Tentar Novamente
+                  </Button>
+                </div>
+              </Card>
+            )}
+
+            {!loadingHistorico && !errorHistorico && historicoViagens.length === 0 && (
+              <Card className="p-8 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
+                <div className="text-center">
+                  <Globe className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Nenhuma simulação encontrada
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Você ainda não realizou nenhuma simulação de roteiro.
                   </p>
-                </Card>
-              </motion.div>
-
-              {/* Checklist de preparação */}
-              <motion.div variants={itemAnimation}>
-                <div className="flex items-center gap-2 mb-4">
-                  <CheckCircle2 className="h-5 w-5 text-econotrip-green" />
-                  <h2 className="text-lg font-semibold text-econotrip-blue">
-                    Checklist de Preparação
-                  </h2>
+                  <Button
+                    onClick={() => navigate("/nova-viagem")}
+                    className="bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white"
+                  >
+                    Criar Nova Simulação
+                  </Button>
                 </div>
-                <Card className="p-6 rounded-3xl shadow-lg bg-white/95 backdrop-blur-sm border-0">
-                  <div className="space-y-4">
-                    {roteiroAtual.itens.map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-colors">
-                        {item.concluido ? (
-                          <CheckCircle2 className="h-6 w-6 text-econotrip-green flex-shrink-0" />
-                        ) : (
-                          <Circle className="h-6 w-6 text-gray-400 flex-shrink-0" />
-                        )}
-                        <span className={`flex-1 ${item.concluido ? 'text-gray-600 line-through' : 'text-gray-800 font-medium'}`}>
-                          {item.titulo}
-                        </span>
+              </Card>
+            )}
+
+            {!loadingHistorico && !errorHistorico && historicoViagens.length > 0 && (
+              <div className="space-y-4">
+                {historicoViagens.map((viagem) => (
+                  <Card
+                    key={viagem.id}
+                    className="p-6 rounded-2xl shadow-lg bg-white border-0 hover:shadow-xl transition-all cursor-pointer group"
+                    onClick={() => navigate(`/meu-roteiro/${viagem.id}`)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Plane className="h-7 w-7 text-white" />
                       </div>
-                    ))}
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Atividades planejadas */}
-              <motion.div variants={itemAnimation}>
-                <div className="flex items-center gap-2 mb-4">
-                  <Heart className="h-5 w-5 text-econotrip-orange" />
-                  <h2 className="text-lg font-semibold text-econotrip-blue">
-                    Atividades Planejadas
-                  </h2>
-                </div>
-                <div className="space-y-3">
-                  {roteiroAtual.atividades.map((atividade) => (
-                    <Card key={atividade.id} className="p-4 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center">
-                            <Camera className="h-5 w-5 text-white" />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-econotrip-blue text-lg group-hover:text-econotrip-blue/80 transition-colors">
+                          {formatarDestinosHistorico(viagem.destination)}
+                        </h3>
+                        <div className="flex items-center gap-3 mt-2">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-gray-500" />
+                            <span className="text-gray-600 text-sm">{formatarDataCurta(viagem.start)}</span>
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-econotrip-blue">{atividade.titulo}</h4>
-                            <p className="text-sm text-gray-600">{atividade.dia}</p>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <span className="text-gray-600 text-sm">
+                              {(() => {
+                                try {
+                                  const start = new Date(viagem.start);
+                                  const end = new Date(viagem.end);
+                                  const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+                                  return `${days > 0 ? days : 1} dias`;
+                                } catch {
+                                  return "1 dia";
+                                }
+                              })()}
+                            </span>
                           </div>
                         </div>
-                        <Badge className="bg-econotrip-blue/10 text-econotrip-blue border-econotrip-blue/20 rounded-full">
-                          {atividade.tipo}
-                        </Badge>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Botão adicionar atividade */}
-              <motion.div variants={itemAnimation}>
-                <Button
-                  icon={Plus}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-econotrip-green to-econotrip-green/90 hover:from-econotrip-green/90 hover:to-econotrip-green text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200"
-                >
-                  Adicionar Nova Atividade
-                </Button>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {activeTab === "historico" && (
-            <motion.div
-              variants={containerAnimation}
-              initial="hidden"
-              animate="visible"
-              className="space-y-6"
-            >
-              <motion.div variants={itemAnimation}>
-                <div className="flex items-center gap-2 mb-4">
-                  <Globe className="h-5 w-5 text-econotrip-blue" />
-                  <h2 className="text-lg font-semibold text-econotrip-blue">
-                    Suas Aventuras Anteriores
-                  </h2>
-                </div>
-                <div className="space-y-4">
-                  {viagensAnteriores.map((viagem) => (
-                    <Card key={viagem.id} className="p-6 rounded-2xl shadow-lg bg-white/95 backdrop-blur-sm border-0 hover:shadow-xl transition-all cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center shadow-lg">
-                            <Plane className="h-7 w-7 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-econotrip-blue text-lg">{viagem.destino}</h3>
-                            <p className="text-gray-600">{viagem.data}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1 mb-1">
-                            <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                            <span className="font-bold text-econotrip-blue text-lg">{viagem.avaliacao}</span>
-                          </div>
-                          <p className="text-sm text-gray-600">Avaliação</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Estatísticas */}
-              <motion.div variants={itemAnimation}>
-                <Card className="p-6 bg-gradient-to-r from-econotrip-green/10 to-econotrip-blue/10 rounded-3xl shadow-lg border-0">
-                  <div className="text-center">
-                    <h3 className="font-bold text-econotrip-blue text-xl mb-4">Suas Conquistas</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-blue">4</div>
-                        <div className="text-sm text-gray-600">Países visitados</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-orange">28</div>
-                        <div className="text-sm text-gray-600">Dias viajando</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-econotrip-green">4.7</div>
-                        <div className="text-sm text-gray-600">Avaliação média</div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            </motion.div>
-          )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </motion.div>
       </div>
     </div>

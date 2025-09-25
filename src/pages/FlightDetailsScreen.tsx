@@ -7,11 +7,12 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
 import { FlightService } from "@/api/flight/FlightService";
+import { FlightDetailsSkeleton } from "@/components/ui-custom/FlightDetailsSkeleton";
 
 export default function FlightDetailsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [flightDetails, setFlightDetails] = useState<any>(null);
+  const [flightDetails, setFlightDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedFlightIndex, setSelectedFlightIndex] = useState(0);
 
@@ -20,11 +21,8 @@ export default function FlightDetailsScreen() {
     console.log("Search Data:", searchData);
     if (!searchData) return;
     const body = {
-      origin: searchData.origem,
-      destination: searchData.destino,
-      departure: searchData.dataIda,
-      return: searchData.dataVolta || undefined,
-      bookingToken: searchData.bookingToken || undefined,
+      token: searchData.token,
+      itineraryId: searchData.itineraryId,
     };
     FlightService.getFlighDetails(body)
       .then((res) => setFlightDetails(res))
@@ -36,6 +34,58 @@ export default function FlightDetailsScreen() {
     navigate("/checkout");
   };
 
+  type DateObject = {
+    year?: number;
+    month?: number;
+    day?: number;
+    hour?: number;
+    minute?: number;
+  };
+
+  function formatDateTime(dateObj: string | DateObject | null | undefined): string {
+    if (!dateObj) return "";
+
+    // Se é uma string, tenta fazer parse direto
+    if (typeof dateObj === "string") {
+      return new Date(dateObj).toLocaleString("pt-BR");
+    }
+
+    // Se é um objeto com year, month, day, hour, minute
+    if (typeof dateObj === "object" && dateObj.year && dateObj.month && dateObj.day) {
+      const date = new Date(
+        dateObj.year,
+        dateObj.month - 1, // month é 0-indexed no JavaScript
+        dateObj.day,
+        dateObj.hour || 0,
+        dateObj.minute || 0
+      );
+      return date.toLocaleString("pt-BR");
+    }
+
+    return "";
+  }
+
+    function formatDate(dateObj: string | DateObject | null | undefined): string {
+    if (!dateObj) return "";
+
+    // Se é uma string, tenta fazer parse direto
+    if (typeof dateObj === "string") {
+      return new Date(dateObj).toLocaleString("pt-BR");
+    }
+
+    // Se é um objeto com year, month, day, hour, minute
+    if (typeof dateObj === "object" && dateObj.year && dateObj.month && dateObj.day) {
+      const date = new Date(
+        dateObj.year,
+        dateObj.month - 1,
+        dateObj.day,
+      );
+      return date.toLocaleString("pt-BR", { day: '2-digit', month: '2-digit', year: '2-digit'});
+    }
+
+    return "";
+  }
+
   const handleBack = () => {
     navigate("/resultados-voos");
   };
@@ -45,25 +95,31 @@ export default function FlightDetailsScreen() {
     visible: { opacity: 1, y: 0 }
   };
 
-  if (loading) return <div className="text-center py-20">Carregando detalhes do voo...</div>;
-  if (!flightDetails) return <div className="text-center py-20 text-red-500">Não foi possível carregar os detalhes do voo.</div>;
+  if (loading) return <FlightDetailsSkeleton />;
+  if (!flightDetails || !flightDetails.data || !flightDetails.data.itinerary) return <div className="text-center py-20 text-red-500">Não foi possível carregar os detalhes do voo.</div>;
 
-  // Extrai dados do voo principal
-  const main = flightDetails.selected_flights?.[selectedFlightIndex];
-  const firstLeg = main?.flights?.[0];
-  const lastLeg = main?.flights?.[main.flights.length - 1];
-  const companhia = firstLeg?.airline || "";
-  const origem = firstLeg?.departure_airport?.name || "";
-  const origemCodigo = firstLeg?.departure_airport?.id || "";
-  const destino = lastLeg?.arrival_airport?.name || "";
-  const destinoCodigo = lastLeg?.arrival_airport?.id || "";
-  const dataPartida = firstLeg?.departure_airport?.time ? new Date(firstLeg.departure_airport.time).toLocaleString("pt-BR") : "";
-  const dataChegada = lastLeg?.arrival_airport?.time ? new Date(lastLeg.arrival_airport.time).toLocaleString("pt-BR") : "";
-  const duracao = main?.total_duration ? `${Math.floor(main.total_duration/60)}h ${main.total_duration%60}min` : "";
-  const paradas = main?.layovers?.length || 0;
-  const preco = main?.price;
+  // Extrai dados do novo retorno (GetFlightDetailResponse)
+  const itinerary = flightDetails.data.itinerary;
+  const firstLeg = itinerary.legs?.[0];
+  const lastLeg = itinerary.legs?.[itinerary.legs.length - 1];
+
+  // Corrige possíveis objetos sendo renderizados como string
+  const origem = firstLeg?.origin?.city?.name;
+  const origemCodigo = firstLeg?.origin?.city?.displayCode;
+  const destino = lastLeg?.destination?.city?.name;
+  const destinoCodigo = lastLeg?.destination?.city?.displayCode;
+
+  const dataPartida = firstLeg?.departure ? formatDateTime(firstLeg.departure): "";
+  const dataChegada = lastLeg?.arrival ? formatDateTime(lastLeg.arrival) : "";
+
+  const duracao = firstLeg?.durationMinutes !== undefined ? `${Math.floor(firstLeg.durationMinutes / 60)}h ${firstLeg.durationMinutes % 60}min` : "";
+  const paradas = firstLeg?.stopCount ?? 0;
   const tipoVoo = paradas === 0 ? "Voo direto" : `${paradas} parada${paradas > 1 ? 's' : ''}`;
-  const bagagem = flightDetails.baggage_prices?.together?.join(", ") || "Consultar regras";
+  // Preço e bagagem podem estar em pricingOptions/pricingItems
+  const firstPricingItem = itinerary.pricingOptions?.[0]?.pricingItems?.[0];
+  const priceData = firstPricingItem?.price;
+  const preco = priceData ? (parseInt(priceData.amount) / (priceData.unit === "UNIT_CENTI" ? 100 : 1)) : null;
+  const bagagem = firstPricingItem?.fare?.cabinBaggage || firstPricingItem?.fare?.checkedBaggage || "Consultar regras";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
@@ -79,11 +135,11 @@ export default function FlightDetailsScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <h1 className="text-2xl font-museomoderno font-bold text-econotrip-blue mb-2">
               Detalhes do Voo
             </h1>
@@ -99,28 +155,26 @@ export default function FlightDetailsScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="mb-6 p-6 rounded-3xl shadow-xl bg-white/95 backdrop-blur-sm border-0">
+          <Card className="mb-6 p-1 rounded-3xl shadow-xl bg-white/95 backdrop-blur-sm border-0">
             {/* Seletor de trecho (ida/volta) - visual igual ao ModernFlightSearchForm */}
             {Array.isArray(flightDetails.selected_flights) && flightDetails.selected_flights.length > 1 && (
               <div className="bg-white rounded-2xl p-2 shadow mb-6">
                 <div className="flex bg-gray-100 rounded-xl p-1">
                   <button
                     onClick={() => setSelectedFlightIndex(0)}
-                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
-                      selectedFlightIndex === 0
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${selectedFlightIndex === 0
                         ? 'bg-white text-econotrip-blue shadow-sm'
                         : 'text-gray-600'
-                    }`}
+                      }`}
                   >
                     Ida
                   </button>
                   <button
                     onClick={() => setSelectedFlightIndex(1)}
-                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
-                      selectedFlightIndex === 1
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${selectedFlightIndex === 1
                         ? 'bg-white text-econotrip-blue shadow-sm'
                         : 'text-gray-600'
-                    }`}
+                      }`}
                   >
                     Volta
                   </button>
@@ -135,33 +189,33 @@ export default function FlightDetailsScreen() {
                     <span className="font-bold text-lg text-white">{origemCodigo}</span>
                   </div>
                 </div>
-                <div className="flex-1 relative">
-                  <div className="border-t-2 border-dashed border-econotrip-orange/50 relative h-8">
+                <div className="flex-1 relative flex items-center">
+                  <div className="border-t-2 border-dashed border-econotrip-orange/50 w-full relative">
                     <div className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-full flex items-center justify-center shadow-lg">
                       <Plane className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl mb-2 flex items-center justify-center shadow-lg">
                     <span className="font-bold text-lg text-white">{destinoCodigo}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between px-4 gap-4">
-                <div className="flex-1 text-left break-words">
+              <div className="flex flex-col px-4 gap-4">
+                <div className="text-center">
                   <h3 className="font-bold text-econotrip-blue text-base sm:text-lg">{origem}</h3>
                   <p className="text-gray-600 text-sm">Origem ({origemCodigo})</p>
                   <p className="text-xs text-gray-500 mt-1">{dataPartida}</p>
                 </div>
-                <div className="flex-1 text-left break-words">
+                <div className="text-center">
                   <h3 className="font-bold text-econotrip-blue text-base sm:text-lg">{destino}</h3>
                   <p className="text-gray-600 text-sm">Destino ({destinoCodigo})</p>
                   <p className="text-xs text-gray-500 mt-1">{dataChegada}</p>
                 </div>
               </div>
             </div>
-            
+
             {/* Detalhes do voo modernos */}
             <div className="space-y-4">
               <motion.div
@@ -273,28 +327,48 @@ export default function FlightDetailsScreen() {
               transition={{ delay: 1.0 }}
               className="mt-8 border-t border-gray-200 pt-8"
             >
-              <div className="mb-6 p-6 bg-gradient-to-r from-econotrip-orange/10 to-econotrip-orange/5 rounded-2xl">
+              <div className="mb-6 p-2 rounded-2xl">
                 <p className="font-semibold text-econotrip-blue text-lg mb-3">Opções de compra</p>
-                {Array.isArray(flightDetails.booking_options) && flightDetails.booking_options.length > 0 ? (
-                  flightDetails.booking_options.map((bookingOption, idx) => (
-                    <div key={idx} className="mb-4 p-4 bg-white rounded-xl shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div>
-                        <div className="font-bold text-econotrip-orange text-lg">
-                          {bookingOption.together?.price ? `R$ ${bookingOption.together.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "Preço indisponível"}
-                        </div>
-                        <div className="text-sm text-gray-700 mt-1">
-                          {bookingOption.together?.book_with ? `Agência: ${bookingOption.together.book_with}` : ""}
-                        </div>
-                      </div>
-                      {bookingOption.together?.booking_request?.url && bookingOption.together?.booking_request?.post_data && (
-                        <a
-                          href={`${bookingOption.together.booking_request.url}?${bookingOption.together.booking_request.post_data}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block mt-2 sm:mt-0 w-full px-5 py-2 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 text-white font-semibold rounded-xl shadow hover:from-econotrip-blue/90 hover:to-econotrip-blue transition-all text-center"
-                        >
-                          Comprar
-                        </a>
+                {itinerary.pricingOptions && itinerary.pricingOptions.length > 0 ? (
+                  itinerary.pricingOptions.map((pricingOption, pricingIdx) => (
+                    <div key={pricingIdx} className="mb-4">
+                      {pricingOption.pricingItems && pricingOption.pricingItems.length > 0 ? pricingOption.pricingItems.map((pricingItem, itemIdx) => {
+                        const agent = pricingItem.agent;
+                        const price = pricingItem.price;
+                        const priceValue = price ? (parseInt(price.amount) / (price.unit === "UNIT_CENTI" ? 100 : 1)) : null;
+                        
+                        return (
+                          <div key={itemIdx} className="mb-4 p-4 bg-white rounded-xl shadow">
+                            <div className="mb-3">
+                              <div className="font-bold text-econotrip-blue-light text-lg">
+                                {priceValue ? `R$ ${priceValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "Preço indisponível"}
+                              </div>
+                              <div className="text-sm text-gray-700 mt-1">
+                                {agent?.name ? `Agência: ${agent.name}` : "Agência não informada"}
+                              </div>
+                              {agent?.rating && (
+                                <div className="text-xs text-gray-600 mt-1">
+                                  ⭐ {agent.rating.value}/5 ({agent.rating.count} avaliações)
+                                </div>
+                              )}
+                              <div className="text-xs text-yellow-700 bg-yellow-100 rounded px-2 py-1 mt-2">
+                                Atenção: a responsabilidade pela entrega do serviço é da agência.
+                              </div>
+                            </div>
+                            {pricingItem.uri && (
+                              <a
+                                href={pricingItem.uri}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full px-5 py-3 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 text-white font-semibold rounded-xl shadow hover:from-econotrip-blue/90 hover:to-econotrip-blue transition-all text-center"
+                              >
+                                Comprar
+                              </a>
+                            )}
+                          </div>
+                        );
+                      }) : (
+                        <div className="text-gray-500">Nenhuma opção de preço encontrada.</div>
                       )}
                     </div>
                   ))

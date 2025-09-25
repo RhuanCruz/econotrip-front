@@ -69,16 +69,17 @@ export default function LoyaltyScreen() {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <Card className="mb-8 p-6 rounded-2xl shadow-md">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0 text-center md:text-left">
-              <div className="flex justify-center md:justify-start items-center mb-4">
+          <div className="flex flex-col items-center">
+            {/* Top section - Points and progress */}
+            <div className="w-full text-center mb-6">
+              <div className="flex justify-center items-center mb-4">
                 <Medal className="h-8 w-8 text-econotrip-green mr-2" aria-hidden="true" />
                 <p className="text-2xl md:text-3xl font-bold text-econotrip-green">
                   {currentPoints} pontos
                 </p>
               </div>
 
-              <div className="mb-6 w-full md:max-w-xs">
+              <div className="mb-4 max-w-md mx-auto">
                 <Progress 
                   value={progressPercentage} 
                   className="h-4 rounded-full bg-gray-200"
@@ -90,18 +91,18 @@ export default function LoyaltyScreen() {
               </div>
             </div>
             
-            {/* Circular Progress Chart */}
-            <div className="w-48 h-48 mx-auto md:mx-0">
+            {/* Bottom section - Circular Progress Chart */}
+            <div className="w-48 h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
+                    innerRadius={25}
+                    outerRadius={60}
                     fill="#8884d8"
-                    paddingAngle={0}
+                    paddingAngle={2}
                     dataKey="value"
                     label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                   >
@@ -128,22 +129,37 @@ export default function LoyaltyScreen() {
           Como você acumulou pontos
         </h2>
         <Card className="p-4 rounded-2xl shadow-md">
-          <div className="h-64 w-full">
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={pointsSourceData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 14 }} />
-                <YAxis tick={{ fontSize: 14 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 14 }} 
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  tick={{ fontSize: 14 }} 
+                  axisLine={false}
+                  tickLine={false}
+                  width={40}
+                />
                 <RechartsTooltip 
                   formatter={(value, name) => [`${value} pontos`, ""]} 
                   labelStyle={{ fontSize: 14 }}
-                  contentStyle={{ fontSize: 16 }}
+                  contentStyle={{ 
+                    fontSize: 16,
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
                 />
-                <Legend wrapperStyle={{ fontSize: 14 }} />
-                <Bar dataKey="pontos" name="Pontos acumulados" radius={[8, 8, 0, 0]}>
+                <Bar dataKey="pontos" name="Pontos acumulados" radius={[8, 8, 0, 0]} maxBarSize={80}>
                   {pointsSourceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}

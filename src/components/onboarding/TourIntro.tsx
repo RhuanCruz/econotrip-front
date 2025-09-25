@@ -22,10 +22,22 @@ export function TourIntro({ onComplete }: TourIntroProps) {
 
   const tourSteps = [
     {
+      icon: CheckCircle,
+      title: "Crie radares customizados",
+      description: "Você poderá definir um ponto de saída e um ponto de chegada e nosso robô fará uma buasca periódica com as melhores ofertas.",
+      tip: "Coloque valores reais para que seja possível achar ofertas."
+    },
+    {
+      icon: CheckCircle,
+      title: "Planeje sua viagem",
+      description: "Use o simulador de viagem para planejar e simular sua próxima viagem, com valores aproximados e lugares para visitar.",
+      tip: "Você pode escolher mais de um destino."
+    },
+    {
       icon: Search,
       title: "Como buscar uma passagem",
       description: "Use nossa busca intuitiva para encontrar voos. Digite origem, destino e datas - é simples assim!",
-      tip: "Dica: Você pode salvar suas buscas para uso posterior."
+      tip: "Você pode salvar suas buscas para uso posterior."
     },
     {
       icon: HelpCircle,
@@ -33,12 +45,6 @@ export function TourIntro({ onComplete }: TourIntroProps) {
       description: "Precisa de ajuda? Clique no botão de ajuda flutuante ou acesse o menu de suporte para falar conosco.",
       tip: "Estamos sempre prontos para ajudar você!"
     },
-    {
-      icon: CheckCircle,
-      title: "Como confirmar uma reserva",
-      description: "Após escolher seu voo, revise os detalhes e finalize. Você receberá confirmação por email e poderá imprimir sua reserva.",
-      tip: "Guarde sempre o código da reserva em local seguro."
-    }
   ];
 
   const handleNext = () => {
@@ -99,15 +105,15 @@ export function TourIntro({ onComplete }: TourIntroProps) {
               <div className="w-20 h-20 rounded-full bg-econotrip-blue/10 flex items-center justify-center mx-auto mb-4">
                 <IconComponent className="h-10 w-10 text-econotrip-blue" aria-hidden="true" />
               </div>
-              
+
               <h3 className="text-lg font-bold text-econotrip-blue mb-3">
                 {currentTourStep.title}
               </h3>
-              
+
               <p className="text-base text-gray-700 mb-4 leading-relaxed">
                 {currentTourStep.description}
               </p>
-              
+
               <div className="bg-econotrip-green/10 p-3 rounded-xl">
                 <p className="text-sm font-medium text-econotrip-blue">
                   💡 {currentTourStep.tip}
@@ -120,9 +126,8 @@ export function TourIntro({ onComplete }: TourIntroProps) {
               {tourSteps.map((_, index) => (
                 <div
                   key={index}
-                  className={`w-3 h-3 rounded-full mx-1 transition-colors ${
-                    index === currentStep ? "bg-econotrip-blue" : "bg-gray-300"
-                  }`}
+                  className={`w-3 h-3 rounded-full mx-1 transition-colors ${index === currentStep ? "bg-econotrip-blue" : "bg-gray-300"
+                    }`}
                   aria-hidden="true"
                 />
               ))}

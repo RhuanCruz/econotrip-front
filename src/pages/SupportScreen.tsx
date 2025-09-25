@@ -33,24 +33,32 @@ export default function SupportScreen() {
   };
 
   const handleChatSupport = () => {
-    toast({
-      title: "Chat de suporte",
-      description: "Em um app real, isso abriria o chat com suporte.",
-    });
+    window.open("https://wa.me/5511999999999", "_blank");
   };
 
   const toggleVoiceMode = () => {
-    setVoiceMode(!voiceMode);
-    toast({
-      title: voiceMode ? "Modo de leitura desativado" : "Modo de leitura ativado",
-      description: voiceMode 
-        ? "A leitura em voz alta foi desativada" 
-        : "O conteúdo será lido em voz alta para você",
-    });
+    if (!('speechSynthesis' in window)) {
+      console.warn('Speech synthesis not supported');
+      return;
+    }
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance('Você pode ativar o modo de leitura clicando no botão flutuante no canto inferior esquerdo e escutar um resumo da página');
+    utterance.lang = 'pt-BR';
+    utterance.rate = 0.8;
+    utterance.pitch = 1;
+    
+    utterance.onstart = () => setVoiceMode(true);
+    utterance.onend = () => setVoiceMode(false);
+    utterance.onerror = () => setVoiceMode(false);
+    
+    window.speechSynthesis.speak(utterance);
   };
 
   const handleBackToHome = () => {
-    navigate("/busca-voos");
+    navigate("/dashboard");
   };
 
   // Animation variants
@@ -96,110 +104,12 @@ export default function SupportScreen() {
         </h1>
       </motion.div>
 
-      {/* FAQ Section */}
-      <motion.div className="mb-8" variants={itemAnimation}>
-        <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
-          Perguntas Frequentes
-        </h2>
-        <Accordion type="single" collapsible className="w-full">
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-1" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Como alterar minha reserva?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Para alterar sua reserva, acesse a seção "Meus Voos" no menu principal e 
-                  selecione a reserva que deseja modificar. Você pode alterar a data, horário 
-                  ou até mesmo o assento, dependendo das regras da tarifa escolhida.
-                  Lembre-se que algumas alterações podem ter custos adicionais.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-2" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Como usar meus pontos de fidelidade?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Os pontos do Programa Milhas Sênior podem ser usados na hora da compra de sua 
-                  passagem. Ao selecionar seu voo, na tela de pagamento você encontrará a opção 
-                  "Usar meus pontos". Você também pode acessar todas as vantagens disponíveis 
-                  na aba "Fidelidade" em seu perfil.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-
-          <motion.div variants={accordionAnimation}>
-            <AccordionItem value="item-3" className="border rounded-xl mb-4 shadow-sm">
-              <AccordionTrigger className="px-4 py-3 text-lg font-medium text-econotrip-blue hover:no-underline">
-                Quais formas de pagamento são aceitas?
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-3 text-base">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Aceitamos diversos meios de pagamento para sua comodidade: cartões de 
-                  crédito das principais bandeiras (parcelamento em até 12x), cartões de débito, 
-                  transferência bancária (Pix) e boleto bancário (para pagamentos à vista). 
-                  Os pontos do programa de fidelidade também podem ser utilizados como forma 
-                  de pagamento ou desconto.
-                </motion.div>
-              </AccordionContent>
-            </AccordionItem>
-          </motion.div>
-        </Accordion>
-      </motion.div>
-
       {/* Direct Support Section */}
       <motion.div className="mb-8" variants={itemAnimation}>
         <h2 className="text-xl font-museomoderno font-bold text-econotrip-blue mb-4">
           Atendimento Direto
         </h2>
         <div className="space-y-4">
-          <motion.div 
-            whileHover={{ scale: 1.03 }} 
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <Card className="p-6 rounded-2xl shadow-md bg-[#5FB4E8]/20 border-[#5FB4E8]">
-              <div className="flex flex-col items-center text-center">
-                <Phone className="h-12 w-12 text-econotrip-blue mb-4" aria-hidden="true" aria-label="Ícone de telefone" />
-                <h3 className="text-xl font-bold text-econotrip-blue mb-2">Fale com um atendente</h3>
-                <p className="mb-4 text-lg">Atendimento por telefone das 8h às 20h</p>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    icon={Phone}
-                    onClick={handleCallSupport}
-                    className="w-full touch-target h-14"
-                    aria-label="Ligar para suporte técnico"
-                  >
-                    Ligar para 0800 123 456
-                  </Button>
-                </motion.div>
-              </div>
-            </Card>
-          </motion.div>
-
           <motion.div 
             whileHover={{ scale: 1.03 }} 
             whileTap={{ scale: 0.98 }}

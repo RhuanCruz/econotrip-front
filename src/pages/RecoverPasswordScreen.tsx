@@ -6,6 +6,7 @@ import { Input } from "@/components/ui-custom/Input";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { toast } from "@/hooks/use-toast";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
+import { UserService } from "@/api/user/UserService";
 
 export default function RecoverPasswordScreen() {
   const navigate = useNavigate();
@@ -13,38 +14,38 @@ export default function RecoverPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await UserService.forgotPassword(email);
+      setSubmitted(true);
+      toast({
+        title: "E-mail enviado",
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar",
+        description: error instanceof Error ? error.message : "Por favor, tente novamente.",
+      });
+    } finally {
       setLoading(false);
-      
-      if (email) {
-        setSubmitted(true);
-        toast({
-          title: "E-mail enviado",
-          description: "Verifique sua caixa de entrada para redefinir sua senha.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao enviar",
-          description: "Por favor, digite um e-mail válido.",
-        });
-      }
-    }, 1000);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="mb-8 flex items-center justify-center">
-          <div className="font-museomoderno font-bold text-4xl text-econotrip-blue">
-            ECONOTRIP
-          </div>
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <img 
+            src="/lovable-uploads/econotrip_logo.png" 
+            alt="EconoTrip"
+            className="rounded-2xl"
+          />
         </div>
 
         <h1 className="text-2xl md:text-3xl font-bold text-econotrip-blue mb-4 text-center font-museomoderno">
@@ -85,7 +86,7 @@ export default function RecoverPasswordScreen() {
               size="lg"
               icon={Send}
               loading={loading}
-              className="w-full bg-gradient-to-r from-econotrip-orange to-[#FDCB6E] rounded-full h-14 mt-8"
+              className="w-full bg-econotrip-primary rounded-full h-14 mt-8"
             >
               Enviar Instruções
             </Button>

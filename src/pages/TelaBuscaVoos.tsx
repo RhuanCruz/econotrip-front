@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane } from "lucide-react";
 
-import { LastSearchPrompt } from "@/components/search/LastSearchPrompt";
 import { ModernFlightSearchForm } from "@/components/search/ModernFlightSearchForm";
-import { useLastSearch } from "@/hooks/useLastSearch";
 import { StandardModal, ModalType } from "@/components/ui-custom/StandardModal";
 
 interface FormData {
@@ -33,10 +31,14 @@ interface FormData {
   acessibilidade: boolean;
 }
 
+interface LocationState {
+  destinoSugerido?: string;
+  searchParams?: Partial<FormData>;
+}
+
 export default function TelaBuscaVoos() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { lastSearch, showRestorePrompt, saveSearch, hideRestorePrompt } = useLastSearch();
 
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({
@@ -70,16 +72,9 @@ export default function TelaBuscaVoos() {
     acessibilidade: false,
   });
 
-  const formRef = useRef<any>(null);
+  const formRef = useRef<{ getOrigemBusca?: () => string; getDestinoBusca?: () => string } | null>(null);
 
-  useEffect(() => {
-    const destinoSugerido = location.state?.destinoSugerido;
-    if (destinoSugerido) {
-      setFormData(prev => ({ ...prev, destino: destinoSugerido }));
-    }
-  }, [location.state]);
-
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean | FormData["passageiros"] | FormData["filtros"]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -93,7 +88,7 @@ export default function TelaBuscaVoos() {
     }));
   };
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (!formData.origem || !formData.destino || !formData.dataIda) {
       setModalConfig({
         type: "warning",
@@ -104,9 +99,8 @@ export default function TelaBuscaVoos() {
       return;
     }
 
-    saveSearch(formData);
     setModalConfig({
-      type: "success",
+      type: "info",
       title: "Buscando suas opções de viagem",
       description: "Aguarde um momento enquanto encontramos as melhores passagens para você!"
     });
@@ -118,45 +112,124 @@ export default function TelaBuscaVoos() {
       const origemCode = formRef.current?.getOrigemBusca?.() || formData.origem;
       const destinoCode = formRef.current?.getDestinoBusca?.() || formData.destino;
       const searchData = { ...formData, origem: origemCode, destino: destinoCode };
-      navigate("/resultados-voos", { state: { searchData } });
-    }, 2000);
-  };
 
-  const handleRestoreLastSearch = () => {
-    if (lastSearch) {
-      const restoredData: FormData = {
-        origem: lastSearch.origem,
-        destino: lastSearch.destino,
-        dataIda: lastSearch.dataIda,
-        dataVolta: lastSearch.dataVolta,
-        passageiros: lastSearch.passageiros,
-        classe: lastSearch.classe,
-        usarMilhas: lastSearch.usarMilhas,
-        filtros: lastSearch.filtros,
-        orcamento: "",
-        somenteDireto: false,
-        voosSustentaveis: false,
-        tarifasFlexiveis: false,
-        acessibilidade: false,
-      };
-      setFormData(restoredData);
-      hideRestorePrompt();
+      // Se estiver usando milhas, vai para a tela de programas de milhas
+      if (formData.usarMilhas) {
+        navigate("/programas-milhas", {
+          state: {
+            origem: origemCode,
+            destino: destinoCode,
+            dataIda: formData.dataIda,
+            dataVolta: formData.dataVolta,
+            searchData
+          }
+        });
+      } else {
+        // Fluxo normal para busca em dinheiro
+        if (formData.dataVolta) {
+          navigate("/resultados-ida-volta", { state: { searchData } });
+        } else {
+          navigate("/resultados-voos", { state: { searchData } });
+        }
+      }
+    }, 2000);
+  }, [formData, navigate]);
+
+  useEffect(() => {
+    const state = location.state as LocationState | undefined;
+    const destinoSugerido = state?.destinoSugerido;
+    const searchParams = state?.searchParams;
+
+    if (destinoSugerido) {
+      setFormData(prev => ({ ...prev, destino: destinoSugerido }));
     }
-  };
+
+    // Se recebeu parâmetros de busca completos, executa a busca diretamente
+    if (searchParams && searchParams.origem && searchParams.destino && searchParams.dataIda) {
+      // Limpa o estado do location para evitar reutilização ao voltar
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Cria os dados de busca com os parâmetros recebidos
+      const searchData = {
+        origem: searchParams.origem,
+        destino: searchParams.destino,
+        dataIda: searchParams.dataIda,
+        dataVolta: searchParams.dataVolta || "",
+        passageiros: searchParams.passageiros || { adults: 1, children: 0, infants: 0 },
+        classe: searchParams.classe || "economica",
+        usarMilhas: searchParams.usarMilhas || false,
+        filtros: searchParams.filtros || { melhorPreco: true, acessibilidade: false, sustentavel: false, voosDiretos: false },
+        orcamento: searchParams.orcamento || "",
+        somenteDireto: searchParams.somenteDireto || false,
+        voosSustentaveis: searchParams.voosSustentaveis || false,
+        tarifasFlexiveis: searchParams.tarifasFlexiveis || false,
+        acessibilidade: searchParams.acessibilidade || false,
+      };
+
+      // Executa a busca automaticamente
+      setModalConfig({
+        type: "info",
+        title: "Buscando suas opções de viagem",
+        description: "Aguarde um momento enquanto encontramos as melhores passagens para você! Os valores apresentados estão sujeitos a alterações sem aviso prévio."
+      });
+
+      setShowModal(true);
+    }
+  }, [location.state, navigate]);
+
+  const handleCloseButton = async () => {
+    const state = location.state as LocationState | undefined;
+    const searchParams = state?.searchParams;
+
+    if (searchParams && searchParams.origem && searchParams.destino && searchParams.dataIda) {
+      // Limpa o estado do location para evitar reutilização ao voltar
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Cria os dados de busca com os parâmetros recebidos
+      const searchData = {
+        origem: searchParams.origem,
+        destino: searchParams.destino,
+        dataIda: searchParams.dataIda,
+        dataVolta: searchParams.dataVolta || "",
+        passageiros: searchParams.passageiros || { adults: 1, children: 0, infants: 0 },
+        classe: searchParams.classe || "economica",
+        usarMilhas: searchParams.usarMilhas || false,
+        filtros: searchParams.filtros || { melhorPreco: true, acessibilidade: false, sustentavel: false, voosDiretos: false },
+        orcamento: searchParams.orcamento || "",
+        somenteDireto: searchParams.somenteDireto || false,
+        voosSustentaveis: searchParams.voosSustentaveis || false,
+        tarifasFlexiveis: searchParams.tarifasFlexiveis || false,
+        acessibilidade: searchParams.acessibilidade || false,
+      };
+
+      // Se estiver usando milhas, vai para a tela de programas de milhas
+      if (searchData.usarMilhas) {
+        navigate("/programas-milhas", {
+          state: {
+            origem: searchData.origem,
+            destino: searchData.destino,
+            dataIda: searchData.dataIda,
+            dataVolta: searchData.dataVolta,
+            searchData
+          }
+        });
+      } else {
+        // Fluxo normal para busca em dinheiro
+        if (searchData.dataVolta) {
+          navigate("/resultados-ida-volta", { state: { searchData } });
+        } else {
+          navigate("/resultados-voos", { state: { searchData } });
+        }
+      }
+
+    }
+
+    setShowModal(false);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50">
       <div className="max-w-screen-sm mx-auto px-4 pb-24">
-        <AnimatePresence>
-          {showRestorePrompt && lastSearch && (
-            <LastSearchPrompt
-              lastSearch={lastSearch}
-              onRestore={handleRestoreLastSearch}
-              onDismiss={hideRestorePrompt}
-            />
-          )}
-        </AnimatePresence>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -168,11 +241,11 @@ export default function TelaBuscaVoos() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -181,7 +254,7 @@ export default function TelaBuscaVoos() {
             >
               Buscar Voos
             </motion.h1>
-            
+
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -193,7 +266,7 @@ export default function TelaBuscaVoos() {
           </div>
 
           {/* Quick Stats */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -211,7 +284,7 @@ export default function TelaBuscaVoos() {
               <div className="text-2xl font-bold text-econotrip-green">95%</div>
               <div className="text-sm text-gray-600">Satisfação</div>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Search Form */}
           <motion.div
@@ -231,7 +304,7 @@ export default function TelaBuscaVoos() {
 
         <StandardModal
           isOpen={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={handleCloseButton}
           type={modalConfig.type}
           title={modalConfig.title}
           description={modalConfig.description}

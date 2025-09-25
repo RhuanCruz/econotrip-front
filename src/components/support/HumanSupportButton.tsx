@@ -87,17 +87,6 @@ export function HumanSupportButton() {
                   <Button
                     variant="primary"
                     size="lg"
-                    icon={Phone}
-                    onClick={handleCall}
-                    className="w-full bg-econotrip-blue hover:bg-econotrip-blue/90"
-                    aria-label="Ligar para suporte"
-                  >
-                    Ligar Agora
-                  </Button>
-
-                  <Button
-                    variant="primary"
-                    size="lg"
                     icon={MessageCircle}
                     onClick={handleWhatsApp}
                     className="w-full bg-green-600 hover:bg-green-700"
@@ -119,7 +108,7 @@ export function HumanSupportButton() {
                 </div>
 
                 <p className="text-sm text-center text-gray-600 mt-4">
-                  Atendimento das 8h às 20h, todos os dias
+                  Atendimento das 8h às 18h, todos os dias
                 </p>
               </Card>
             </motion.div>

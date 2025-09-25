@@ -19,6 +19,7 @@ import {
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { FlightService } from "@/api/flight/FlightService";
+import { FlightResultSkeleton } from "@/components/ui-custom/FlightResultSkeleton";
 
 interface Voo {
   id: string;
@@ -36,6 +37,8 @@ interface Voo {
   isAcessivel: boolean;
   pontuacao: number;
   departureToken?: string; // usado para buscar voo de volta
+  itineraryId: string;
+  token: string;
 }
 
 // Utilitário para formatar hora ISO para HH:mm
@@ -50,52 +53,106 @@ function formatHora(horaIso: string) {
   return match ? match[1] : horaIso;
 }
 
+// Utilitário para formatar data evitando problemas de timezone
+function formatDateSafe(dateString: string): string {
+  if (!dateString) return "";
+  
+  // Se a string contém espaço, pega apenas a parte da data
+  const dateOnly = dateString.split(' ')[0];
+  
+  // Cria a data diretamente dos componentes para evitar problemas de timezone
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  if (!year || !month || !day) return "";
+  
+  const date = new Date(year, month - 1, day); // month é 0-indexed
+  return date.toLocaleDateString("pt-BR");
+}
+
 export default function ResultsScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  // Removido redirecionamento automático para ida/volta. A navegação deve ser feita na tela de pesquisa de voos.
+  const searchData = location.state?.searchData;
+
+  // Estado de voos e ordenação
   const [voos, setVoos] = useState<Voo[]>([]);
-  const [ordenacao, setOrdenacao] = useState<"preco" | "duracao" | "pontuacao">("preco");
+  const [ordenacao, setOrdenacao] = useState<"preco" | "duracao">("preco");
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchToken, setSearchToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const searchData = location.state?.searchData;
     if (!searchData) return;
-    // Monta o body para a API
-    const body = {
-      origin: searchData.origem,
-      destination: searchData.destino,
-      departure: searchData.dataIda,
-      return: searchData.dataVolta || undefined,
-      departureToken: searchData.departureToken || undefined
-    };
-    FlightService.search(body).then((res) => {
-      // Converte os resultados para o formato Voo[] usado na tela
-      const allFlights = [
-        ...(res.best_flights || []),
-        ...(res.other_flights || [])
-      ];
-      console.log(allFlights[0]);
 
-      setVoos(
-        allFlights.map((f, idx) => ({
-          id: f.booking_token || String(idx),
-          origem: body.origin,
-          origemCodigo: f.flights[0]?.departure_airport?.id || "",
-          destino: body.destination,
-          destinoCodigo: f.flights[f.flights.length-1]?.arrival_airport?.id || "",
-          dataIda: body.departure,
-          horaPartida: f.flights[0]?.departure_airport?.time || "",
-          horaChegada: f.flights[f.flights.length-1]?.arrival_airport?.time || "",
-          preco: f.price,
-          duracao: `${Math.floor((f.total_duration || 0)/60)}h ${(f.total_duration || 0)%60}min`,
-          paradas: f.layovers?.length || 0,
-          companhia: f.flights[0]?.airline || "",
-          isAcessivel: false,
-          pontuacao: 5,
-          departureToken: f.departure_token || ""
-        }))
-      );
-    });
-  }, [location.state]);
+    // Função para buscar voos com polling para status 'incomplete'
+    const fetchFlights = async () => {
+      try {
+        setIsLoading(true);
+        const body = {
+          origin: searchData.origem,
+          destination: searchData.destino,
+          departure: searchData.dataIda,
+          return: searchData.dataVolta || undefined,
+          departureToken: searchData.departureToken || undefined
+        };
+
+        const res = await FlightService.search(body);
+        
+        // Sempre processar resultados se existirem, mesmo com status 'incomplete'
+        const allFlights = Array.isArray(res?.data?.itineraries) ? res.data.itineraries : [];
+        if (allFlights.length > 0) {
+          setVoos(
+            allFlights.map((f, idx) => {
+              const firstLeg = f.legs?.[0];
+              const lastLeg = f.legs?.[f.legs.length - 1];
+              return {
+                id: f.id || String(idx),
+                origem: firstLeg?.origin?.city || body.origin,
+                origemCodigo: firstLeg?.origin?.displayCode || "",
+                destino: lastLeg?.destination?.city || body.destination,
+                destinoCodigo: lastLeg?.destination?.displayCode || "",
+                dataIda: firstLeg?.departure?.split("T")[0] || body.departure,
+                horaPartida: firstLeg?.departure || "",
+                horaChegada: lastLeg?.arrival || "",
+                preco: f.price?.raw || 0,
+                duracao: firstLeg?.durationInMinutes !== undefined ? `${Math.floor(firstLeg.durationInMinutes/60)}h ${firstLeg.durationInMinutes%60}min` : "",
+                paradas: firstLeg?.stopCount ?? 0,
+                companhia: firstLeg?.carriers?.marketing?.[0]?.name || "",
+                isAcessivel: false,
+                pontuacao: 5,
+                departureToken: f.id || "",
+                itineraryId: f.id,
+                token: res.data.token
+              };
+            })
+          );
+        }
+        
+        // Se o status for 'incomplete', continuar polling apenas se não há resultados ainda
+        if (res.data.context?.status === 'incomplete' && allFlights.length === 0) {
+          setSearchToken(res.data.token);
+          
+          // Continuar polling mas não bloquear a interface
+          setTimeout(() => fetchFlights(), 3000);
+          return;
+        }
+
+        // Se chegou aqui, a busca foi concluída
+        setSearchToken(null);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        setSearchToken(null);
+        console.error('Erro ao buscar voos:', error);
+        toast({
+          title: "Erro na busca",
+          description: "Ocorreu um erro ao buscar voos. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchFlights();
+  }, [searchData]);
 
   const voosOrdenados = [...voos].sort((a, b) => {
     switch (ordenacao) {
@@ -103,8 +160,6 @@ export default function ResultsScreen() {
         return a.preco - b.preco;
       case "duracao":
         return parseInt(a.duracao) - parseInt(b.duracao);
-      case "pontuacao":
-        return b.pontuacao - a.pontuacao;
       default:
         return 0;
     }
@@ -116,26 +171,12 @@ export default function ResultsScreen() {
       description: `Voo ${voo.companhia} ${voo.origemCodigo} → ${voo.destinoCodigo}`,
     });
     const searchData = location.state?.searchData;
-    const detailParams: {
-      origem?: string;
-      destino?: string;
-      dataIda?: string;
-      dataVolta?: string;
-      bookingToken: string;
-    } = {
-      origem: searchData?.origem,
-      destino: searchData?.destino,
-      dataIda: searchData?.dataIda,
-      bookingToken: voo.id
-    };
-    if (searchData?.dataVolta && searchData.dataVolta !== "") {
-      detailParams.dataVolta = searchData.dataVolta;
-    }
+    // Enviar apenas token e itineraryId
     navigate("/detalhes-voo", {
       state: {
         searchData: {
-          ...detailParams,
-          dataVolta: detailParams.dataVolta ?? undefined
+          token: voo.token,
+          itineraryId: voo.itineraryId
         }
       }
     });
@@ -200,7 +241,7 @@ export default function ResultsScreen() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-econotrip-blue to-econotrip-orange rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 bg-econotrip-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
             >
               <Plane className="w-8 h-8 text-white" />
             </motion.div>
@@ -218,24 +259,46 @@ export default function ResultsScreen() {
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-econotrip-blue" />
                   <span className="font-semibold text-econotrip-blue">
-                    {location.state?.searchData?.origem} → {location.state?.searchData?.destino}
+                    {/* Origem */}
+                    {voos.length > 0
+                      ? `${voos[0].origem} (${voos[0].origemCodigo})`
+                      : location.state?.searchData?.origem}
+                    <span className="mx-1">→</span>
+                    {/* Destino */}
+                    {voos.length > 0
+                      ? `${voos[0].destino} (${voos[0].destinoCodigo})`
+                      : location.state?.searchData?.destino}
                     {location.state?.searchData?.dataVolta && (
                       <>
                         <span className="mx-2 text-gray-400">|</span>
-                        {location.state?.searchData?.destino} → {location.state?.searchData?.origem}
+                        {/* Volta: Destino → Origem */}
+                        {voos.length > 0
+                          ? `${voos[0].destino} (${voos[0].destinoCodigo})`
+                          : location.state?.searchData?.destino}
+                        <span className="mx-1">→</span>
+                        {voos.length > 0
+                          ? `${voos[0].origem} (${voos[0].origemCodigo})`
+                          : location.state?.searchData?.origem}
                       </>
                     )}
                   </span>
                 </div>
-                <div className="text-gray-600">
+                <div className="text-gray-600 flex items-center gap-2 flex-wrap">
                   {location.state?.searchData?.dataIda &&
-                    new Date(location.state.searchData.dataIda).toLocaleDateString("pt-BR")}
+                    <span>{formatDateSafe(location.state.searchData.dataIda)}</span>}
                   {location.state?.searchData?.dataVolta && (
                     <>
                       <span className="mx-1">•</span>
-                      {new Date(location.state.searchData.dataVolta).toLocaleDateString("pt-BR")}
+                      <span>{formatDateSafe(location.state.searchData.dataVolta)}</span>
                     </>
                   )}
+                  <span className="mx-2">|</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-econotrip-blue font-semibold">{voos.length} resultados</span>
+                    {searchToken && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-econotrip-blue"></div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -243,23 +306,22 @@ export default function ResultsScreen() {
 
           {/* Filtros de ordenação modernos */}
           <div className="mb-6">
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-3 w-full">
               {[
                 { id: "preco", label: "Menor preço", icon: DollarSign },
                 { id: "duracao", label: "Menor tempo", icon: Clock },
-                { id: "pontuacao", label: "Melhor avaliado", icon: Star },
               ].map((opcao) => (
                 <motion.button
                   key={opcao.id}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setOrdenacao(opcao.id as any)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-2xl transition-all whitespace-nowrap shadow-md ${
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setOrdenacao(opcao.id as "preco" | "duracao")}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl transition-all shadow-md text-base font-medium border-2 touch-target ${
                     ordenacao === opcao.id
-                      ? "bg-gradient-to-r from-econotrip-orange to-econotrip-orange/90 text-white shadow-lg"
-                      : "bg-white/80 backdrop-blur-sm text-gray-700 hover:bg-white/90"
+                      ? "bg-econotrip-primary text-white border-econotrip-primary shadow-lg"
+                      : "bg-white/80 backdrop-blur-sm text-gray-700 border-transparent hover:bg-white/90"
                   }`}
                 >
-                  <opcao.icon className="h-4 w-4" />
+                  <opcao.icon className="h-5 w-5" />
                   {opcao.label}
                 </motion.button>
               ))}
@@ -274,32 +336,80 @@ export default function ResultsScreen() {
           animate="visible"
           className="space-y-4 mb-6"
         >
-          {voosOrdenados.map((voo, index) => (
+          {/* Renderizar skeletons durante loading se não há voos */}
+          {isLoading && voos.length === 0 ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <motion.div
+                key={`skeleton-${index}`}
+                variants={itemAnimation}
+                transition={{ delay: index * 0.1 }}
+              >
+                <FlightResultSkeleton />
+              </motion.div>
+            ))
+          ) : voos.length === 0 && !isLoading ? (
+            /* Mensagem quando não há voos encontrados */
             <motion.div
-              key={voo.id}
               variants={itemAnimation}
-              transition={{ delay: index * 0.1 }}
+              className="text-center py-12"
             >
-              <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
-                <div className="p-6">
-                  {/* Header do voo */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex-1">
+              <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-0">
+                <div className="w-20 h-20 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-10 h-10 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                  Nenhum voo encontrado
+                </h3>
+                
+                <p className="text-gray-600 mb-6 text-lg">
+                  Não encontramos voos para os critérios selecionados.
+                </p>
+                
+                <div className="bg-blue-50 rounded-2xl p-4 mb-6">
+                  <h4 className="font-semibold text-econotrip-blue mb-3 flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    Dicas para encontrar voos:
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-2 text-left">
+                    <li>• Tente buscar por datas diferentes (±3 dias)</li>
+                    <li>• Considere aeroportos próximos ao destino</li>
+                    <li>• Verifique se as datas estão corretas</li>
+                    <li>• Experimente buscar só ida ou volta separadamente</li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={handleNovaBusca}
+                  className="w-full h-14 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/90 hover:from-econotrip-blue/90 hover:to-econotrip-blue text-white text-lg font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 touch-target flex items-center justify-center gap-2"
+                >
+                  <Search className="h-5 w-5" />
+                  <span>Alterar Busca</span>
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            voosOrdenados.map((voo, index) => (
+              <motion.div
+                key={voo.id}
+                variants={itemAnimation}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all bg-white/95 backdrop-blur-sm rounded-3xl border-0">
+                  <div className="p-3 sm:p-1">
+                    {/* Header do voo - nome e preço alinhados à esquerda */}
+                    <div className="flex flex-col items-start mb-6">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-12 h-12 bg-gradient-to-r from-econotrip-blue to-econotrip-blue/80 rounded-2xl flex items-center justify-center">
                           <Plane className="h-6 w-6 text-white" />
                         </div>
-                        <div>
-                          <span className="font-bold text-xl text-econotrip-blue">
-                            {voo.companhia}
-                          </span>
-                        </div>
-                      </div>
+                      <span className="font-bold text-xl text-econotrip-blue">
+                        {voo.companhia}
+                      </span>
                     </div>
-                    
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-econotrip-orange">
-                        R$ {voo.preco.toLocaleString()}
+                    <div className="mt-2 text-left">
+                      <div className="text-3xl font-bold text-econotrip-blue-light">
+                        R$ {voo.preco}
                       </div>
                       <div className="text-sm text-gray-600">por pessoa</div>
                     </div>
@@ -320,7 +430,7 @@ export default function ResultsScreen() {
                         <div className="flex flex-col items-center">
                           <div className="flex items-center justify-center w-full mb-2">
                             <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>
-                            <div className="w-12 h-12 bg-gradient-to-r from-econotrip-orange to-econotrip-orange/80 rounded-full flex items-center justify-center mx-2 shadow-lg">
+                            <div className="w-12 h-12 bg-econotrip-primary rounded-full flex items-center justify-center mx-2 shadow-lg">
                               <Plane className="h-6 w-6 text-white" />
                             </div>
                             <div className="flex-1 border-t-2 border-dashed border-econotrip-orange/50"></div>
@@ -372,7 +482,7 @@ export default function ResultsScreen() {
                 </div>
               </Card>
             </motion.div>
-          ))}
+          )))}
         </motion.div>
 
         {/* Botão nova busca fixo moderno

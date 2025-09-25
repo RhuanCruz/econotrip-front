@@ -4,22 +4,42 @@ import { Input } from "@/components/ui-custom/Input";
 import { Button } from "@/components/ui-custom/Button";
 import { AlertBox } from "@/components/ui-custom/AlertBox";
 import { toast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/authStore";
+import { UserService } from "@/api/user/UserService";
+import { UpdateUserBody } from "@/api/user/types";
 import { 
-  User, Mail, Calendar, Lock, KeyRound, CheckCircle, ArrowLeft
+  User, Mail, Calendar, Lock, KeyRound, CheckCircle
 } from "lucide-react";
 import { AssistButton } from "@/components/ui-custom/AssistButton";
 
 export default function EditProfileScreen() {
   const navigate = useNavigate();
+  const { user, token, updateUser } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Form state
+  console.log(user);
+
+  // Helper function to format date for input[type="date"]
+  const formatDateForInput = (dateString: string | null | undefined): string => {
+    if (!dateString) return "";
+    try {
+      // Convert ISO date to YYYY-MM-DD format
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "";
+    }
+  };
+
+  // Form state - initialized with user data from authStore
   const [formData, setFormData] = useState({
-    fullName: "Maria Oliveira",
-    email: "maria@exemplo.com",
-    birthDate: "1958-05-12",
-    cpf: "123.456.789-00",
+    fullName: user?.fullname || "",
+    email: user?.email || "",
+    birthDate: formatDateForInput(user?.birthdate),
+    cpf: user?.cpf || "",
     newPassword: "",
     confirmPassword: ""
   });
@@ -32,15 +52,55 @@ export default function EditProfileScreen() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
-    // Simulate API call
-    setTimeout(() => {
+    // Validate password confirmation if password is being changed
+    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+      setError("As senhas não coincidem");
       setIsSubmitting(false);
-      setShowSuccess(true);
+      return;
+    }
+
+    if (!user?.id || !token) {
+      setError("Usuário não autenticado");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Prepare update data
+      const updateData: UpdateUserBody = {
+        fullname: formData.fullName,
+        email: formData.email,
+        birthdate: formData.birthDate,
+        cpf: formData.cpf || undefined,
+      };
+
+      // Only include password if it's being changed
+      if (formData.newPassword) {
+        updateData.password = formData.newPassword;
+        updateData.confirmPassword = formData.confirmPassword;
+      }
+
+      // Call API to update user
+      await UserService.update(token, user.id, updateData);
       
+      // Create updated user object with local form data
+      const updatedUser = {
+        ...user,
+        fullname: formData.fullName,
+        email: formData.email,
+        birthdate: formData.birthDate,
+        cpf: formData.cpf || null,
+      };
+      
+      // Update user in store while preserving authentication state
+      updateUser(updatedUser);
+      
+      setShowSuccess(true);
       toast({
         title: "Perfil atualizado",
         description: "Suas informações foram atualizadas com sucesso!",
@@ -51,7 +111,17 @@ export default function EditProfileScreen() {
       setTimeout(() => {
         navigate("/perfil");
       }, 2000);
-    }, 1000);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setError(error instanceof Error ? error.message : "Erro ao atualizar perfil");
+      toast({
+        title: "Erro ao atualizar perfil",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -60,14 +130,7 @@ export default function EditProfileScreen() {
 
   return (
     <div className="max-w-2xl mx-auto py-6 pb-24">
-      <div className="flex items-center gap-2 mb-6">
-        <button 
-          onClick={handleCancel}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors touch-target"
-          aria-label="Voltar para perfil"
-        >
-          <ArrowLeft className="h-6 w-6 text-econotrip-blue" />
-        </button>
+      <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-museomoderno font-bold text-econotrip-blue">
           Editar Perfil
         </h1>
@@ -86,7 +149,7 @@ export default function EditProfileScreen() {
           </p>
         </AlertBox>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">          
           <Input
             type="text"
             name="fullName"
@@ -130,7 +193,6 @@ export default function EditProfileScreen() {
             value={formData.cpf}
             onChange={handleChange}
             placeholder="000.000.000-00"
-            required
             aria-label="CPF"
             className="font-mono"
           />

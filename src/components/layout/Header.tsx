@@ -19,7 +19,7 @@ export function Header({
   const { logout } = useAuthStore();
 
   // Determine if we should show back button based on the route
-  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard"].includes(location.pathname);
+  const showBackButton = !["/", "/busca-voos", "/perfil", "/meu-roteiro", "/dashboard", "/meus-radares", "/minha-evolucao"].includes(location.pathname);
   const handleBack = () => {
     navigate(-1);
   };
@@ -33,16 +33,23 @@ export function Header({
   return <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm h-16 px-3 md:px-6 flex items-center justify-between w-full">
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
         <div className="flex items-center min-w-0 flex-1">
-          {showBackButton ? <button onClick={handleBack} className="mr-3 p-2 rounded-full hover:bg-gray-100 touch-target flex-shrink-0 transition-colors" aria-label="Voltar para a tela anterior">
+          {showBackButton && (
+            <button 
+              onClick={handleBack} 
+              className="mr-3 p-2 rounded-full hover:bg-gray-100 touch-target flex-shrink-0 transition-colors" 
+              aria-label="Voltar para a tela anterior"
+            >
               <ArrowLeft className="h-5 w-5 md:h-6 md:w-6 text-econotrip-blue" />
-            </button> : <Link to="/dashboard" className="flex items-center min-w-0" aria-label="Ir para página inicial">
-              <div className="flex items-center gap-2">
-                <img src="/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png" alt="EconoTrip" className="h-8 w-8 md:h-9 md:w-9 rounded-lg flex-shrink-0 shadow-sm" />
-                <div className="font-museomoderno font-bold text-lg md:text-xl text-econotrip-blue truncate">
-                  EconoTrip
-                </div>
+            </button>
+          )}
+          <Link to="/dashboard" className="flex items-center min-w-0" aria-label="Ir para página inicial">
+            <div className="flex items-center gap-2">
+              <img src="/lovable-uploads/b8633032-8de9-42de-8fdf-b32ea404bcd9.png" alt="EconoTrip" className="h-8 w-8 md:h-9 md:w-9 rounded-lg flex-shrink-0 shadow-sm" />
+              <div className="font-museomoderno font-bold text-lg md:text-xl text-econotrip-blue truncate">
+                EconoTrip
               </div>
-            </Link>}
+            </div>
+          </Link>
         </div>
 
         {/* User Menu - When logged in */}
@@ -53,8 +60,8 @@ export function Header({
             {/* User menu dropdown - mais moderno */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 p-2 rounded-xl hover:bg-econotrip-orange/10 touch-target transition-all duration-200 group">
-                  <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-br from-econotrip-orange to-econotrip-orange/80 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                <button className="flex items-center gap-2 p-2 rounded-xl hover:bg-econotrip-blue-light/10 touch-target transition-all duration-200 group">
+                  <div className="h-9 w-9 md:h-10 md:w-10 bg-gradient-to-br from-econotrip-blue-light to-econotrip-blue-light/80 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                     <User className="h-4 w-4 md:h-5 md:w-5 text-white" />
                   </div>
                   <div className="hidden sm:block">
@@ -75,10 +82,10 @@ export function Header({
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configurações</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/fidelidade")} className="hover:bg-econotrip-orange/10">
+                {/* <DropdownMenuItem onClick={() => navigate("/fidelidade")} className="hover:bg-econotrip-orange/10">
                   <div className="mr-2 h-4 w-4 text-econotrip-green">★</div>
                   <span>Programa de Fidelidade</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={() => navigate("/suporte")} className="hover:bg-econotrip-orange/10">
                   <div className="mr-2 h-4 w-4">?</div>
                   <span>Suporte</span>

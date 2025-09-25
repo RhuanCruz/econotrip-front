@@ -14,6 +14,8 @@ export type CreateRadarBody = {
   end: string;
   origin: string;
   destination: string;
+  value: number;
+  type: 'AIRMILES' | 'MONEY';
 };
 
 export type ListRadarResponse = {
@@ -26,10 +28,30 @@ export type ListRadarResponse = {
 }
 
 export type GetRadarFlightsResponse = {
+  results: Array<{
+      _id: string;
+      origin: string;
+      destination: string;
+      type: 'MONEY' | 'AIRMILES';
+      date: string;
+      value: number;
+      createdAt: string;
+      __v: number;
+  }>;
+};
+
+export interface RadarResult {
+  _id: string;
   origin: string;
   destination: string;
-  records: {
-    date: string;
-    price: number;
-  }[];
-};
+  continent: string;
+  type: string;
+  date: string;
+  value: number;
+  createdAt: string;
+  __v: number;
+}
+
+export interface ListResultsByContinentResponse {
+  results: RadarResult[];
+}
