@@ -8,7 +8,10 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dashboard:dev": "vite --config vite.dashboard.config.ts",
+    "dashboard:build": "vite build --config vite.dashboard.config.ts",
+    "dashboard:preview": "vite preview --config vite.dashboard.config.ts --outDir dist-dashboard"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^6.0.0",
