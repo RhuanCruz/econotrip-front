@@ -9,6 +9,8 @@ import { LayoutBase } from "./components/layout/LayoutBase";
 import { TourIntro } from "./components/onboarding/TourIntro";
 import { HumanSupportButton } from "./components/support/HumanSupportButton";
 import { AccessibilityBar } from "./components/accessibility/AccessibilityBar";
+import { VoiceControlProvider } from "./contexts/VoiceControlContext";
+import { VoiceControlButton } from "./components/voice/VoiceControlButton";
 
 import TelaBoasVindas from "./pages/TelaBoasVindas";
 import MeuRoteiroDetalhesScreen from "./pages/MeuRoteiroDetalhesScreen";
@@ -71,8 +73,9 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AnimatePresence mode="wait">
-            <Routes>
+          <VoiceControlProvider>
+            <AnimatePresence mode="wait">
+              <Routes>
               {/* Rotas públicas sem o layout base */}
               <Route path="/" element={<WelcomeScreen />} />
               <Route path="/login" element={<LoginScreen />} />
@@ -118,15 +121,17 @@ const App = () => {
 
               {/* Rota para página não encontrada */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
-          
-          {/* Global components */}
-          <HumanSupportButton />
-          <AccessibilityBar />
-          
-          {/* Tour for new users */}
-          {showTour && <TourIntro onComplete={handleTourComplete} />}
+              </Routes>
+            </AnimatePresence>
+
+            {/* Global components */}
+            <HumanSupportButton />
+            <AccessibilityBar />
+            <VoiceControlButton />
+
+            {/* Tour for new users */}
+            {showTour && <TourIntro onComplete={handleTourComplete} />}
+          </VoiceControlProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
