@@ -15,7 +15,6 @@ dist-ssr
 *.local
 dist-dashboard
 
-.env
 
 # Editor directories and files
 .vscode/*
@@ -27,3 +26,5 @@ dist-dashboard
 *.njsproj
 *.sln
 *.sw?
+
+.env
