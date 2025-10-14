@@ -91,6 +91,10 @@ export default function RadarOfertasScreen() {
   const [favoritadas, setFavoritadas] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [radarType, setRadarType] = useState<'AIRMILES' | 'MONEY'>('MONEY');
+  const [radarInfo, setRadarInfo] = useState<{airline?: string; tripType?: string} | null>(null);
+
+  // Filtro de companhia aérea para visualização
+  const [filtroCompanhia, setFiltroCompanhia] = useState<string>("");
 
   useEffect(() => {
     // Se há um novoRadar, usa o tipo dele
@@ -177,6 +181,24 @@ export default function RadarOfertasScreen() {
         <p className="text-gray-600 text-lg">
           Ofertas personalizadas para você
         </p>
+
+        {/* Informações do Radar */}
+        {radarInfo && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex flex-wrap gap-2 justify-center text-sm">
+              {radarInfo.tripType === 'ROUND_TRIP' && (
+                <Badge className="bg-econotrip-blue text-white">
+                  Ida e Volta
+                </Badge>
+              )}
+              {radarInfo.airline && (
+                <Badge variant="outline" className="border-econotrip-orange text-econotrip-orange">
+                  Companhia: {radarInfo.airline}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
       </motion.div>
 
       {/* Lista de Ofertas agrupadas por preço */}

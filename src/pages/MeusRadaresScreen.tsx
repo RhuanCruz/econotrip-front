@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutBase } from "@/components/layout/LayoutBase";
 import { Plus, Radar, Trash2 } from "lucide-react";
 import { NovoRadarModal } from "@/components/roteiro/NovoRadarModal";
@@ -11,10 +11,12 @@ import { RadaresEmptyState } from "@/components/ui-custom/RadaresEmptyState";
 
 export default function MeusRadaresScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
   const [radares, setRadares] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [prefilledRadarParams, setPrefilledRadarParams] = useState<any>(null);
   const { token } = useAuthStore();
 
   const fetchData = React.useCallback(async () => {
@@ -33,17 +35,62 @@ export default function MeusRadaresScreen() {
     fetchData();
   }, [token, navigate, fetchData]);
 
+  // Handle voice commands from navigation state
+  React.useEffect(() => {
+    const state = location.state as any;
+
+    if (state?.action && !loading && radares.length > 0) {
+      console.log('🎤 Processing voice command:', state.action);
+
+      if (state.action === 'create') {
+        // Set prefilled params if provided
+        if (state.radarParams) {
+          setPrefilledRadarParams(state.radarParams);
+        }
+        setModalOpen(true);
+      } else if (state.action === 'open' && typeof state.index === 'number') {
+        const radar = radares[state.index];
+        if (radar) {
+          handleAbrirRadar(radar.id);
+        }
+      } else if (state.action === 'delete' && typeof state.index === 'number') {
+        const radar = radares[state.index];
+        if (radar) {
+          handleRemoverRadar(radar.id);
+        }
+      }
+
+      // Clear state to prevent re-triggering
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+
+    // Handle create action even when list is empty
+    if (state?.action === 'create' && !loading) {
+      if (state.radarParams) {
+        setPrefilledRadarParams(state.radarParams);
+      }
+      setModalOpen(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, loading, radares]);
+
   const handleNovoRadar = () => {
     setModalOpen(true);
   };
 
   const handleCreateRadar = async (data: { partida: string; destino: string; inicio: string; fim: string; milhas: boolean }) => {
     setModalOpen(false);
+    setPrefilledRadarParams(null); // Clear prefilled params after creation
     await fetchData();
 
     // Aqui você pode adicionar lógica para salvar o novo radar
     // e navegar para RadarOfertasScreen, se desejar
     // navigate("/radar-ofertas", { state: { novoRadar: true, ...data } });
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setPrefilledRadarParams(null); // Clear prefilled params on close
   };
 
   const handleAbrirRadar = (radarId: string) => {
@@ -95,8 +142,9 @@ export default function MeusRadaresScreen() {
         
         <NovoRadarModal
           isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
+          onClose={handleCloseModal}
           onCreate={handleCreateRadar}
+          prefilledParams={prefilledRadarParams}
         />
       </div>
     );
@@ -164,8 +212,9 @@ export default function MeusRadaresScreen() {
       </div>
       <NovoRadarModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleCloseModal}
         onCreate={handleCreateRadar}
+        prefilledParams={prefilledRadarParams}
       />
       <StandardModal
         isOpen={!!confirmDeleteId}

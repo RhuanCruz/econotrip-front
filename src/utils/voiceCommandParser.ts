@@ -13,6 +13,17 @@ export interface ParsedFlightCommand {
   errors: string[];
 }
 
+export interface ParsedRadarCommand {
+  origem: string;
+  destino: string;
+  inicio?: string;
+  fim?: string;
+  valor?: number;
+  tipo?: 'MONEY' | 'AIRMILES';
+  confidence: number; // 0-100% confidence in parsing
+  errors: string[];
+}
+
 // City mappings with aliases for better matching
 export const CITY_MAPPINGS: { [key: string]: { code: string; aliases: string[] } } = {
   'GRU': { code: 'GRU', aliases: ['são paulo', 'sao paulo', 'sp', 'sampa', 'guarulhos'] },
@@ -260,7 +271,138 @@ export function parseClass(text: string): 'economica' | 'executiva' | 'primeira'
 }
 
 /**
- * Main parser function
+ * Convert text numbers to numeric values
+ */
+function textToNumber(text: string): number | null {
+  const numberWords: { [key: string]: number } = {
+    'zero': 0, 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3,
+    'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9, 'dez': 10,
+    'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300, 'quatrocentos': 400,
+    'quinhentos': 500, 'seiscentos': 600, 'setecentos': 700, 'oitocentos': 800, 'novecentos': 900,
+    'mil': 1000, 'dois mil': 2000, 'três mil': 3000, 'tres mil': 3000,
+    'quatro mil': 4000, 'cinco mil': 5000, 'dez mil': 10000
+  };
+
+  const normalized = text.toLowerCase().trim();
+
+  // Check exact match first
+  if (numberWords[normalized] !== undefined) {
+    return numberWords[normalized];
+  }
+
+  // Try to match "X mil" pattern
+  const milMatch = normalized.match(/(\d+)\s*mil/);
+  if (milMatch) {
+    return parseInt(milMatch[1]) * 1000;
+  }
+
+  return null;
+}
+
+/**
+ * Parse price value from text
+ */
+export function parsePrice(text: string): number | null {
+  const normalizedText = text.toLowerCase();
+  console.log('💰 Parsing price from:', normalizedText);
+
+  // Patterns for prices - now includes word numbers
+  const patterns = [
+    // "até X mil reais" or "até X mil"
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+(\d+)\s*mil\s*(?:reais?|r\$)?/i,
+    // "até [number word] reais" (e.g., "até mil reais", "até dois mil reais")
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+((?:dois|três|tres|quatro|cinco|seis|sete|oito|nove|dez)?\s*mil)\s*(?:reais?|r\$)?/i,
+    // "até [number word] reais" (e.g., "até cem reais")
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+(cem|cento|duzentos|trezentos|quatrocentos|quinhentos|seiscentos|setecentos|oitocentos|novecentos)\s*(?:reais?|r\$)?/i,
+    // Regular number patterns
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+(\d+(?:[.,]\d+)?)\s*(?:reais?|r\$)?/i,
+    /(\d+(?:[.,]\d+)?)\s*(?:reais?|r\$)/i,
+    /r\$\s*(\d+(?:[.,]\d+)?)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalizedText.match(pattern);
+    if (match) {
+      console.log('💰 Price match found:', match[0], '→ value:', match[1]);
+
+      let price: number;
+
+      // Check if it's a text number
+      const textNum = textToNumber(match[1]);
+      if (textNum !== null) {
+        price = textNum;
+        console.log('💰 Converted text to number:', match[1], '→', price);
+      } else {
+        // Regular numeric parsing
+        const priceStr = match[1].replace(',', '.');
+        price = parseFloat(priceStr);
+      }
+
+      if (!isNaN(price) && price > 0) {
+        console.log('💰 Parsed price:', price);
+        return price;
+      }
+    }
+  }
+
+  console.log('💰 No price found');
+  return null;
+}
+
+/**
+ * Parse miles value from text
+ */
+export function parseMiles(text: string): number | null {
+  const normalizedText = text.toLowerCase();
+  console.log('✈️ Parsing miles from:', normalizedText);
+
+  // Patterns for miles - now includes word numbers
+  const patterns = [
+    // "até X mil milhas" (número + mil)
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+(\d+)\s*mil\s*milhas?/i,
+    // "até [number word] mil milhas" (e.g., "cinquenta mil milhas")
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+((?:dois|três|tres|quatro|cinco|seis|sete|oito|nove|dez|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa|cem)?\s*mil)\s*milhas?/i,
+    // Regular patterns
+    /(?:até|abaixo de|menor que|menos de|no máximo|no maximo)\s+(\d+(?:[.,]\d+)?)\s*(?:mil|k)?\s*milhas?/i,
+    /(\d+(?:[.,]\d+)?)\s*(?:mil|k)?\s*milhas?/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalizedText.match(pattern);
+    if (match) {
+      console.log('✈️ Miles match found:', match[0], '→ value:', match[1]);
+
+      let miles: number;
+
+      // Check if it's a text number first
+      const textNum = textToNumber(match[1]);
+      if (textNum !== null) {
+        miles = textNum;
+        console.log('✈️ Converted text to number:', match[1], '→', miles);
+      } else {
+        let milesStr = match[1].replace(',', '.');
+        miles = parseFloat(milesStr);
+
+        // Check if it's in thousands (e.g., "50 mil milhas")
+        if (normalizedText.includes('mil milhas') || normalizedText.includes('k milhas')) {
+          miles *= 1000;
+          console.log('✈️ Multiplied by 1000 for "mil milhas":', miles);
+        }
+      }
+
+      if (!isNaN(miles) && miles > 0) {
+        console.log('✈️ Parsed miles:', miles);
+        return miles;
+      }
+    }
+  }
+
+  console.log('✈️ No miles found');
+  return null;
+}
+
+/**
+ * Main parser function for flight commands
  */
 export function parseFlightCommand(text: string): ParsedFlightCommand {
   const errors: string[] = [];
@@ -312,6 +454,112 @@ export function parseFlightCommand(text: string): ParsedFlightCommand {
     dataVolta,
     passageiros,
     classe,
+    confidence: Math.max(0, confidence),
+    errors,
+  };
+}
+
+/**
+ * Main parser function for radar commands
+ */
+export function parseRadarCommand(text: string): ParsedRadarCommand {
+  console.log('🔍 parseRadarCommand called with:', text);
+  const errors: string[] = [];
+  let confidence = 100;
+
+  // Parse origin and destination
+  const { origem, destino } = parseOriginAndDestination(text);
+  console.log('🔍 Origin/Destination parsed:', { origem, destino });
+
+  // Determine if monitoring is for money or miles
+  let tipo: 'MONEY' | 'AIRMILES' = 'MONEY';
+  let valor: number | undefined;
+
+  if (text.toLowerCase().includes('milha')) {
+    console.log('🔍 Detected miles type');
+    tipo = 'AIRMILES';
+    valor = parseMiles(text) || undefined;
+  } else {
+    console.log('🔍 Detected money type');
+    valor = parsePrice(text) || undefined;
+  }
+  console.log('🔍 Value parsed:', valor, 'Type:', tipo);
+
+  // Parse period dates if specified
+  let inicio: string | undefined;
+  let fim: string | undefined;
+
+  // Look for "a partir de" or "desde" for start date
+  const inicioPatterns = [
+    /(?:a partir de|desde|começando em|comecando em)\s+(.+?)(?:\s+(?:até|ate|e|com|por)|\s*$)/i,
+  ];
+
+  for (const pattern of inicioPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const dateText = match[1];
+      // Only parse if it doesn't contain price indicators
+      if (!dateText.match(/\d+\s*(?:reais?|milhas?|r\$)/i)) {
+        inicio = parseDate(dateText) || undefined;
+        break;
+      }
+    }
+  }
+
+  // Look for "até" for end date - but exclude price mentions
+  // Pattern: "até [data]" but NOT "até X reais" or "até X milhas"
+  const fimPatterns = [
+    /(?:até|ate)\s+(\d{1,2}\s+de\s+\w+)/i,  // "até 20 de dezembro"
+    /(?:até|ate)\s+(\d{1,2}\/\d{1,2})/i,    // "até 20/12"
+  ];
+
+  for (const pattern of fimPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      fim = parseDate(match[1]) || undefined;
+      if (fim) break;
+    }
+  }
+
+  // If no specific period, try parsing general dates (but avoid numbers that might be prices)
+  if (!inicio && !fim) {
+    // Only look for date patterns, not standalone numbers
+    const dateOnlyText = text.replace(/\d+\s*(?:reais?|milhas?|r\$)/gi, '');
+    const generalDate = parseDate(dateOnlyText);
+    if (generalDate) {
+      inicio = generalDate;
+    }
+  }
+
+  // Validate and calculate confidence
+  if (!origem) {
+    errors.push('Origem não identificada');
+    confidence -= 40;
+  }
+
+  if (!destino) {
+    errors.push('Destino não identificado');
+    confidence -= 40;
+  }
+
+  // Period and price are optional for radar, so don't penalize heavily
+  if (!inicio && !fim && !valor) {
+    confidence -= 10; // Minor penalty for missing all optional fields
+  }
+
+  // Check if origin and destination are the same
+  if (origem && destino && origem === destino) {
+    errors.push('Origem e destino são iguais');
+    confidence -= 50;
+  }
+
+  return {
+    origem: origem || '',
+    destino: destino || '',
+    inicio,
+    fim,
+    valor,
+    tipo,
     confidence: Math.max(0, confidence),
     errors,
   };
