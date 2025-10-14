@@ -64,7 +64,13 @@ export default function FeedbackScreen() {
       }, 3000);
     } catch (error) {
       console.error("Erro ao enviar feedback:", error);
-      alert("Erro ao enviar feedback. Tente novamente.");
+
+      // Mensagem amigável considerando que o backend pode não estar implementado
+      const errorMessage = error instanceof Error && error.message.includes("500")
+        ? "O sistema de feedback está temporariamente indisponível. Por favor, tente novamente mais tarde ou entre em contato conosco diretamente pelo email suporte@primevoyage.com"
+        : "Erro ao enviar feedback. Por favor, verifique sua conexão e tente novamente.";
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

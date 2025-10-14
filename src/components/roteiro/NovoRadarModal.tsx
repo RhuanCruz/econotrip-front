@@ -189,7 +189,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate, prefilledParams }: N
             }
           })
           .catch((error) => {
-            if (error.name !== 'AbortError') {
+            // Ignora erros de cancelamento (AbortError ou CanceledError)
+            if (error.name !== 'AbortError' && error.name !== 'CanceledError') {
               console.error('Erro ao buscar sugestões de partida:', error);
               setPartidaSuggestions([]);
               setShowPartidaDropdown(false);
@@ -243,7 +244,8 @@ export function NovoRadarModal({ isOpen, onClose, onCreate, prefilledParams }: N
             }
           })
           .catch((error) => {
-            if (error.name !== 'AbortError') {
+            // Ignora erros de cancelamento (AbortError ou CanceledError)
+            if (error.name !== 'AbortError' && error.name !== 'CanceledError') {
               console.error('Erro ao buscar sugestões de destino:', error);
               setDestinoSuggestions([]);
               setShowDestinoDropdown(false);
@@ -843,11 +845,12 @@ export function NovoRadarModal({ isOpen, onClose, onCreate, prefilledParams }: N
       onConfirm={handleConfirm}
       type="info"
       title="Novo Radar"
-      description={formContent as unknown as string}
       confirmText={loading ? "Criando..." : "Criar Radar"}
       cancelText="Cancelar"
       showCancel
       showIcon={false}
-    />
+    >
+      {formContent}
+    </StandardModal>
   );
 }

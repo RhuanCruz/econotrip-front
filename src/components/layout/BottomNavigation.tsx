@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
+import {
   Plane,
   MapPin,
   Home,
   Search,
-  TrendingUp
+  Hotel
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -13,30 +13,36 @@ import { motion } from "framer-motion";
 export function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const navigationItems = [
-    { 
-      name: 'Início', 
-      icon: Home, 
-      route: '/dashboard', 
+    {
+      name: 'Início',
+      icon: Home,
+      route: '/dashboard',
       isActive: location.pathname === '/dashboard'
     },
-    { 
-      name: 'Buscar', 
-      icon: Search, 
-      route: '/busca-voos', 
+    {
+      name: 'Voos',
+      icon: Search,
+      route: '/busca-voos',
       isActive: location.pathname === '/busca-voos' || location.pathname === '/resultados-voos' || location.pathname === '/detalhes-voo'
     },
     {
+      name: 'Hospedagem',
+      icon: Hotel,
+      route: '/busca-hospedagem',
+      isActive: location.pathname === '/busca-hospedagem' || location.pathname === '/resultados-hospedagem'
+    },
+    {
       name: 'Radar',
-      icon: Plane, // Substitua por Radar se houver um ícone mais adequado
-      route: '/meus-radares', // Agora leva para a tela de listagem de radares
+      icon: Plane,
+      route: '/meus-radares',
       isActive: location.pathname === '/meus-radares' || location.pathname === '/radar-ofertas'
     },
-    { 
-      name: 'Simulador', 
-      icon: MapPin, 
-      route: '/meu-roteiro', 
+    {
+      name: 'Roteiros',
+      icon: MapPin,
+      route: '/meu-roteiro',
       isActive: location.pathname === '/meu-roteiro'
     }
   ];

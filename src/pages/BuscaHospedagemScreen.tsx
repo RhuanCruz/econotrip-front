@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users, Search, Hotel, Bed } from "lucide-react";
+import { Calendar, MapPin, Users, Hotel, Bed, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
+import { redirectToBooking, validateDates, calculateNights } from "@/services/bookingUrlBuilder";
+import { HospedagemSearchParams } from "@/types/hospedagem";
 
 export default function BuscaHospedagemScreen() {
-  const navigate = useNavigate();
   const todayStr = new Date().toISOString().split('T')[0];
 
   const [cidade, setCidade] = useState("");
@@ -15,24 +15,51 @@ export default function BuscaHospedagemScreen() {
   const [adultos, setAdultos] = useState(2);
   const [criancas, setCriancas] = useState(0);
   const [quartos, setQuartos] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleBuscar = () => {
-    if (!cidade || !checkIn || !checkOut) {
-      alert("Por favor, preencha todos os campos obrigatórios");
+    // Validações
+    const newErrors: Record<string, string> = {};
+
+    if (!cidade.trim()) {
+      newErrors.cidade = "Digite o nome da cidade";
+    }
+
+    if (!checkIn) {
+      newErrors.checkIn = "Selecione a data de check-in";
+    }
+
+    if (!checkOut) {
+      newErrors.checkOut = "Selecione a data de check-out";
+    }
+
+    if (checkIn && checkOut && !validateDates(checkIn, checkOut)) {
+      newErrors.checkOut = "Check-out deve ser após o check-in";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    navigate("/resultados-hospedagem", {
-      state: {
-        cidade,
-        checkIn,
-        checkOut,
-        adultos,
-        criancas,
-        quartos,
-      },
-    });
+    // Construir objeto de busca
+    const searchParams: HospedagemSearchParams = {
+      cidade,
+      checkIn,
+      checkOut,
+      adultos,
+      criancas,
+      quartos,
+    };
+
+    // Redirecionar para Booking.com
+    redirectToBooking(searchParams);
   };
+
+  // Calcular número de noites
+  const nights = checkIn && checkOut && validateDates(checkIn, checkOut)
+    ? calculateNights(checkIn, checkOut)
+    : 0;
 
   return (
     <div className="max-w-screen-sm mx-auto px-4 py-6 pb-28">
@@ -67,15 +94,29 @@ export default function BuscaHospedagemScreen() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="inline h-4 w-4 mr-1 text-econotrip-coral" />
-                Cidade de destino
+                Cidade de destino *
               </label>
               <input
                 type="text"
                 value={cidade}
-                onChange={(e) => setCidade(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral"
+                onChange={(e) => {
+                  setCidade(e.target.value);
+                  if (errors.cidade) {
+                    setErrors(prev => {
+                      const newErrors = { ...prev };
+                      delete newErrors.cidade;
+                      return newErrors;
+                    });
+                  }
+                }}
+                className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral ${
+                  errors.cidade ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Ex: São Paulo, Rio de Janeiro..."
               />
+              {errors.cidade && (
+                <p className="mt-1 text-sm text-red-600">{errors.cidade}</p>
+              )}
             </div>
 
             {/* Datas */}
@@ -83,30 +124,68 @@ export default function BuscaHospedagemScreen() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Calendar className="inline h-4 w-4 mr-1 text-econotrip-coral" />
-                  Check-in
+                  Check-in *
                 </label>
                 <input
                   type="date"
                   value={checkIn}
-                  onChange={(e) => setCheckIn(e.target.value)}
+                  onChange={(e) => {
+                    setCheckIn(e.target.value);
+                    if (errors.checkIn) {
+                      setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.checkIn;
+                        return newErrors;
+                      });
+                    }
+                  }}
                   min={todayStr}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral"
+                  className={`w-full border rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral ${
+                    errors.checkIn ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                {errors.checkIn && (
+                  <p className="mt-1 text-sm text-red-600">{errors.checkIn}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Calendar className="inline h-4 w-4 mr-1 text-econotrip-coral" />
-                  Check-out
+                  Check-out *
                 </label>
                 <input
                   type="date"
                   value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
+                  onChange={(e) => {
+                    setCheckOut(e.target.value);
+                    if (errors.checkOut) {
+                      setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.checkOut;
+                        return newErrors;
+                      });
+                    }
+                  }}
                   min={checkIn || todayStr}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral"
+                  className={`w-full border rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-econotrip-coral/20 focus:border-econotrip-coral ${
+                    errors.checkOut ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                {errors.checkOut && (
+                  <p className="mt-1 text-sm text-red-600">{errors.checkOut}</p>
+                )}
               </div>
             </div>
+
+            {/* Info de noites */}
+            {nights > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-econotrip-blue">
+                  <Calendar className="inline w-4 h-4 mr-1" />
+                  Estadia de <strong>{nights}</strong> {nights === 1 ? 'noite' : 'noites'}
+                </p>
+              </div>
+            )}
 
             {/* Hóspedes e Quartos */}
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
@@ -188,11 +267,19 @@ export default function BuscaHospedagemScreen() {
               type="button"
               onClick={handleBuscar}
               variant="primary"
-              className="w-full h-12 text-lg bg-econotrip-coral hover:bg-econotrip-coral/90"
+              className="w-full h-12 text-lg bg-econotrip-coral hover:bg-econotrip-coral/90 flex items-center justify-center gap-2"
             >
-              Buscar Hospedagem
+              Buscar Hospedagens
             </Button>
           </form>
+
+          {/* Nota informativa sobre redirecionamento */}
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-gray-700">
+              <strong>📌 Nota:</strong> Você será redirecionado para o Booking.com com sua busca já preenchida.
+              Compare preços e reserve com segurança!
+            </p>
+          </div>
         </Card>
 
         {/* Dicas */}

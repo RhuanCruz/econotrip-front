@@ -149,37 +149,55 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
 
   // Busca sugestões para origem (com debounce e cancelamento)
   React.useEffect(() => {
+    console.log('🔍 [Origem] useEffect disparado:', {
+      origem: formData.origem,
+      length: formData.origem?.length,
+      selectBySuggestion: origemSelectBySuggestion.current,
+      isSwapping: isSwappingRef.current
+    });
+
     if (origemSelectBySuggestion.current || isSwappingRef.current) {
       origemSelectBySuggestion.current = false;
+      console.log('⏩ [Origem] Ignorando busca (seleção ou swap)');
       return;
     }
-    
+
     // Cancela requisição anterior se existir
     if (origemAbortControllerRef.current) {
       origemAbortControllerRef.current.abort();
     }
-    
+
     if (origemDebounceRef.current) clearTimeout(origemDebounceRef.current);
-    
+
     if (formData.origem && formData.origem.length >= 3) {
+      console.log('⏱️ [Origem] Iniciando debounce...');
       origemDebounceRef.current = setTimeout(() => {
         // Cria novo AbortController para esta requisição
         origemAbortControllerRef.current = new AbortController();
-        
+
+        console.log('📡 [Origem] Buscando:', formData.origem);
         setLoadingOrigem(true);
         LocationApi.listLocations(formData.origem, origemAbortControllerRef.current.signal)
           .then((res) => {
+            console.log('✅ [Origem] Resposta recebida:', res);
             setOrigemSuggestions(res.locations);
             setShowOrigemDropdown(true);
           })
           .catch((error) => {
-            if (error.name !== 'AbortError') {
-              console.error('Erro ao buscar origem:', error);
+            // Ignora erros de cancelamento (AbortError ou CanceledError)
+            if (error.name !== 'AbortError' && error.name !== 'CanceledError') {
+              console.error('❌ [Origem] Erro real:', error);
+            } else {
+              console.log('🚫 [Origem] Requisição cancelada (normal)');
             }
           })
-          .finally(() => setLoadingOrigem(false));
+          .finally(() => {
+            console.log('🏁 [Origem] Finalizando busca');
+            setLoadingOrigem(false);
+          });
       }, 400);
     } else {
+      console.log('❌ [Origem] Texto muito curto ou vazio');
       setOrigemSuggestions([]);
       setShowOrigemDropdown(false);
     }
@@ -219,7 +237,8 @@ export const ModernFlightSearchForm = forwardRef(function ModernFlightSearchForm
             setShowDestinoDropdown(true);
           })
           .catch((error) => {
-            if (error.name !== 'AbortError') {
+            // Ignora erros de cancelamento (AbortError ou CanceledError)
+            if (error.name !== 'AbortError' && error.name !== 'CanceledError') {
               console.error('Erro ao buscar destino:', error);
             }
           })
