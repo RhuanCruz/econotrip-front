@@ -7,15 +7,21 @@ export type Radar = {
   destination: string;
   createdAt: string;
   updatedAt: string;
+  airline?: string;
+  tripType?: 'ONE_WAY' | 'ROUND_TRIP';
+  returnDateRange?: number;
 }
 
 export type CreateRadarBody = {
-  start: string;
-  end: string;
   origin: string;
   destination: string;
-  value: number;
+  start?: string;
+  end?: string;
+  value?: number;
   type: 'AIRMILES' | 'MONEY';
+  airline?: string; // Filtro de companhia aérea
+  tripType?: 'ONE_WAY' | 'ROUND_TRIP'; // Tipo de viagem
+  returnDateRange?: number; // Intervalo em dias para buscar voos de retorno (padrão: 15)
 };
 
 export type ListRadarResponse = {

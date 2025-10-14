@@ -50,6 +50,9 @@ import MilesFlightDetailsScreen from "./pages/FlightDetails/MilesFlightDetailsSc
 import OfertasContinentesScreen from "./pages/OfertasContinentesScreen";
 import VoosPorContinenteScreen from "./pages/VoosPorContinenteScreen";
 import { VoiceCommandTester } from "./components/voice/VoiceCommandTester";
+import BuscaHospedagemScreen from "./pages/BuscaHospedagemScreen";
+import ResultadosHospedagemScreen from "./pages/ResultadosHospedagemScreen";
+import FeedbackScreen from "./pages/FeedbackScreen";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +121,9 @@ const App = () => {
                 <Route path="/ofertas-continentes" element={<OfertasContinentesScreen />} />
                 <Route path="/voos-continente/:continenteId" element={<VoosPorContinenteScreen />} />
                 <Route path="/voice-test" element={<VoiceCommandTester />} />
+                <Route path="/busca-hospedagem" element={<BuscaHospedagemScreen />} />
+                <Route path="/resultados-hospedagem" element={<ResultadosHospedagemScreen />} />
+                <Route path="/feedback" element={<FeedbackScreen />} />
 
               </Route>
 

@@ -17,9 +17,17 @@ interface NovoRadarModalProps {
     fim: string;
     milhas: boolean;
   }) => void;
+  prefilledParams?: {
+    origem?: string;
+    destino?: string;
+    inicio?: string;
+    fim?: string;
+    valor?: number;
+    tipo?: 'MONEY' | 'AIRMILES';
+  };
 }
 
-export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProps) {
+export function NovoRadarModal({ isOpen, onClose, onCreate, prefilledParams }: NovoRadarModalProps) {
   // Utilitário para data de hoje no formato yyyy-mm-dd
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -31,7 +39,7 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const [loading, setLoading] = useState(false);
   const [habilitarDatas, setHabilitarDatas] = useState(false);
   const [habilitarAlertaPreco, setHabilitarAlertaPreco] = useState(false);
-  
+
   // Estados para alerta de preço
   const [valorLimite, setValorLimite] = useState("");
   const [tipoMoeda, setTipoMoeda] = useState<"reais" | "milhas">("reais");
@@ -39,6 +47,11 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
   const [notificarEmail, setNotificarEmail] = useState(true);
   const [notificarTelegram, setNotificarTelegram] = useState(true);
   const [valorLimiteError, setValorLimiteError] = useState("");
+
+  // Estados para novos filtros
+  const [companhiaAerea, setCompanhiaAerea] = useState("");
+  const [tipoViagem, setTipoViagem] = useState<"ONE_WAY" | "ROUND_TRIP">("ONE_WAY");
+  const [showTipoViagemDropdown, setShowTipoViagemDropdown] = useState(false);
   
   const { token } = useAuthStore();
 
@@ -271,6 +284,57 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       }
     }
   }, [isOpen]);
+
+  // Prefill form when prefilledParams is provided
+  React.useEffect(() => {
+    if (prefilledParams && isOpen) {
+      console.log('🎤 Prefilling radar form with voice params:', prefilledParams);
+
+      // Fetch and set locations for origem
+      if (prefilledParams.origem) {
+        LocationApi.listLocations(prefilledParams.origem)
+          .then((res) => {
+            if (res.locations && res.locations.length > 0) {
+              const location = res.locations.find(loc => loc.code === prefilledParams.origem) || res.locations[0];
+              setSelectedPartida([location]);
+              setPartida(location.name);
+            }
+          })
+          .catch(err => console.error('Error fetching origem:', err));
+      }
+
+      // Fetch and set locations for destino
+      if (prefilledParams.destino) {
+        LocationApi.listLocations(prefilledParams.destino)
+          .then((res) => {
+            if (res.locations && res.locations.length > 0) {
+              const location = res.locations.find(loc => loc.code === prefilledParams.destino) || res.locations[0];
+              setSelectedDestino([location]);
+              setDestino(location.name);
+            }
+          })
+          .catch(err => console.error('Error fetching destino:', err));
+      }
+
+      // Set dates if provided
+      if (prefilledParams.inicio || prefilledParams.fim) {
+        setHabilitarDatas(true);
+        if (prefilledParams.inicio) setInicio(prefilledParams.inicio);
+        if (prefilledParams.fim) setFim(prefilledParams.fim);
+      }
+
+      // Set price alert if provided
+      if (prefilledParams.valor) {
+        setHabilitarAlertaPreco(true);
+        setValorLimite(prefilledParams.valor.toString());
+      }
+
+      // Set type (MONEY or AIRMILES)
+      if (prefilledParams.tipo) {
+        setTipoMoeda(prefilledParams.tipo === 'AIRMILES' ? 'milhas' : 'reais');
+      }
+    }
+  }, [prefilledParams, isOpen]);
 
   const formContent = (
     <form className="flex flex-col gap-4 mt-2 px-2 max-h-[70vh] overflow-y-auto">
@@ -513,6 +577,67 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         </div>
         <p className="text-xs text-gray-500 mt-1">Escolha se deseja monitorar preços em reais ou milhas</p>
       </div>
+
+      {/* Tipo de viagem - Ida ou Ida e Volta */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Tipo de viagem</label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowTipoViagemDropdown(!showTipoViagemDropdown)}
+            onBlur={() => setTimeout(() => setShowTipoViagemDropdown(false), 150)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-econotrip-blue/20 focus:border-econotrip-blue flex items-center justify-between text-sm h-10"
+          >
+            <span>{tipoViagem === "ONE_WAY" ? "Somente Ida" : "Ida e Volta"}</span>
+            <ChevronDown className="h-4 w-4 text-gray-400" />
+          </button>
+          {showTipoViagemDropdown && (
+            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 text-sm"
+                onMouseDown={() => {
+                  setTipoViagem("ONE_WAY");
+                  setShowTipoViagemDropdown(false);
+                }}
+              >
+                Somente Ida
+              </button>
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 text-sm border-t border-gray-100"
+                onMouseDown={() => {
+                  setTipoViagem("ROUND_TRIP");
+                  setShowTipoViagemDropdown(false);
+                }}
+              >
+                Ida e Volta
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          {tipoViagem === "ROUND_TRIP"
+            ? "Buscaremos os voos de retorno mais baratos em um intervalo de 15 dias"
+            : "Apenas voos de ida serão monitorados"
+          }
+        </p>
+      </div>
+
+      {/* Filtro de Companhia Aérea (apenas para Milhas) */}
+      {tipoMoeda === "milhas" && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Companhia Aérea (opcional)</label>
+          <input
+            type="text"
+            value={companhiaAerea}
+            onChange={(e) => setCompanhiaAerea(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 h-10"
+            placeholder="Ex: LATAM, Gol, Azul..."
+          />
+          <p className="text-xs text-gray-500 mt-1">Deixe em branco para monitorar todas as companhias</p>
+        </div>
+      )}
       
       {/* Checkbox para habilitar período específico */}
       <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -674,6 +799,9 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
         end: habilitarDatas ? fim : undefined,
         value: habilitarAlertaPreco && valorLimite ? parseFloat(valorLimite) : undefined,
         type: tipoMoeda === 'milhas' ? 'AIRMILES' : 'MONEY',
+        airline: companhiaAerea.trim() || undefined,
+        tripType: tipoViagem,
+        returnDateRange: tipoViagem === 'ROUND_TRIP' ? 15 : undefined, // Intervalo fixo de 15 dias
       };
 
       await RadarService.create(token, radarData);
@@ -696,6 +824,9 @@ export function NovoRadarModal({ isOpen, onClose, onCreate }: NovoRadarModalProp
       setPartidaError("");
       setDestinoError("");
       setValorLimiteError("");
+      setCompanhiaAerea("");
+      setTipoViagem("ONE_WAY");
+      setShowTipoViagemDropdown(false);
 
       onCreate({ partida, destino, inicio, fim, milhas });
     } catch (e) {

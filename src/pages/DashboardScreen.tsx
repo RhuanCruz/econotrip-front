@@ -5,10 +5,10 @@ import { Button } from "@/components/ui-custom/Button";
 import { Card } from "@/components/ui-custom/Card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { 
-  Plane, 
-  MapPin, 
-  Calendar, 
+import {
+  Plane,
+  MapPin,
+  Calendar,
   Star,
   TrendingUp,
   Clock,
@@ -31,7 +31,9 @@ import {
   Landmark,
   Train,
   Car,
-  Backpack
+  Backpack,
+  Hotel,
+  MessageSquare
 } from "lucide-react";
 import {
   ChartContainer,
@@ -336,8 +338,34 @@ export default function DashboardScreen() {
                   <div className="w-10 h-10 bg-econotrip-blue-light rounded-lg flex items-center justify-center mx-auto mb-2">
                     <TrendingUp className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Radar de Ofertas</h4>
+                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Radar de Voos</h4>
                   <p className="text-xs text-gray-600">Não perca promoções</p>
+                </div>
+              </Card>
+
+              <Card
+                className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate("/busca-hospedagem")}
+              >
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-econotrip-coral rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Hotel className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Hospedagem</h4>
+                  <p className="text-xs text-gray-600">Encontre hotéis e pousadas</p>
+                </div>
+              </Card>
+
+              <Card
+                className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate("/feedback")}
+              >
+                <div className="text-center">
+                  <div className="w-10 h-10 bg-econotrip-green rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <MessageSquare className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-econotrip-primary text-xs mb-1">Feedback</h4>
+                  <p className="text-xs text-gray-600">Ajude-nos a melhorar</p>
                 </div>
               </Card>
             </div>
