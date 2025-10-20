@@ -1,6 +1,7 @@
 import { handleApiError } from '@/utils/ErrorHandler';
 import { api } from '../client';
 import type { CreateFeedbackBody, CreateFeedbackResponse } from './types';
+import { USE_MOCK_FEEDBACK, mockSendFeedback } from '@/mocks/feedback.mock';
 
 /**
  * Enviar feedback do usuário
@@ -9,6 +10,13 @@ const sendFeedback = async (
   token: string,
   data: CreateFeedbackBody
 ): Promise<CreateFeedbackResponse> => {
+  // Se mock está habilitado, usa dados mockados
+  if (USE_MOCK_FEEDBACK) {
+    console.log('🔧 [MOCK] Usando feedback mockado');
+    return mockSendFeedback(token, data);
+  }
+
+  // Se mock desabilitado, usa API real
   console.log('🔵 FeedbackService - Enviando feedback:', {
     endpoint: '/feedback',
     data,
