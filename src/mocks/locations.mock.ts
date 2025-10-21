@@ -95,4 +95,4 @@ export function filterMockLocations(keyword: string): StandardLocation[] {
  * Flag para controlar se deve usar mock ou API real
  * Altere para false quando o backend estiver funcionando
  */
-export const USE_MOCK_LOCATIONS = true;
+export const USE_MOCK_LOCATIONS = false; // ✅ Desativado - usando API real

@@ -44,4 +44,4 @@ export async function mockSendFeedback(
  * Flag para controlar se deve usar mock ou API real
  * Altere para false quando o backend estiver funcionando
  */
-export const USE_MOCK_FEEDBACK = true;
+export const USE_MOCK_FEEDBACK = false; // ✅ Desativado - usando API real
