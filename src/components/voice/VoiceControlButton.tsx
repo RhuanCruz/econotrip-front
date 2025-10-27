@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mic, MicOff, HelpCircle, X } from 'lucide-react';
+import { HelpCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useVoiceControl } from '@/contexts/VoiceControlContext';
 
@@ -225,12 +225,12 @@ export const VoiceControlButton: React.FC = () => {
             />
           )}
 
-          {/* Icon */}
-          {isListening ? (
-            <MicOff className="w-6 h-6 text-white relative z-10" />
-          ) : (
-            <Mic className="w-6 h-6 text-white relative z-10" />
-          )}
+          {/* Mascote Image */}
+          <img
+            src="/MASCOTE.png"
+            alt="Assistente de Voz"
+            className="w-12 h-12 object-contain relative z-10"
+          />
         </motion.button>
       </div>
 
